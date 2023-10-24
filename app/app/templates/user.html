@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>{{ title }}</title>
+{% endblock title %}
+
+
+{% block content %}
+
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+        <div class="col-md-4">
+            <img src="{{ url_for('static', filename=user.poster) }}" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">Settings profile</h5>
+                <p class="card-text">Name: {{ user.name }}</p>
+                <p class="card-text">Email: {{ user.email }}</p>
+                <input  type="file" class="btn btn-info" value="change avatar">
+                <br/>
+            <a href="#" class="btn btn-primary">Save settings</a>
+            </div>
+        </div>
+        </div>
+    </div>
+
+{% endblock content %}

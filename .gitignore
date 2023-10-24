@@ -1,0 +1,7 @@
+**postgres
+app/app/static/media/*
+loggs/loggs_app/*
+
+**__pycache__
+**venv
+**.env

@@ -1,0 +1,36 @@
+<nav style='margin-top: 50px; margin-bottom: 200px'>
+    <ul class="pagination justify-content-md-center">
+
+        <li class="page-item ">
+            {% if pages.has_prev %}
+                <a class="btn page-link" href="{{ url_for('app_movies.home', page=pages.prev_num, q=q) }}" aria-label="Previous">
+            {% else %}
+                <a class="btn page-link disabled" aria-label="Previous">
+            {% endif %}
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+        </li>
+
+        {% for page in pages.iter_pages() %}
+            <li class="page-item">
+            {% if page == pages.page %}
+                <a class="btn btn-primary disabled">{{page}}</a>
+            {% else %}
+                <a class="btn page-link" href="{{ url_for('app_movies.home', page=page, q=q) }}">{{page}}</a>
+            {% endif %}
+            </li>
+        {% endfor %}
+
+        <li class="page-item">
+            {% if pages.has_next %}
+                <a class="btn page-link" href="{{ url_for('app_movies.home', page=pages.next_num, q=q) }}" aria-label="Next">
+            {% else %}
+                <a class="btn page-link disabled" aria-label="Next">
+            {% endif %}
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+        </li> 
+        
+    </ul>
+</nav>
+

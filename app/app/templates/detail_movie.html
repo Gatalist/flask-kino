@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="row mb-2 mt-5">
+        <div class="col-md-12">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                <div class="col-4 p-4 d-flex flex-column position-static">
+                    <figure class="figure">
+                        <img src="{{ movie.poster_url }}" class="figure-img img-fluid rounded" alt="{{movie.name_ru}}">
+                    </figure>
+                </div>
+                
+                <div class="col-8 p-4 d-flex flex-column position-static">
+                    <div class="row">
+                        <div class="col-10 col-sm-6">
+                            <figure class="text-start">
+                                <blockquote class="blockquote">
+                                    <h3>{{movie.name_ru}}</h3>
+                                </blockquote>
+                                <blockquote class="blockquote">
+                                    <h6>{{movie.name_original}}</h6>
+                                </blockquote>
+                                <figcaption class="blockquote-footer p-2">
+                                    {{movie.slogan}}
+                                </figcaption>
+                            </figure>
+                        </div>
+                        <div class="col-2 col-sm-6">
+                            <div class="row">
+                                <div class="col-6 col-md-6">
+                                    <p class="card-text mb-auto">Кинопоиск: 
+                                        {% if movie.rating_kinopoisk %}
+                                            {{movie.rating_kinopoisk}}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-6 col-md-6">
+                                    <p class="card-text mb-auto">Критики: 
+                                        {% if movie.rating_critics %}
+                                            {{movie.rating_critics}}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="row">
+                                {% for star in movie.star_rating_kinopoisk %} 
+                                    {% if star == 'star_p' %}
+                                        <div class="col-1 g-0 rounded mx-auto d-block">
+                                            <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded">
+                                        </div>
+                                    {% endif %}
+                                    {% if star == 'star_c' %}
+                                        <div class="col-1 g-0 rounded mx-auto d-block">
+                                            <img src="/static/source/image/star/star-2.png" class="figure-img img-fluid rounded">
+                                        </div>
+                                    {% endif %}
+                                    {% if star == 'star_m' %}
+                                        <div class="col-1 g-0 rounded mx-auto d-block">
+                                            <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded">
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <p class="card-text mb-auto p-2">Год выхода: {{movie.year}}</p>
+                        <p class="card-text mb-auto p-2">Продолжительность: {{movie.film_length}} мин</p>
+                        <p class="card-text mb-auto p-2">Ограничение: {{movie.age_limits}}+</p>
+                        <p class="card-text mb-auto p-2">Жанр: 
+                            {% for genre in movie.mod_genres %}
+                                {{genre}}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Страна: 
+                            {% for country in movie.mod_countries %}
+                                {{country}}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Дата обновления: {{movie.last_syncs_format}}</p>
+                        <p class="card-text mb-auto p-2">Сценарист: 
+                            {% for man in movie.mod_creators %}
+                                {{man}}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Директор: 
+                            {% for man in movie.mod_directors %}
+                                {{man}}
+                            {% endfor %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Актеры: 
+                            {% for man in movie.mod_actors %}
+                                {{man}}
+                            {% endfor %} ... и другие.
+                        </p>
+
+                    </div>
+                    <div class="row">
+                        <p class="card-text mb-auto p-2">{{movie.description}}</p>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-2 mt-5">
+        <div class="col-md-12">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                {% for screen in movie.screen_img %}
+                <div class="col-2 p-4 d-flex flex-column position-static">
+                    <img src="{{ screen.url }}" class="figure-img img-fluid rounded" alt="{{screen.name}}">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-2 justify-content-center">
+        <div class="col-md-8 ">
+            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Смотереть</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Трейлер</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false"></button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        {% include 'include/player_alloha.html' %}
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item" width="900" height="470" src="https://www.youtube.com/embed/{{movie.trailer }}?showinfo=0" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-6 g-4">
+        {% for mov_similar in movie.get_similar_movie %}
+            {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
+                                <h5 class="card-title">{{ mov_similar.name_ru }}</h5>
+                            </a>
+                            <p class="card-text"></p>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Last updated 3 mins ago</small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+  
+    
+
+{% endblock content %}

@@ -1,0 +1,39 @@
+<div class="card-group">
+    {% for movie in pages.items %}
+        <div class="col-3 px-1 mt-2">
+            <div class="card h-100">
+                <img src="{{movie.poster_url}}" width=250 height=300 class="card-img-top" alt="{{movie.name_ru}}">
+                <div class="card-body">
+                    <a href="{{ url_for('app_movies.movie_detail', slug=movie.slug)}}" class="card-link">
+                        <h6 class="card-title"><b>{{movie.name_ru}}</b></h6>
+                    </a>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            {% if movie.rating_kinopoisk %}
+                                <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded" width="20">
+                                {{movie.rating_kinopoisk}}
+                            {% else %}
+                                <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded" width="20">
+                                0
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item">
+                            Год: {{movie.year}}
+                        </li>
+                        <li class="list-group-item">
+                            {% for genre in movie.mod_genres %}
+                                {{genre}}
+                            {% endfor %}
+                        </li>
+                        <li class="list-group-item">
+                            {% for man in movie.mod_directors %}
+                                {{man}}
+                            {% endfor %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+

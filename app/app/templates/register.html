@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>{{ title }}</title>
+{% endblock title %}
+
+
+{% block content %}
+
+<h1>Register</h1>
+
+
+
+<div class="row justify-content-center">
+    <div class="col-4">
+        <form action="{{ url_for('app_users.register') }}" method="post" novalidate>
+            {% for cat, msg in get_flashed_messages(True) %}
+                {% if cat == 'error_save' %}
+                    <div class="alert alert-danger" role="alert">
+                        <div class="form-text alert-danger">{{msg}}</div>
+                    </div>
+                {% endif %}
+                {% if cat == 'success' %}
+                    <div class="alert alert-success" role="alert">
+                        <div class="form-text alert-success">{{msg}}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            <div class="mb-3">
+                <label class="form-label">Your name</label>
+                <input type="text" name="name" class="form-control" placeholder="Your name">
+                {% for cat, msg in get_flashed_messages(True) %}
+                    {% if cat == 'error_name' %}
+                        <div class="alert alert-danger" role="alert">
+                            <div class="form-text alert-danger">{{msg}}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email address</label>
+                <input type="email" name="email" class="form-control" placeholder="Your email">
+                {% for cat, msg in get_flashed_messages(True) %}
+                    {% if cat == 'error_email' %}
+                        <div class="alert alert-danger" role="alert">
+                            <div class="form-text alert-danger">{{msg}}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="pwd-1" class="form-control" placeholder="Password">
+                {% for cat, msg in get_flashed_messages(True) %}
+                    {% if cat == 'error_pwd' %}
+                        <div class="alert alert-danger" role="alert">
+                            <div class="form-text alert-danger">{{msg}}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="pwd-2" class="form-control" placeholder="Password">
+                {% for cat, msg in get_flashed_messages(True) %}
+                    {% if cat == 'error_pwd-2' %}
+                        <div class="alert alert-danger" role="alert">
+                            <div class="form-text alert-danger">{{msg}}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+         
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock content %}

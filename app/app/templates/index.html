@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="row justify-content-center gy-4">
+        <div class="col-7">
+            <h1 class="gy-5">{{title}}</h1>
+        </div>
+        <div class="col-5">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light gy-5">
+                <div class="container-fluid">
+                    <div class="collapse navbar-collapse" id="navbarScroll">
+                        {% include 'include/search.html' %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row gy-4">
+        <div class="col-2">
+            {% include 'include/filters.html' %}
+        </div>
+
+        <div class="col-10">
+            {% include 'include/list_card.html' %}
+        </div>
+    </div>
+    {% if pages.items %}
+        {% include 'include/pagination.html' %}
+    {% endif %}
+  
+{% endblock content %}
