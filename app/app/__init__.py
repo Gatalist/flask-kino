@@ -2,7 +2,7 @@ import sys, datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from flask_login import LoginManager
+from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from app.settings import Config
 from loguru import logger
@@ -36,14 +36,16 @@ migrate = Migrate(app, db, compare_type=True)
 bcrypt = Bcrypt(app)
 
 # logging loguru
-# logger.add(
-#     "loggs/loggs_app/debug.log", 
-#     format="{time} - [{level}] : {message}", 
-#     level="DEBUG", 
-#     rotation="100 KB")
+logger.add(
+    "loggs/loggs_app/debug.log", 
+    format="{time} - [{level}] : {message}", 
+    level="DEBUG", 
+    rotation="100 KB")
 
 # migrations
 from .movies.models import *
+from .users.models import *
+
 
 @app.shell_context_processor
 def make_shell_context():

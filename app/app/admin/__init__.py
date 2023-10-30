@@ -4,13 +4,13 @@ from flask_admin import Admin, helpers
 
 from app import app, db
 from app.movies.models import Movie, RatingKinopoisk, RatingImdb, RatingFilmCritics, Reliase, FilmLength
-from app.movies.models import Genre, CountryReliase, AgeLimit, TypeVideo, Director, Creator, Actor, Screenshot
-from app.movies.models import Similars
+from app.movies.models import Genre, AgeLimit, TypeVideo, Director, Creator, Actor, Screenshot
+from app.movies.models import Similars, Country
 # from app.users.models import Users, Role
 # from .routes import MyAdminIndexView, UsersView
 from .routes import MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, ReliaseView
-from .routes import FilmLengthView, GenreView, CountryReliaseView, AgeLimitView, TypeVideoView, DirectorView
-from .routes import CreatorView, ActorView, ScreenshotView, SimilarsView
+from .routes import FilmLengthView, GenreView, AgeLimitView, TypeVideoView, DirectorView
+from .routes import CreatorView, ActorView, ScreenshotView, SimilarsView, CountryView
 # Setup Flask-Security
 # user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
 # security = Security(app, user_datastore)
@@ -27,7 +27,7 @@ admin_panel.add_view(RatingFilmCriticsView(RatingFilmCritics, db.session))
 admin_panel.add_view(ReliaseView(Reliase, db.session))
 admin_panel.add_view(FilmLengthView(FilmLength, db.session))
 admin_panel.add_view(GenreView(Genre, db.session))
-admin_panel.add_view(CountryReliaseView(CountryReliase, db.session))
+admin_panel.add_view(CountryView(Country, db.session))
 admin_panel.add_view(AgeLimitView(AgeLimit, db.session))
 admin_panel.add_view(TypeVideoView(TypeVideo, db.session))
 admin_panel.add_view(DirectorView(Director, db.session))

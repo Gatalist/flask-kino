@@ -16,8 +16,8 @@ class Apispec_docs():
                 openapi_version='2.0',
                 plugins=[MarshmallowPlugin()],
             ),
-            'APISPEC_SWAGGER_URL': '/swagger/',  # URI to access API Doc JSON 
-            'APISPEC_SWAGGER_UI_URL': '/swagger-ui/'  # URI to access UI of API Doc
+            'APISPEC_SWAGGER_URL': '/api/',  # URI to access API Doc JSON 
+            'APISPEC_SWAGGER_UI_URL': '/api-ui/'  # URI to access UI of API Doc
         })
 
     def register(self, function):

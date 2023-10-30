@@ -3,7 +3,7 @@ from werkzeug.http import HTTP_STATUS_CODES
 from datetime import timedelta, datetime
 from functools import wraps
 import jwt
-from app.users.models import Users
+from app.users.models import User
 from app.settings import Config
 
 
@@ -26,7 +26,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
             # print(data)
-            user = Users.query.filter_by(id=data['id']).first()
+            user = User.query.filter_by(id=data['id']).first()
             kwargs["user_id"] = user.id
             # print(kwargs)
         except:

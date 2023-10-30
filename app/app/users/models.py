@@ -23,7 +23,7 @@ class Role(db.Model, RoleMixin):
         return self.name
 
 
-class Users(db.Model, UserMixin):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64))

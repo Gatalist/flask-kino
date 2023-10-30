@@ -61,7 +61,7 @@ class GenreView(ModelView):
    pass
 
 
-class CountryReliaseView(ModelView):
+class CountryView(ModelView):
    pass
 
 

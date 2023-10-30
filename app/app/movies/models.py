@@ -13,7 +13,7 @@ genre_movie = db.Table(
 country_movie = db.Table(
     'country_movie',
     db.Column('movie_id', db.Integer, db.ForeignKey('movie.id')),
-    db.Column('country_id', db.Integer, db.ForeignKey('countryreliase.id'))
+    db.Column('country_id', db.Integer, db.ForeignKey('country.id'))
 )
 
 director_movie = db.Table(
@@ -86,8 +86,8 @@ class Movie(db.Model):
 
     last_syncs = db.Column(db.DateTime, nullable=True)
     
-    countries_id = db.Column(db.Integer, db.ForeignKey('countryreliase.id', ondelete='SET NULL'))
-    countries = db.relationship('CountryReliase', secondary=country_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    countries_id = db.Column(db.Integer, db.ForeignKey('country.id', ondelete='SET NULL'))
+    countries = db.relationship('Country', secondary=country_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     genres_id = db.Column(db.Integer, db.ForeignKey('genre.id', ondelete='SET NULL'))
     genres = db.relationship('Genre', secondary=genre_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
@@ -258,8 +258,8 @@ class Genre(db.Model):
         return f'{self.name}'
 
 
-class CountryReliase(db.Model):
-    __tablename__ = 'countryreliase'
+class Country(db.Model):
+    __tablename__ = 'country'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
@@ -301,7 +301,7 @@ class Screenshot(db.Model):
     url = db.Column(db.String(256), index=True, unique=True)
 
     def __repr__(self):
-        return f'id: {self.id} image'
+        return f'{self.url}'
 
 
 class Similars(db.Model):
