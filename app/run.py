@@ -2,20 +2,20 @@ from app import app
 from app.settings import Config
 
 # blueprints
-from app.movies import movie
-from app.users import users
-from app.admin import admin_panel
-# from app.admin.routes import app_admin
+from app.movies import movie_blueprint
+from app.users import user_blueprint
+
+
+# Регистрируем Blueprint'ы в приложении
+app.register_blueprint(movie_blueprint, url_prefix='/')
+app.register_blueprint(user_blueprint, url_prefix='/user')
+
+
 
 # api
-from app.front_api import front_api, front_docs_api
-# from app.api import api, docs
+from app.front_api import front_api, front_api_docs
+# from app.front_api import app_api, api, swagger
 
-
-
-# register applications urls
-app.register_blueprint(movie, url_prefix='/')
-# app.register_blueprint(users, url_prefix='/user')
 
 
 if __name__ == '__main__':

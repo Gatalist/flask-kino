@@ -1,5 +1,25 @@
 from marshmallow import Schema, fields
-from flask_paginate import Pagination
+
+
+
+class GenreSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    name = fields.String()
+
+
+class CountrySchema(Schema):
+    id = fields.Integer(dump_only=True)
+    name = fields.String()
+
+
+class DirectorSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    name = fields.String()
+
+
+class ReliaseSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    year = fields.String()
 
 
 class MoviesSchema(Schema):
@@ -29,29 +49,3 @@ class MoviesSchema(Schema):
     screen_img = fields.List(fields.String(required=True))
     similar = fields.List(fields.String(required=True))
     trailer = fields.String()
-
-
-class GenreSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    name = fields.String()
-
-
-class CountrySchema(Schema):
-    id = fields.Integer(dump_only=True)
-    name = fields.String()
-
-
-class DirectorSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    name = fields.String()
-
-class ReliaseSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    year = fields.String()
-
-
-class PaginationSchema(Pagination):
-    page = fields.Integer(description='The current page number'),
-    per_page = fields.Integer(description='Number of items per page'),
-    total = fields.Integer(description='Total number of items'),
-    pages = fields.Integer(description='Total number of pages')

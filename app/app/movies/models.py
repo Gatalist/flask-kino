@@ -1,5 +1,5 @@
 from app import db
-# from app.users.models import Users
+from app.users.models import User
 from datetime import datetime
 
 
@@ -46,6 +46,19 @@ similars_movie = db.Table(
     db.Column('similars_id', db.Integer, db.ForeignKey('similars.id'))
 )
 
+user_movie = db.Table(
+    'user_movie',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movie.id')),
+    db.Column('users_id', db.Integer, db.ForeignKey('users.id'))
+)
+
+trailer_movie = db.Table(
+    'trailer_movie',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movie.id')),
+    db.Column('trailer_id', db.Integer, db.ForeignKey('trailer.id'))
+)
+
+
 class Movie(db.Model):
     __tablename__ = 'movie'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -56,7 +69,6 @@ class Movie(db.Model):
     name_original = db.Column(db.String(256), nullable=True)
 
     poster_url = db.Column(db.String(256),  nullable=True)
-    
     slug = db.Column(db.String(256), nullable=True)
 
     rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('ratingkinopoisk.id', ondelete='SET NULL'))
@@ -101,15 +113,21 @@ class Movie(db.Model):
     actor_id = db.Column(db.Integer, db.ForeignKey('actor.id', ondelete='SET NULL'))
     actor = db.relationship('Actor', secondary=actor_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
-    created = db.Column(db.DateTime, default=datetime.utcnow)
-
     screen_img_id = db.Column(db.Integer, db.ForeignKey('screenshot.id', ondelete='CASCADE'))
     screen_img = db.relationship('Screenshot', secondary=screenshot_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
     similar = db.relationship('Similars', secondary=similars_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
-    trailer = db.Column(db.String(24), nullable=True)
+    # trailer = db.Column(db.String(128), nullable=True)
+    trailer_id = db.Column(db.Integer, db.ForeignKey('trailer.id', ondelete='SET NULL'))
+    trailer = db.relationship('Trailer', secondary=trailer_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'))
+    user = db.relationship('User', backref=db.backref('movie'), passive_deletes=False)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'{self.name_ru}'
@@ -117,6 +135,28 @@ class Movie(db.Model):
     @property
     def last_syncs_format(self):
         return str(self.last_syncs).split()[0]
+    
+    @property
+    def trailer_code(self):
+        list_url = [
+            'https://www.youtube.com/watch?v=',
+            'https://youtu.be/',
+            'https://www.youtube.com/v/',
+            ]
+        
+        code = None
+        if self.trailer:
+            for url in list_url:
+                if str(self.trailer).startswith(url):
+                    code = str(self.trailer).replace(url, '')
+                    print(self.trailer, ' -> ', code)
+                    break
+        return code
+    
+    @property
+    def first_trailer(self):
+        first = [tr for tr in self.trailer]
+        return first[0]
     
     @property
     def star_rating_kinopoisk(self):
@@ -182,14 +222,18 @@ class Movie(db.Model):
         print('list_sim:', similar_values)
         filtered_movies = Movie.query.filter(Movie.similar.any(Similars.kinopoisk_id.in_(similar_values))).all()
 
-        print('movie', filtered_movies)
-        return filtered_movies
-
+        slimilar_12 = filtered_movies[:12]
+        print('movie', slimilar_12)
+        return slimilar_12
+    
 
 class RatingKinopoisk(db.Model):
     __tablename__ = 'ratingkinopoisk'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'{self.star}'
@@ -199,6 +243,9 @@ class RatingImdb(db.Model):
     __tablename__ = 'ratingimdb'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
    
     def __repr__(self):
         return f'{self.star}'
@@ -208,6 +255,9 @@ class RatingFilmCritics(db.Model):
     __tablename__ = 'ratingfilmcritics'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
   
     def __repr__(self):
         return f'{self.star}'
@@ -217,6 +267,9 @@ class Reliase(db.Model):
     __tablename__ = 'reliase'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     year = db.Column(db.Integer)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
  
     def __repr__(self):
         return f'{self.year}'
@@ -226,6 +279,9 @@ class FilmLength(db.Model):
     __tablename__ = 'filmlength'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     length = db.Column(db.Integer)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
  
     def __repr__(self):
         return f'{self.length}'
@@ -236,6 +292,9 @@ class AgeLimit(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __repr__(self):
         return f'{self.name}'
 
@@ -244,6 +303,9 @@ class TypeVideo(db.Model):
     __tablename__ = 'typevideo'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
  
     def __repr__(self):
         return f'{self.name}'
@@ -254,6 +316,9 @@ class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __repr__(self):
         return f'{self.name}'
 
@@ -262,6 +327,9 @@ class Country(db.Model):
     __tablename__ = 'country'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'{self.name}'
@@ -272,6 +340,9 @@ class Director(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __repr__(self):
         return f'{self.name}'
 
@@ -280,6 +351,9 @@ class Creator(db.Model):
     __tablename__ = 'creator'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'{self.name}'
@@ -290,6 +364,9 @@ class Actor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __repr__(self):
         return f'{self.name}'
 
@@ -297,8 +374,12 @@ class Actor(db.Model):
 class Screenshot(db.Model):
     __tablename__ = 'screenshot'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    kinopoisk_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(256), index=True)
-    url = db.Column(db.String(256), index=True, unique=True)
+    url = db.Column(db.String(256), index=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'{self.url}'
@@ -310,6 +391,23 @@ class Similars(db.Model):
     kinopoisk_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(256), nullable=True, index=True)
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __repr__(self):
         return f'{self.name}'
 
+
+class Trailer(db.Model):
+    __tablename__ = 'trailer'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(256), index=True)
+    type = db.Column(db.String(8), index=True)
+    url = db.Column(db.String(1024), index=True)
+    background = db.Column(db.String(256), index=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'{self.name}'

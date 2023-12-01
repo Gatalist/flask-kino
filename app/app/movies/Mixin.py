@@ -1,9 +1,12 @@
 from .models import Movie, Reliase, Genre, Director, genre_movie, director_movie, RatingKinopoisk
 from sqlalchemy.orm import joinedload
 # from sqlalchemy import or_, and_
-from app import db
+# from app import db
 from flask import session
 
+
+class MixinFilterMovie:   
+    pass
 
 
 class MixinFilterMovie:    
@@ -17,9 +20,9 @@ class MixinFilterMovie:
     top_directors = Movie.query.join(director_movie).join(Director).group_by(Director.id) #.order_by(Director.id.desc())
     
     context = {
-        "all_reliase": Reliase.query.order_by(Reliase.year.desc()),
-        "all_genres": Genre.query.all(),
-        "all_directors": [],
+        # "all_reliase": Reliase.query.order_by(Reliase.year.desc()),
+        # "all_genres": Genre.query.all(),
+        # "all_directors": [],
         # "all_directors": Director.query.all(),
         # "all_directors": top_directors,
         "movies_sorted": data_sorted,

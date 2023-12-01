@@ -20,14 +20,18 @@ def error_response(status_code, message=None):
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-        if not 'x-access-tokens' in request.headers:
+        token_name = 'Access-Token'
+        if not token_name in request.headers:
             return jsonify({'message': 'not found token'})
-        token = request.headers['x-access-tokens']
+        token = request.headers[token_name]
         try:
             data = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
             # print(data)
             user = User.query.filter_by(id=data['id']).first()
-            kwargs["user_id"] = user.id
+            if user.active:
+                kwargs["user_id"] = user.id
+            else:
+                return jsonify({'message': 'token is invalid'})
             # print(kwargs)
         except:
             return jsonify({'message': 'token is invalid'})

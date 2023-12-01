@@ -19,8 +19,14 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __str__(self):
-        return self.name
+        return f'{self.name}'
+    
+    def __repr__(self):
+        return f'{self.name}'
 
 
 class User(db.Model, UserMixin):
@@ -29,12 +35,14 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64))
     email = db.Column(db.String(128), index=True, unique=True)
     password = db.Column(db.String(128))
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
     # Нужен для security!
     active = db.Column(db.Boolean())
     # Для получения доступа к связанным объектам
+    # roles_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='SET NULL'))
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
     # Flask-Security
@@ -55,8 +63,8 @@ class User(db.Model, UserMixin):
         return self.username
     
     def __repr__(self):
-        return f'id:{self.id} {self.username}'
-
+        return self.username
+    
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
