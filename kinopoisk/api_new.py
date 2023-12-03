@@ -90,10 +90,13 @@ class Tools(Base, UserAgent):
     def save_image_list(self, name, path_image, image_list) -> list:
         print("\n----------- Save File ----------")
         image_path = []
+        i = 1
         if image_list:
             for image in image_list:
-                new_path = self.save_image(name, path_image, image)
+                new_name = f"{i}_{name}"
+                new_path = self.save_image(new_name, path_image, image)
                 image_path.append(new_path)
+                i += 1
         return image_path
     
     # получаем следующий ключ из списка
@@ -110,6 +113,15 @@ class Tools(Base, UserAgent):
     def print_api_key(self):
         print('api_key:', self.key)
 
+    # считываем всех актеров с файла и возвращаем список
+    def read_file_actor_name(self, file_name: str):
+        actor_list = []
+        with open(file_name) as reader:
+            for line in reader.readlines():
+                read_line = line.strip()
+                actor_list.append(read_line)
+        return actor_list
+
 
 class ParserKinopoiskIMDB(Tools):
     # получаем по API kinopoisk фильм
@@ -125,7 +137,7 @@ class ParserKinopoiskIMDB(Tools):
         response = self.processing_request_status(request)
         if response not in codes.keys():
             result = request.json()
-            if result.get('nameRu') and result.get('posterUrl'):
+            if result.get('nameRu') and result.get('posterUrl') and result.get('year') > 1965:
                 return result
         if response == 402:
             self.key = self.get_next_api_key()
@@ -165,8 +177,6 @@ class ParserKinopoiskIMDB(Tools):
         if response == 402:
             self.key = self.get_next_api_key()
             return self.request_data_piople(kinopoisk_id)
-        
-        # return request.json()
 
     # получаем по API kinopoisk похожие фильмы
     def request_data_similar(self, kinopoisk_id) -> json:
@@ -181,11 +191,17 @@ class ParserKinopoiskIMDB(Tools):
         response = self.processing_request_status(request)
         if response not in codes.keys():
             data = request.json()
-            similar = {}
-            for elem in data.get('items'):
-                if elem.get('filmId') and elem.get('filmId') != '':
-                    similar[elem.get('filmId')] = elem.get('nameRu')
-            return similar
+            if data:
+                similar = {}
+                for elem in data.get('items'):
+                    filmId = elem.get('filmId')
+                    if filmId and filmId != '':
+                        similar[filmId] = elem.get('nameRu')
+                    if len(similar) > 6:
+                        return similar
+                print('GET SIMILAR:', similar)
+                return similar
+            return []
         if response == 402:
             self.key = self.get_next_api_key()
             return self.request_data_similar(kinopoisk_id)
@@ -214,7 +230,9 @@ class ParserKinopoiskIMDB(Tools):
                     if img_url:
                         matches = pattern.findall(img_url)
                         screenshot.append(matches[-1])
-        
+
+            # [print(scre) for scre in screenshot]
+
             data_trailers = {}
             # В скрипте в данные json - ищем трейлеры
             script_data = soup.find('script', id='__NEXT_DATA__').text
@@ -232,7 +250,7 @@ class ParserKinopoiskIMDB(Tools):
                     data_trailers[f'trailer'] = elem
 
             screen_trailer = {}
-            screen_trailer['screenshots'] = screenshot  # возвращаем картинки
+            screen_trailer['screenshots'] = set(screenshot)  # возвращаем картинки
             screen_trailer['trailers'] = data_trailers  # возвращаем трейлеры
 
             # print(screen_trailer)
@@ -323,6 +341,44 @@ class DataBase(Base):
                         cursor.execute(f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id))
                     conn.commit()
 
+    # проверяем актеров, сортируем по популярности и возвращаем список
+    def popular_actor(self, list_actor):
+        if list_actor:
+            actor_len_list = 12  # длина списка актеров
+            # получаем всем актеров с тегом - 'popular' c db
+            with self.connect_db() as conn:
+                with conn.cursor() as cursor:                
+                    cursor.execute("""
+                        SELECT actor.name
+                        FROM actor
+                        JOIN tag_actor ON actor.id = tag_actor.actor_id
+                        JOIN tagactor ON tag_actor.tagactor_id = tagactor.id
+                        WHERE tagactor.name = 'popular';
+                    """)
+                    popular_actor = cursor.fetchall()
+                    popular_actor = [item[0] for item in popular_actor]
+                    # print(popular_actor)
+            
+            # выбираем с входящего списка популярных актеров и ставим на первое место
+            new_list_actor = []
+            for actor in list_actor:
+                if actor in popular_actor:
+                    new_list_actor.append(actor)
+
+            # получаем простых актеров с входящего списка
+            other_list_actor = [item for item in list_actor if item not in new_list_actor]
+            # дозаполняем список актеров если нужно
+            len_list = len(new_list_actor)
+            if len_list < actor_len_list:
+                add_actor = actor_len_list - len_list
+                res = new_list_actor + other_list_actor[:add_actor]
+                # print(res)
+                return res
+
+            # print(new_list_actor)
+            return new_list_actor
+        return []
+
 
 class Processing(DataBase):
     # записываем ссылки на кадры к фильму и получаем (id)
@@ -330,25 +386,27 @@ class Processing(DataBase):
         print("\n---------- Screensoot add db ----------")
         if list_value:
             screen = []
+            i = 1
             for srс in list_value:
                 keys = ('kinopoisk_id', 'name', 'url', 'created_on')
-                values = (kinopoisk_id, 'screenshot', srс, datetime.now())
+                values = (kinopoisk_id, f'{i}_screenshot', srс, datetime.now())
                 idd = self.insert_data(table_name='screenshot', keys_name=keys, values_data=values)
                 screen.append(idd)
+                i += 1
             print(idd)
             return screen
         return None
     
     # записываем похожие фильмов и возвращаем (id)
-    def get_or_create_similar(self, kinopoisk_id, list_value) -> list:
+    def get_or_create_similar(self, list_value) -> list:
         print("\n---------- Similars add db ----------")
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
                 keys = ('kinopoisk_id', 'name', 'created_on')
-                values = (kinopoisk_id, val, datetime.now())
+                values = (key, val, datetime.now())
                 idd = self.get_or_create(table_name='similars',
-                    select_key='id, kinopoisk_id', where_key_name='kinopoisk_id', where_key_data=kinopoisk_id,
+                    select_key='id, kinopoisk_id', where_key_name='kinopoisk_id', where_key_data=key,
                     insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
@@ -359,6 +417,7 @@ class Processing(DataBase):
     # записываем трейлеры к фильму и возвращаем (id)
     def create_trailer(self, list_value) -> list:
         print("\n---------- Trailer add db ----------")
+        print(list_value)
         if list_value:
             video = []
             for key, value in list_value.items():
@@ -620,10 +679,7 @@ class Processing(DataBase):
 
         insert = f"INSERT INTO movie ({keys}) VALUES ({join_value[:-2]});"
         with self.connect_db() as conn:
-            with conn.cursor() as cursor:
-                conn = self.connect_db()
-                cursor = conn.cursor()
-                
+            with conn.cursor() as cursor:              
                 # add movie
                 cursor.execute(insert, values)
                 conn.commit()
