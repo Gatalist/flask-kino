@@ -99,14 +99,12 @@
                         <p class="card-text mb-auto p-2">Актеры: 
                             {% for man in movie.mod_actors %}
                                 {{man}}
-                            {% endfor %} ... и другие.
+                            {% endfor %}
                         </p>
-
                     </div>
                     <div class="row">
                         <p class="card-text mb-auto p-2">{{movie.description}}</p>
                     </div>
-                
                 </div>
             </div>
         </div>
@@ -150,8 +148,11 @@
                         </div>
                     </div>
                     <div class="tab-pane fadee" id="imdb" role="tabpanel" aria-labelledby="imdb-tab">
-                        <video width="900" height="470" src="{{ movie.first_trailer.url }}" controls></video>
-
+                        <video controls 
+                               width="900" 
+                               height="470" 
+                               src="{{ movie.first_trailer.url }}">
+                        </video>
                     </div>
                 </div>
             </div>

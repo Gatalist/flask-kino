@@ -7,6 +7,8 @@ from flask_bcrypt import Bcrypt
 from app.settings import Config
 from loguru import logger
 from flask_admin import Admin
+from flask_restful import Api
+from .swagger_doc import Apispec_docs
 
 
 
@@ -39,6 +41,11 @@ bcrypt = Bcrypt(app)
 
 # admin panel
 admin = Admin(app)
+
+
+# API and documentation
+api = Api(app)
+api_docs = Apispec_docs(app)
 
 
 # logging loguru

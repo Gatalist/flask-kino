@@ -58,6 +58,19 @@ trailer_movie = db.Table(
     db.Column('trailer_id', db.Integer, db.ForeignKey('trailer.id'))
 )
 
+tag_actor = db.Table(
+    'tag_actor',
+    db.Column('actor_id', db.Integer, db.ForeignKey('actor.id')),
+    db.Column('tagactor_id', db.Integer, db.ForeignKey('tagactor.id'))
+)
+
+segment_movie = db.Table(
+    'segment_movie',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movie.id')),
+    db.Column('segment_id', db.Integer, db.ForeignKey('segment.id'))
+)
+
+
 
 class Movie(db.Model):
     __tablename__ = 'movie'
@@ -97,6 +110,9 @@ class Movie(db.Model):
     age_limits = db.relationship('AgeLimit', backref=db.backref('movie'), passive_deletes=False)
 
     last_syncs = db.Column(db.DateTime, nullable=True)
+
+    segment_id = db.Column(db.Integer, db.ForeignKey('segment.id', ondelete='SET NULL'))
+    segment = db.relationship('Segment', secondary=segment_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
     
     countries_id = db.Column(db.Integer, db.ForeignKey('country.id', ondelete='SET NULL'))
     countries = db.relationship('Country', secondary=country_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
@@ -119,7 +135,6 @@ class Movie(db.Model):
     similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
     similar = db.relationship('Similars', secondary=similars_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
-    # trailer = db.Column(db.String(128), nullable=True)
     trailer_id = db.Column(db.Integer, db.ForeignKey('trailer.id', ondelete='SET NULL'))
     trailer = db.relationship('Trailer', secondary=trailer_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
@@ -135,28 +150,15 @@ class Movie(db.Model):
     @property
     def last_syncs_format(self):
         return str(self.last_syncs).split()[0]
-    
-    @property
-    def trailer_code(self):
-        list_url = [
-            'https://www.youtube.com/watch?v=',
-            'https://youtu.be/',
-            'https://www.youtube.com/v/',
-            ]
-        
-        code = None
-        if self.trailer:
-            for url in list_url:
-                if str(self.trailer).startswith(url):
-                    code = str(self.trailer).replace(url, '')
-                    print(self.trailer, ' -> ', code)
-                    break
-        return code
+
     
     @property
     def first_trailer(self):
         first = [tr for tr in self.trailer]
-        return first[0]
+        if first:
+            print(first)
+            return first[0]
+        return ''
     
     @property
     def star_rating_kinopoisk(self):
@@ -220,12 +222,11 @@ class Movie(db.Model):
     def get_similar_movie(self):
         similar_values = [sim.kinopoisk_id for sim in self.similar]
         print('list_sim:', similar_values)
-        filtered_movies = Movie.query.filter(Movie.similar.any(Similars.kinopoisk_id.in_(similar_values))).all()
+        filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
 
-        slimilar_12 = filtered_movies[:12]
-        print('movie', slimilar_12)
-        return slimilar_12
-    
+        print('movie', filtered_movies)
+        return filtered_movies
+
 
 class RatingKinopoisk(db.Model):
     __tablename__ = 'ratingkinopoisk'
@@ -364,6 +365,9 @@ class Actor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
+    tag_id = db.Column(db.Integer, db.ForeignKey('tagactor.id', ondelete='SET NULL'))
+    tag = db.relationship('TagActor', secondary=tag_actor, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -395,7 +399,7 @@ class Similars(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.kinopoisk_id}| {self.name}'
 
 
 class Trailer(db.Model):
@@ -405,6 +409,30 @@ class Trailer(db.Model):
     type = db.Column(db.String(8), index=True)
     url = db.Column(db.String(1024), index=True)
     background = db.Column(db.String(256), index=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'{self.name}'
+
+
+class TagActor(db.Model):
+    __tablename__ = 'tagactor'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), index=True)
+
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'{self.name}'
+
+
+class Segment(db.Model):
+    __tablename__ = 'segment'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), index=True)
 
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)

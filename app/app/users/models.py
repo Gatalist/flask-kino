@@ -38,7 +38,7 @@ class User(db.Model, UserMixin):
     # Нужен для security!
     active = db.Column(db.Boolean())
     # Для получения доступа к связанным объектам
-    # roles_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='SET NULL'))
+    roles_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='SET NULL'))
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
     
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)

@@ -29,7 +29,7 @@ def create_popular_actor():
 def parse_and_create_movie():
     # получение данных с api
     # start id -> 298 -> 4 647 040 +-
-    for movie_id in range(974, 1000):
+    for movie_id in range(3820, 5000):
         print(f'\n\n----> kinopoisk id: {movie_id} <-----')
 
         # получаем все данные для фильма

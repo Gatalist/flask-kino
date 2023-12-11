@@ -5,6 +5,7 @@ from flask import url_for, redirect, request, abort
 from app import settings
 import shutil
 from markupsafe import Markup
+from flask_admin.model import typefmt
 
 
 
@@ -47,9 +48,11 @@ class RatingImdbView(ModelView):
 class RatingFilmCriticsView(ModelView):
    pass
 
+
 class ReliaseView(ModelView):
    # column_list = ['id', 'year']
    pass
+
 
 class FilmLengthView(ModelView):
    pass
@@ -81,7 +84,33 @@ class CreatorView(ModelView):
 
 
 class ActorView(ModelView):
-   pass
+   column_list = ['id', 'name', 'tag', 'created_on']
+
+   column_labels = {
+      'tag': 'Tags'
+   }
+
+   column_descriptions = {
+      'tag': 'Description for tag'
+   }
+
+   # # Определите, как отображать изображение в списке элементов
+   # column_formatters = {
+   #    'tag': lambda view, context, model, name: ', '.join([item.name for item in model.tag]) if model.tag else None
+   # }
+
+   # column_formatters = {
+   #    'tag': lambda view, context, model, name: ', '.join([item.name for item in model.tag]) if model.tag else ''
+   # }
+
+   # def get_list(self, page, sort_field, sort_desc, search, filters, page_size=None):
+   #    count, data = super(ActorView, self).get_list(page, sort_field, sort_desc, search, filters, page_size)
+
+   #    # Customize the display of the 'tag' column
+   #    for item in data:
+   #       item['tag'] = ', '.join([tag.name for tag in item['tag']]) if item['tag'] else None
+
+   #    return count, data
 
 
 class ScreenshotView(ModelView):
@@ -91,5 +120,14 @@ class ScreenshotView(ModelView):
 class SimilarsView(ModelView):
    pass
 
+
 class TrailerView(ModelView):
    column_list = ['id', 'name', 'url']
+
+
+class TagActorView(ModelView):
+   column_list = ['id', 'name', 'created_on']
+
+
+class SegmentView(ModelView):
+   column_list = ['id', 'name', 'created_on']

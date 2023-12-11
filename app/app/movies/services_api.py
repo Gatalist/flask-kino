@@ -3,7 +3,6 @@ from app.settings import Config
 import math
 
 
-
 class Mixin:
     def responce_object(self, obj: object, model_schema: object) -> object:
         schema = model_schema(many=False)
@@ -36,3 +35,23 @@ class Mixin:
         }
 
         return jsonify(results)
+    
+
+class ApiDocumentation:
+    def documentation(self, method, url, desc, url_full, data=''):
+        sample = """
+            Пример использования:
+            {} - {}
+            'Access-Token': - ваш токен для доступа к API
+
+
+            fetch('{}', {{
+                method: '{}',
+                headers: {{
+                    'Access-Token': 'xxxxxxx-xxxxxx-xxxx-xxxx-xxxxxxxxx',
+                    'Content-Type': 'application/json',
+                }},
+                {}
+            }})
+        """.format(url, desc, url_full, method, data)
+        return sample

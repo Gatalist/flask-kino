@@ -27,7 +27,8 @@ def create_user(input_data):
     db.session.add(new_user)  # Adds new User record to database
     db.session.commit()  # Comment
    
-    return {"ok":"User Created"}
+    # return {"ok":"User Created"}
+    return new_user
 
 
 def login_user(input_data):
@@ -41,3 +42,22 @@ def login_user(input_data):
     
     else:
         return {"error":"Password is wrong"}
+
+
+
+class ApiDocumentation:
+    def documentation(self, method, url, desc, url_full, data=''):
+        sample = """
+            Пример использования:
+            {} - {}
+
+
+            fetch('{}', {{
+                method: '{}',
+                headers: {{
+                    'Content-Type': 'application/json',
+                }},
+                {}
+            }})
+        """.format(url, desc, url_full, method, data)
+        return sample
