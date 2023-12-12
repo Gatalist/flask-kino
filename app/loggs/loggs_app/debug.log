@@ -1,0 +1,344 @@
+2023-12-12T18:25:05.668427+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (7), thread 'Thread-3 (process_request_thread)' (140518981891776):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fcd2a45d940>
+    └ <Thread(Thread-3 (process_request_thread), started daemon 140518981891776)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fcd2a45d620>
+    └ <Thread(Thread-3 (process_request_thread), started daemon 140518981891776)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-3 (process_request_thread), started daemon 140518981891776)>
+    │    │        │    └ (<socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38380)>, ('172.20.0.1', 383...
+    │    │        └ <Thread(Thread-3 (process_request_thread), started daemon 140518981891776)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7fcd2752c8f0>>
+    └ <Thread(Thread-3 (process_request_thread), started daemon 140518981891776)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 38380)
+    │    │              └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38380)>
+    │    └ <function BaseServer.finish_request at 0x7fcd2a45f600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7fcd2752c8f0>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7fcd2752c8f0>
+    │    │                   │        └ ('172.20.0.1', 38380)
+    │    │                   └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38380)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7fcd2752c8f0>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7fcd299cb560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7fcd26b373e0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7fcd29aa5a80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7fcd26b373e0>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7fcd26b373e0>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7fcd273a3e00>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7fcd2752c8f0>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7fcd26b373e0>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7fcd26b1fb00>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7fcd278fb350>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7fcd26b1fa60>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7fcd273a3e00>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7fcd26b1fa60>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7fcd29287380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7fcd29286ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7fcd29286a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'page': 'wrgf'}
+           │    │           │    │              │    └ 'moviesonpage'
+           │    │           │    │              └ <Rule '/api/movie/page/<page>' (OPTIONS, GET, HEAD) -> moviesonpage>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7fcd27d342c0>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7fcd29286ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask_restful/__init__.py", line 489, in wrapper
+    resp = resource(*args, **kwargs)
+           │         │       └ {'page': 'wrgf'}
+           │         └ ()
+           └ <function View.as_view.<locals>.view at 0x7fcd275125c0>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'page': 'wrgf'}
+           │                       │    └ <function Resource.dispatch_request at 0x7fcd27d3fba0>
+           │                       └ <app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask_restful/__init__.py", line 604, in dispatch_request
+    resp = meth(*args, **kwargs)
+           │     │       └ {'page': 'wrgf'}
+           │     └ ()
+           └ <bound method MoviesOnPage.get of <app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/annotations.py", line 122, in wrapped
+    return wrapper(*args, **kwargs)
+           │        │       └ {'page': 'wrgf'}
+           │        └ (<app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>,)
+           └ <flask_apispec.wrapper.Wrapper object at 0x7fcd26b3b9b0>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/wrapper.py", line 29, in __call__
+    response = self.call_view(*args, **kwargs)
+               │    │          │       └ {'page': 'wrgf'}
+               │    │          └ (<app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>,)
+               │    └ <function Wrapper.call_view at 0x7fcd27dbaa20>
+               └ <flask_apispec.wrapper.Wrapper object at 0x7fcd26b3b9b0>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/wrapper.py", line 52, in call_view
+    return self.func(*args, **kwargs)
+           │    │     │       └ {'page': 'wrgf'}
+           │    │     └ (<app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>,)
+           │    └ <function MoviesOnPage.get at 0x7fcd27668f40>
+           └ <flask_apispec.wrapper.Wrapper object at 0x7fcd26b3b9b0>
+
+  File "/home/app/app/movies/routes_api.py", line 37, in get
+    obj_page = self.objects_in_page(page=int(page), obj=obj)
+               │    │                        │          └ <flask_sqlalchemy.query.Query object at 0x7fcd26b371d0>
+               │    │                        └ 'wrgf'
+               │    └ <function Mixin.objects_in_page at 0x7fcd27668d60>
+               └ <app.movies.routes_api.MoviesOnPage object at 0x7fcd273f3500>
+
+ValueError: invalid literal for int() with base 10: 'wrgf'
+2023-12-12T18:31:16.761898+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (12), thread 'Thread-2 (process_request_thread)' (140036108445376):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f5cb655c5e0>
+    │    └ <sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7f5cb52c9100>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ {'id_1': 'svd', 'param_1': 1}
+    │      │       └ 'SELECT movie.id AS movie_id, movie.kinopoisk_id AS movie_kinopoisk_id, movie.imdb_id AS movie_imdb_id, movie.name_ru AS movi...
+    │      └ <method 'execute' of 'psycopg2.extensions.cursor' objects>
+    └ <cursor object at 0x7f5cb47a93f0; closed: -1>
+
+psycopg2.errors.InvalidTextRepresentation: invalid input syntax for type integer: "svd"
+LINE 3: WHERE movie.id = 'svd' 
+                         ^
+
+
+
+The above exception was the direct cause of the following exception:
+
+
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f5cb8385940>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140036108445376)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7f5cb8385620>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140036108445376)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-2 (process_request_thread), started daemon 140036108445376)>
+    │    │        │    └ (<socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38006)>, ('172.20.0.1', 380...
+    │    │        └ <Thread(Thread-2 (process_request_thread), started daemon 140036108445376)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7f5cb52c8f50>>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140036108445376)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 38006)
+    │    │              └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38006)>
+    │    └ <function BaseServer.finish_request at 0x7f5cb8387600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f5cb52c8f50>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f5cb52c8f50>
+    │    │                   │        └ ('172.20.0.1', 38006)
+    │    │                   └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 38006)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f5cb52c8f50>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7f5cb78f7560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f5cb533b1a0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7f5cb79d1a80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f5cb533b1a0>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7f5cb533b1a0>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7f5cb52ca180>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f5cb52c8f50>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7f5cb533b1a0>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7f5cb4735120>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7f5cb5673350>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f5cb4735080>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7f5cb52ca180>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f5cb4735080>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7f5cb71b7380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7f5cb71b6ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7f5cb71b6a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'id': 'svd'}
+           │    │           │    │              │    └ 'moviesdetail'
+           │    │           │    │              └ <Rule '/api/movie/id/<id>' (HEAD, GET, OPTIONS) -> moviesdetail>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7f5cb5c882c0>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7f5cb71b6ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask_restful/__init__.py", line 489, in wrapper
+    resp = resource(*args, **kwargs)
+           │         │       └ {'id': 'svd'}
+           │         └ ()
+           └ <function View.as_view.<locals>.view at 0x7f5cb528f600>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'id': 'svd'}
+           │                       │    └ <function Resource.dispatch_request at 0x7f5cb5c93ba0>
+           │                       └ <app.movies.routes_api.MoviesDetail object at 0x7f5cb5d52f30>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask_restful/__init__.py", line 604, in dispatch_request
+    resp = meth(*args, **kwargs)
+           │     │       └ {'id': 'svd'}
+           │     └ ()
+           └ <bound method MoviesDetail.get of <app.movies.routes_api.MoviesDetail object at 0x7f5cb5d52f30>>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/annotations.py", line 122, in wrapped
+    return wrapper(*args, **kwargs)
+           │        │       └ {'id': 'svd'}
+           │        └ (<app.movies.routes_api.MoviesDetail object at 0x7f5cb5d52f30>,)
+           └ <flask_apispec.wrapper.Wrapper object at 0x7f5cb5339190>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/wrapper.py", line 29, in __call__
+    response = self.call_view(*args, **kwargs)
+               │    │          │       └ {'id': 'svd'}
+               │    │          └ (<app.movies.routes_api.MoviesDetail object at 0x7f5cb5d52f30>,)
+               │    └ <function Wrapper.call_view at 0x7f5cb5baaa20>
+               └ <flask_apispec.wrapper.Wrapper object at 0x7f5cb5339190>
+  File "/usr/local/lib/python3.12/site-packages/flask_apispec/wrapper.py", line 52, in call_view
+    return self.func(*args, **kwargs)
+           │    │     │       └ {'id': 'svd'}
+           │    │     └ (<app.movies.routes_api.MoviesDetail object at 0x7f5cb5d52f30>,)
+           │    └ <function MoviesDetail.get at 0x7f5cb55dd440>
+           └ <flask_apispec.wrapper.Wrapper object at 0x7f5cb5339190>
+
+  File "/home/app/app/movies/routes_api.py", line 56, in get
+    obj = Movie.query.filter_by(id=id).first()
+          │     │                  └ 'svd'
+          │     └ <flask_sqlalchemy.model._QueryProperty object at 0x7f5cb621e660>
+          └ <class 'app.movies.models.Movie'>
+
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           │    └ <function Query.limit at 0x7f5cb6277d80>
+           └ <flask_sqlalchemy.query.Query object at 0x7f5cb53396d0>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+            │                  │    │      │      │    │       └ <function Session.execute at 0x7f5cb61ecae0>
+            │                  │    │      │      │    └ <sqlalchemy.orm.session.Session object at 0x7f5cb533b770>
+            │                  │    │      │      └ <flask_sqlalchemy.query.Query object at 0x7f5cb533b8c0>
+            │                  │    │      └ ~_T
+            │                  │    └ <class 'sqlalchemy.engine.result.Result'>
+            │                  └ ~_T
+            └ typing.Union
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           │    └ <function Session._execute_internal at 0x7f5cb61ec7c0>
+           └ <sqlalchemy.orm.session.Session object at 0x7f5cb533b770>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                   │      │                 └ <classmethod(<function AbstractORMCompileState.orm_execute_statement at 0x7f5cb6462160>)>
+                   │      └ <class 'sqlalchemy.orm.context.ORMSelectCompileState'>
+                   └ typing.Any
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             │    └ <function Connection.execute at 0x7f5cb6449940>
+             └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           └ <bound method ClauseElement._execute_on_connection of <sqlalchemy.sql.selectable.Select object at 0x7f5cb52c9580>>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           │          └ <function Connection._execute_clauseelement at 0x7f5cb6449c60>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          │    └ <function Connection._execute_context at 0x7f5cb6449e40>
+          └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           │    └ <function Connection._exec_single_context at 0x7f5cb6449ee0>
+           └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    │    └ <function Connection._handle_dbapi_exception at 0x7f5cb644a160>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+          │                    │              │                 └ InvalidTextRepresentation('invalid input syntax for type integer: "svd"\nLINE 3: WHERE movie.id = \'svd\' \n                 ...
+          │                    │              └ (<class 'psycopg2.errors.InvalidTextRepresentation'>, InvalidTextRepresentation('invalid input syntax for type integer: "svd"...
+          │                    └ <method 'with_traceback' of 'BaseException' objects>
+          └ DataError('(psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type integer: "svd"\nLINE 3: WHERE movie.id =...
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    │    │       └ <function DefaultDialect.do_execute at 0x7f5cb655c5e0>
+    │    └ <sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7f5cb52c9100>
+    └ <sqlalchemy.engine.base.Connection object at 0x7f5cb533bb00>
+  File "/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+    │      │       │          └ {'id_1': 'svd', 'param_1': 1}
+    │      │       └ 'SELECT movie.id AS movie_id, movie.kinopoisk_id AS movie_kinopoisk_id, movie.imdb_id AS movie_imdb_id, movie.name_ru AS movi...
+    │      └ <method 'execute' of 'psycopg2.extensions.cursor' objects>
+    └ <cursor object at 0x7f5cb47a93f0; closed: -1>
+
+sqlalchemy.exc.DataError: (psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type integer: "svd"
+LINE 3: WHERE movie.id = 'svd' 
+                         ^
+
+[SQL: SELECT movie.id AS movie_id, movie.kinopoisk_id AS movie_kinopoisk_id, movie.imdb_id AS movie_imdb_id, movie.name_ru AS movie_name_ru, movie.name_original AS movie_name_original, movie.poster_url AS movie_poster_url, movie.slug AS movie_slug, movie.rating_kinopoisk_id AS movie_rating_kinopoisk_id, movie.rating_imdb_id AS movie_rating_imdb_id, movie.rating_critics_id AS movie_rating_critics_id, movie.year_id AS movie_year_id, movie.film_length_id AS movie_film_length_id, movie.slogan AS movie_slogan, movie.description AS movie_description, movie.short_description AS movie_short_description, movie.type_video_id AS movie_type_video_id, movie.age_limits_id AS movie_age_limits_id, movie.last_syncs AS movie_last_syncs, movie.segment_id AS movie_segment_id, movie.countries_id AS movie_countries_id, movie.genres_id AS movie_genres_id, movie.director_id AS movie_director_id, movie.creator_id AS movie_creator_id, movie.actor_id AS movie_actor_id, movie.screen_img_id AS movie_screen_img_id, movie.similar_id AS movie_similar_id, movie.trailer_id AS movie_trailer_id, movie.user_id AS movie_user_id, movie.created_on AS movie_created_on, movie.updated_on AS movie_updated_on 
+FROM movie 
+WHERE movie.id = %(id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'id_1': 'svd', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)

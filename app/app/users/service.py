@@ -27,7 +27,6 @@ def create_user(input_data):
     db.session.add(new_user)  # Adds new User record to database
     db.session.commit()  # Comment
    
-    # return {"ok":"User Created"}
     return new_user
 
 

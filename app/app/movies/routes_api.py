@@ -1,7 +1,7 @@
 from flask_apispec import marshal_with, use_kwargs, doc
 from flask_apispec.views import MethodResource
-from flask_restful import Resource, fields, marshal
-from app import logger, db
+from flask_restful import Resource
+from app import logger
 from flask import request
 
 from app.movies.schemas import (
@@ -27,10 +27,10 @@ class MoviesOnPage(Mixin, MethodResource, Resource):
         desc='номер страницы с фильмами', 
         url_full='http://127.0.0.1:5000/api/movie/page/1')
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Movies'])
     @marshal_with(schema)
-    # @token_required
+    @token_required
     def get(self, page):
         obj = Movie.query.order_by(Movie.id.desc())
         if obj:
@@ -49,6 +49,7 @@ class MoviesDetail(Mixin, MethodResource, Resource):
         desc='ID фильмама для получения данных', 
         url_full='http://127.0.0.1:5000/api/movie/id/1')
 
+    @logger.catch
     @doc(description=description, tags=['Movies'])
     @marshal_with(schema)  # marshalling
     def get(self, id):
@@ -67,10 +68,10 @@ class MoviesSearch(Mixin, MethodResource, Resource):
         url_full='http://127.0.0.1:5000/api/search/1',
         data="'data': {'search': 'матр'}")
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Movies'])
     @marshal_with(schema)
-    # @token_required
+    @token_required
     def get(self, page):
         search = request.args.get('search')
         obj = Movie.query.filter(Movie.name_ru.ilike(f"%{search}%")).order_by(Movie.id.desc())
@@ -89,10 +90,10 @@ class ReliaseOnPage(Mixin, MethodResource, Resource):
         desc='все года выхода фильмов', 
         url_full='http://127.0.0.1:5000/api/reliase/')
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Reliase'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self):
         obj = Reliase.query
         if obj:
@@ -109,10 +110,10 @@ class ReliaseDetail(Mixin, MethodResource, Resource):
         desc='ID года выхода для получения фильмов', 
         url_full='http://127.0.0.1:5000/api/reliase/1/')
     
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Reliase'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self, id):
         obj = Movie.query.filter_by(id=id).first()
         if obj:
@@ -128,10 +129,10 @@ class GenreOnPage(Mixin, MethodResource, Resource):
         desc='все жанры фильмов', 
         url_full='http://127.0.0.1:5000/api/genre/')
     
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Genre'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self):    
         obj = Genre.query
         if obj:
@@ -148,10 +149,10 @@ class GenreDetail(Mixin, MethodResource, Resource):
         desc='ID жанра и номер страницы для получения фильмов этого жанра', 
         url_full='http://127.0.0.1:5000/api/genre/1/1')
     
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Genre'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self, id, page):
         obj = Movie.query.filter(Movie.genres.any(Genre.id == id))
         if obj:
@@ -169,10 +170,10 @@ class DirectorOnPage(Mixin, MethodResource, Resource):
         desc='все режисеры фильмов', 
         url_full='http://127.0.0.1:5000/api/director/1/')
     
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Director'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self, page):
         obj = Director.query
         if obj:
@@ -190,10 +191,10 @@ class DirectorDetail(Mixin, MethodResource, Resource):
         desc='ID режисера и номер страницы для получения фильмов с этим режисером', 
         url_full='http://127.0.0.1:5000/api/genre/1/1/')
     
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Director'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self, id, page):
         obj = Movie.query.filter(Movie.director.any(Director.id == id))
         if obj:
@@ -211,10 +212,10 @@ class CountryOnPage(Mixin, MethodResource, Resource):
         desc='все страны выпуска фильмов', 
         url_full='http://127.0.0.1:5000/api/country/')
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Country'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self):
         obj = Country.query
         if obj:
@@ -231,10 +232,10 @@ class CountryDetail(Mixin, MethodResource, Resource):
         desc='ID страны и номер страницы для получения фильмов с этой страны', 
         url_full='http://127.0.0.1:5000/api/country/1/1/')
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['Country'])
     @marshal_with(schema)  # marshalling
-    # @token_required
+    @token_required
     def get(self, id, page):
         obj = Movie.query.filter(Movie.countries.any(Country.id == id))
         if obj:

@@ -19,7 +19,7 @@ class UserApiRegister(MethodResource, Resource):
         url_full='http://127.0.0.1:5000/api/user/register/',
         data="'data': {'username':'Alibaba', 'email':'user@email', 'password':'your_pasword'}")
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['User'])
     @marshal_with(schema)
     def post(self):
@@ -40,7 +40,7 @@ class UserApiLogin(MethodResource, Resource):
         url_full='http://127.0.0.1:5000/api/user/login/',
         data="'data': {'email':'user@email', 'password':'your_pasword'}")
 
-    # @logger.catch
+    @logger.catch
     @doc(description=description, tags=['User'])
     @marshal_with(schema)  # marshalling
     def post(self):
