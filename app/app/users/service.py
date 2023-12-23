@@ -23,6 +23,7 @@ def create_user(input_data):
     new_user = User(
         username = input_data['username'],
         email = input_data['email'])
+    
     new_user.set_password(input_data['password'])
     db.session.add(new_user)  # Adds new User record to database
     db.session.commit()  # Comment
@@ -38,7 +39,6 @@ def login_user(input_data):
     if get_user.check_password(input_data.get("password")):
         token = generate_jwt_token(get_user)
         return {'x-access-tokens': token}
-    
     else:
         return {"error":"Password is wrong"}
 

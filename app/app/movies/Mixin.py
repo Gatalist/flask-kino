@@ -1,15 +1,10 @@
 from .models import Movie, Reliase, Genre, Director, genre_movie, director_movie, RatingKinopoisk
 from sqlalchemy.orm import joinedload
-# from sqlalchemy import or_, and_
-# from app import db
 from flask import session
 
 
-class MixinFilterMovie:   
-    pass
 
-
-class MixinFilterMovie:    
+class MixinMovie:    
     data_sorted = [
         {'value': "standart", 'text': 'стандартная',},
         {'value': "rating_asc", 'text': 'От мин до мах рейтинга',},
@@ -17,16 +12,22 @@ class MixinFilterMovie:
         {'value': "release_date_asc", 'text': 'От старых до новых',},
         {'value': "release_date_desc", 'text': 'От новых до старых',},]
     
-    top_directors = Movie.query.join(director_movie).join(Director).group_by(Director.id) #.order_by(Director.id.desc())
+    context = {}
+
+    def create_context(self):
+        self.context["movies_sorted"] = self.data_sorted
+        self.context["all_reliase"] = self.get_years()
+        self.context["all_genres"] = self.get_genres()
+        self.context["all_directors"] = self.top_directors()
+
+    def top_directors(self):
+        return Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
     
-    context = {
-        # "all_reliase": Reliase.query.order_by(Reliase.year.desc()),
-        # "all_genres": Genre.query.all(),
-        # "all_directors": [],
-        # "all_directors": Director.query.all(),
-        # "all_directors": top_directors,
-        "movies_sorted": data_sorted,
-    }
+    def get_genres(self):
+        return Genre.query #.all()
+    
+    def get_years(self):
+        return Reliase.query.order_by(Reliase.year.desc()) #.all()
 
     def session_data(self, name, data):
         session.permanent = True
@@ -69,6 +70,7 @@ class MixinFilterMovie:
             if filter.startswith(filter_name):
                 filter_id = filter[len(filter_name):]
                 list_activate_filter.append(int(filter_id))
+        print(list_activate_filter)
         return list_activate_filter
 
     def activate_filter(self, active_reliase, active_genre, active_directors):
@@ -116,11 +118,3 @@ class MixinFilterMovie:
             return movie.order_by(Movie.id.desc())
         
         return movie
-
-
-    def search_movie(self, search):
-        if search:
-            return Movie.query.filter(Movie.name_ru.ilike(f"%{search}%"))
-        else:
-            return Movie.query.filter(Movie.name_ru.ilike(f"%99999999999%"))
-

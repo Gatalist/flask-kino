@@ -24,16 +24,13 @@ from .routes_api import (
 )
 
 
-
 movie_blueprint = Blueprint('app_movies', __name__, template_folder='templates', static_folder='static')
-
 
 
 # регистрируем роуты для нашего blueprint
 movie_blueprint.add_url_rule('/', view_func=HomeView.as_view('home'))
 movie_blueprint.add_url_rule('/film/<slug>', view_func=MovieDetailView.as_view('movie_detail'))
 movie_blueprint.add_url_rule('/search', view_func=MovieSearchView.as_view('movie_search'))
-
 
 
 # регистрируем модели в нашей админке
@@ -57,7 +54,6 @@ admin.add_view(TagActorView(TagActor, db.session))
 admin.add_view(SegmentView(Segment, db.session))
 
 
-
 # пегистрируем url нашего api
 api.add_resource(MoviesOnPage, '/api/movie/page/<page>')
 api.add_resource(MoviesDetail, '/api/movie/id/<id>')
@@ -74,9 +70,6 @@ api.add_resource(DirectorDetail, '/api/director/<id>/<page>')
 
 api.add_resource(CountryOnPage, '/api/country')
 api.add_resource(CountryDetail, '/api/country/<id>/<page>')
-
-
-
 
 
 # Добавляем документацию

@@ -4,12 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
-from app.settings import Config
 from loguru import logger
 from flask_admin import Admin
 from flask_restful import Api
 from .swagger_doc import Apispec_docs
-
+from app.settings import Config
 
 
 app = Flask(__name__)
@@ -30,7 +29,7 @@ app.permanent_session_lifetime = datetime.timedelta(days=10)
 client = app.test_client()
 
 # create instance DataBase
-db = SQLAlchemy()
+db = SQLAlchemy(app)
 
 # class instance Migrate
 migrate = Migrate(app, db, compare_type=True)
@@ -38,15 +37,12 @@ migrate = Migrate(app, db, compare_type=True)
 # шыфрование
 bcrypt = Bcrypt(app)
 
-
 # admin panel
 admin = Admin(app)
-
 
 # API and documentation
 api = Api(app)
 api_docs = Apispec_docs(app)
-
 
 # logging loguru
 logger.add(
@@ -55,13 +51,20 @@ logger.add(
     level="DEBUG", 
     rotation="100 KB")
 
+
 # migrations
 from .movies.models import *
 from .users.models import *
 
-with app.app_context():
-    db.init_app(app)
 
+# blueprints
+from app.movies import movie_blueprint
+from app.users import user_blueprint
+
+
+# Регистрируем Blueprint'ы в приложении
+app.register_blueprint(movie_blueprint, url_prefix='/')
+app.register_blueprint(user_blueprint, url_prefix='/user')
 
 
 @app.shell_context_processor

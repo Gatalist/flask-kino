@@ -342,3 +342,555 @@ WHERE movie.id = %(id_1)s
  LIMIT %(param_1)s]
 [parameters: {'id_1': 'svd', 'param_1': 1}]
 (Background on this error at: https://sqlalche.me/e/20/9h9h)
+2023-12-23T12:35:12.268472+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (17), thread 'Thread-45 (process_request_thread)' (140231261013696):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f8a36dfd940>
+    └ <Thread(Thread-45 (process_request_thread), started daemon 140231261013696)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7f8a36dfd620>
+    └ <Thread(Thread-45 (process_request_thread), started daemon 140231261013696)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-45 (process_request_thread), started daemon 140231261013696)>
+    │    │        │    └ (<socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 55948)>, ('172.20.0.1', 559...
+    │    │        └ <Thread(Thread-45 (process_request_thread), started daemon 140231261013696)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7f8a34879be0>>
+    └ <Thread(Thread-45 (process_request_thread), started daemon 140231261013696)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 55948)
+    │    │              └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 55948)>
+    │    └ <function BaseServer.finish_request at 0x7f8a36dff600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f8a34879be0>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f8a34879be0>
+    │    │                   │        └ ('172.20.0.1', 55948)
+    │    │                   └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 55948)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f8a34879be0>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7f8a3636f560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f8a32063ef0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7f8a3644da80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f8a32063ef0>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7f8a32063ef0>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7f8a36ebfe30>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f8a34879be0>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7f8a32063ef0>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7f8a321d68e0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7f8a331bf810>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f8a32046c00>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7f8a36ebfe30>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f8a32046c00>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7f8a35c27380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7f8a35c26ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7f8a35c26a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'slug': '28-the-shawshank-redemption'}
+           │    │           │    │              │    └ 'app_movies.movie_detail'
+           │    │           │    │              └ <Rule '/film/<slug>' (HEAD, GET, OPTIONS) -> app_movies.movie_detail>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7f8a346bd300>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7f8a35c26ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'slug': '28-the-shawshank-redemption'}
+           │                       │    └ <function MethodView.dispatch_request at 0x7f8a346abec0>
+           │                       └ <app.movies.routes.MovieDetailView object at 0x7f8a320f00b0>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 190, in dispatch_request
+    return current_app.ensure_sync(meth)(**kwargs)
+           │                       │       └ {'slug': '28-the-shawshank-redemption'}
+           │                       └ <bound method MovieDetailView.get of <app.movies.routes.MovieDetailView object at 0x7f8a320f00b0>>
+           └ <Flask 'app'>
+
+  File "/home/app/app/movies/routes.py", line 33, in get
+    return render_template('detail_movie.html', movie=movie)
+           │                                          └ <Movie 28>
+           └ <function render_template at 0x7f8a35c90cc0>
+
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 152, in render_template
+    return _render(app, template, context)
+           │       │    │         └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+           │       │    └ <Template 'detail_movie.html'>
+           │       └ <Flask 'app'>
+           └ <function _render at 0x7f8a35d2a3e0>
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 133, in _render
+    rv = template.render(context)
+         │        │      └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+         │        └ <function Template.render at 0x7f8a35cae0c0>
+         └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 1301, in render
+    self.environment.handle_exception()
+    │    │           └ <function Environment.handle_exception at 0x7f8a35cad940>
+    │    └ <flask.templating.Environment object at 0x7f8a32506480>
+    └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+          │                              └ None
+          └ <function rewrite_traceback_stack at 0x7f8a30781e40>
+  File "/home/app/app/templates/detail_movie.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/home/app/app/templates/base.html", line 33, in top-level template code
+    {% block content %}
+  File "/home/app/app/templates/detail_movie.html", line 163, in block 'content'
+    {% for mov_similar in movie.get_similar_movie %}
+                          │     └ <property object at 0x7f8a32d187c0>
+                          └ <Movie 28>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+                   │    └ 'get_similar_movie'
+                   └ <Movie 28>
+
+  File "/home/app/app/movies/models_method.py", line 80, in get_similar_movie
+    filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
+                                                                └ [435, 336, 258048, 468958, 4525, 10851, 463686]
+
+NameError: name 'Movie' is not defined
+2023-12-23T12:35:58.020514+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (7), thread 'Thread-2 (process_request_thread)' (140150871942848):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f777058d940>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7f777058d620>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-2 (process_request_thread), started daemon 140150871942848)>
+    │    │        │    └ (<socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 50592)>, ('172.20.0.1', 505...
+    │    │        └ <Thread(Thread-2 (process_request_thread), started daemon 140150871942848)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>>
+    └ <Thread(Thread-2 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 50592)
+    │    │              └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 50592)>
+    │    └ <function BaseServer.finish_request at 0x7f777058f600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │    │                   │        └ ('172.20.0.1', 50592)
+    │    │                   └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 50592)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7f776faff560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e5040>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7f776fbdda80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e5040>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e5040>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e5040>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7f776b8ceac0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7f776c5bb810>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b8cea20>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b8cea20>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7f776f3b7380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7f776f3b6ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7f776f3b6a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'slug': '28-the-shawshank-redemption'}
+           │    │           │    │              │    └ 'app_movies.movie_detail'
+           │    │           │    │              └ <Rule '/film/<slug>' (GET, HEAD, OPTIONS) -> app_movies.movie_detail>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7f776de4d300>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7f776f3b6ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'slug': '28-the-shawshank-redemption'}
+           │                       │    └ <function MethodView.dispatch_request at 0x7f776de3bec0>
+           │                       └ <app.movies.routes.MovieDetailView object at 0x7f776b8b2210>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 190, in dispatch_request
+    return current_app.ensure_sync(meth)(**kwargs)
+           │                       │       └ {'slug': '28-the-shawshank-redemption'}
+           │                       └ <bound method MovieDetailView.get of <app.movies.routes.MovieDetailView object at 0x7f776b8b2210>>
+           └ <Flask 'app'>
+
+  File "/home/app/app/movies/routes.py", line 33, in get
+    return render_template('detail_movie.html', movie=movie)
+           │                                          └ <Movie 28>
+           └ <function render_template at 0x7f776f420cc0>
+
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 152, in render_template
+    return _render(app, template, context)
+           │       │    │         └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+           │       │    └ <Template 'detail_movie.html'>
+           │       └ <Flask 'app'>
+           └ <function _render at 0x7f776f4ba3e0>
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 133, in _render
+    rv = template.render(context)
+         │        │      └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+         │        └ <function Template.render at 0x7f776f43e0c0>
+         └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 1301, in render
+    self.environment.handle_exception()
+    │    │           └ <function Environment.handle_exception at 0x7f776f43d940>
+    │    └ <flask.templating.Environment object at 0x7f776e0e3b00>
+    └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+          │                              └ None
+          └ <function rewrite_traceback_stack at 0x7f776b7dc7c0>
+  File "/home/app/app/templates/detail_movie.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/home/app/app/templates/base.html", line 33, in top-level template code
+    {% block content %}
+  File "/home/app/app/templates/detail_movie.html", line 163, in block 'content'
+    {% for mov_similar in movie.get_similar_movie %}
+                          │     └ <property object at 0x7f776c114c70>
+                          └ <Movie 28>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+                   │    └ 'get_similar_movie'
+                   └ <Movie 28>
+
+  File "/home/app/app/movies/models_method.py", line 80, in get_similar_movie
+    filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
+                                                                └ [435, 336, 258048, 468958, 4525, 10851, 463686]
+
+NameError: name 'Movie' is not defined
+2023-12-23T12:37:42.029838+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (7), thread 'Thread-7 (process_request_thread)' (140150871942848):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f777058d940>
+    └ <Thread(Thread-7 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7f777058d620>
+    └ <Thread(Thread-7 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-7 (process_request_thread), started daemon 140150871942848)>
+    │    │        │    └ (<socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59168)>, ('172.20.0.1', 591...
+    │    │        └ <Thread(Thread-7 (process_request_thread), started daemon 140150871942848)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>>
+    └ <Thread(Thread-7 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 59168)
+    │    │              └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59168)>
+    │    └ <function BaseServer.finish_request at 0x7f777058f600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │    │                   │        └ ('172.20.0.1', 59168)
+    │    │                   └ <socket.socket fd=6, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59168)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7f776faff560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e4a40>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7f776fbdda80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e4a40>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e4a40>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b8e4a40>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7f776b7dcf40>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7f776b725b90>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b740860>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b740860>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=6>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7f776f3b7380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7f776f3b6ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7f776f3b6a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'slug': '28-the-shawshank-redemption'}
+           │    │           │    │              │    └ 'app_movies.movie_detail'
+           │    │           │    │              └ <Rule '/film/<slug>' (GET, HEAD, OPTIONS) -> app_movies.movie_detail>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7f776de4d300>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7f776f3b6ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'slug': '28-the-shawshank-redemption'}
+           │                       │    └ <function MethodView.dispatch_request at 0x7f776de3bec0>
+           │                       └ <app.movies.routes.MovieDetailView object at 0x7f776b8e4200>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 190, in dispatch_request
+    return current_app.ensure_sync(meth)(**kwargs)
+           │                       │       └ {'slug': '28-the-shawshank-redemption'}
+           │                       └ <bound method MovieDetailView.get of <app.movies.routes.MovieDetailView object at 0x7f776b8e4200>>
+           └ <Flask 'app'>
+
+  File "/home/app/app/movies/routes.py", line 33, in get
+    return render_template('detail_movie.html', movie=movie)
+           │                                          └ <Movie 28>
+           └ <function render_template at 0x7f776f420cc0>
+
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 152, in render_template
+    return _render(app, template, context)
+           │       │    │         └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+           │       │    └ <Template 'detail_movie.html'>
+           │       └ <Flask 'app'>
+           └ <function _render at 0x7f776f4ba3e0>
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 133, in _render
+    rv = template.render(context)
+         │        │      └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+         │        └ <function Template.render at 0x7f776f43e0c0>
+         └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 1301, in render
+    self.environment.handle_exception()
+    │    │           └ <function Environment.handle_exception at 0x7f776f43d940>
+    │    └ <flask.templating.Environment object at 0x7f776e0e3b00>
+    └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+          │                              └ None
+          └ <function rewrite_traceback_stack at 0x7f776b7dc7c0>
+  File "/home/app/app/templates/detail_movie.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/home/app/app/templates/base.html", line 33, in top-level template code
+    {% block content %}
+  File "/home/app/app/templates/detail_movie.html", line 163, in block 'content'
+    {% for mov_similar in movie.get_similar_movie %}
+                          │     └ <property object at 0x7f776c114c70>
+                          └ <Movie 28>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+                   │    └ 'get_similar_movie'
+                   └ <Movie 28>
+
+  File "/home/app/app/movies/models_method.py", line 80, in get_similar_movie
+    filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
+                                                                └ [435, 336, 258048, 468958, 4525, 10851, 463686]
+
+NameError: name 'Movie' is not defined
+2023-12-23T12:37:44.474632+0000 - [ERROR] : An error has been caught in function 'dispatch_request', process 'MainProcess' (7), thread 'Thread-13 (process_request_thread)' (140150871942848):
+Traceback (most recent call last):
+
+  File "/usr/local/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7f777058d940>
+    └ <Thread(Thread-13 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7f777058d620>
+    └ <Thread(Thread-13 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-13 (process_request_thread), started daemon 140150871942848)>
+    │    │        │    └ (<socket.socket fd=7, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59226)>, ('172.20.0.1', 592...
+    │    │        └ <Thread(Thread-13 (process_request_thread), started daemon 140150871942848)>
+    │    └ <bound method ThreadingMixIn.process_request_thread of <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>>
+    └ <Thread(Thread-13 (process_request_thread), started daemon 140150871942848)>
+  File "/usr/local/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+    │    │              │        └ ('172.20.0.1', 59226)
+    │    │              └ <socket.socket fd=7, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59226)>
+    │    └ <function BaseServer.finish_request at 0x7f777058f600>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    │    │                   │        │               └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │    │                   │        └ ('172.20.0.1', 59226)
+    │    │                   └ <socket.socket fd=7, family=2, type=1, proto=0, laddr=('172.20.0.4', 5000), raddr=('172.20.0.1', 59226)>
+    │    └ <class 'werkzeug.serving.WSGIRequestHandler'>
+    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+  File "/usr/local/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+    │    └ <function WSGIRequestHandler.handle at 0x7f776faff560>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b7e8320>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/usr/local/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+    │    └ <function BaseHTTPRequestHandler.handle_one_request at 0x7f776fbdda80>
+    └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b7e8320>
+  File "/usr/local/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+    └ <bound method WSGIRequestHandler.run_wsgi of <werkzeug.serving.WSGIRequestHandler object at 0x7f776b7e8320>>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+    │       │    │      └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+    │       │    └ <werkzeug.serving.ThreadedWSGIServer object at 0x7f777064f890>
+    │       └ <werkzeug.serving.WSGIRequestHandler object at 0x7f776b7e8320>
+    └ <function WSGIRequestHandler.run_wsgi.<locals>.execute at 0x7f776b7ddd00>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/serving.py", line 325, in execute
+    for data in application_iter:
+                └ <generator object DebuggedApplication.debug_application at 0x7f776b725cc0>
+  File "/usr/local/lib/python3.12/site-packages/werkzeug/debug/__init__.py", line 330, in debug_application
+    app_iter = self.app(environ, start_response)
+               │    │   │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b7dd300>
+               │    │   └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=7>, 'wsgi.errors': <_io.TextIOWrap...
+               │    └ <Flask 'app'>
+               └ <werkzeug.debug.DebuggedApplication object at 0x7f777061a8d0>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1478, in __call__
+    return self.wsgi_app(environ, start_response)
+           │    │        │        └ <function WSGIRequestHandler.run_wsgi.<locals>.start_response at 0x7f776b7dd300>
+           │    │        └ {'wsgi.version': (1, 0), 'wsgi.url_scheme': 'http', 'wsgi.input': <_io.BufferedReader name=7>, 'wsgi.errors': <_io.TextIOWrap...
+           │    └ <function Flask.wsgi_app at 0x7f776f3b7380>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               │    └ <function Flask.full_dispatch_request at 0x7f776f3b6ac0>
+               └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         │    └ <function Flask.dispatch_request at 0x7f776f3b6a20>
+         └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           │    │           │    │              │    │            └ {'slug': '28-the-shawshank-redemption'}
+           │    │           │    │              │    └ 'app_movies.movie_detail'
+           │    │           │    │              └ <Rule '/film/<slug>' (GET, HEAD, OPTIONS) -> app_movies.movie_detail>
+           │    │           │    └ {'static': <function Flask.__init__.<locals>.<lambda> at 0x7f776de4d300>, 'admin.static': <bound method Blueprint.send_static...
+           │    │           └ <Flask 'app'>
+           │    └ <function Flask.ensure_sync at 0x7f776f3b6ca0>
+           └ <Flask 'app'>
+  File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 109, in view
+    return current_app.ensure_sync(self.dispatch_request)(**kwargs)
+           │                       │    │                   └ {'slug': '28-the-shawshank-redemption'}
+           │                       │    └ <function MethodView.dispatch_request at 0x7f776de3bec0>
+           │                       └ <app.movies.routes.MovieDetailView object at 0x7f776b7e9c10>
+           └ <Flask 'app'>
+> File "/usr/local/lib/python3.12/site-packages/flask/views.py", line 190, in dispatch_request
+    return current_app.ensure_sync(meth)(**kwargs)
+           │                       │       └ {'slug': '28-the-shawshank-redemption'}
+           │                       └ <bound method MovieDetailView.get of <app.movies.routes.MovieDetailView object at 0x7f776b7e9c10>>
+           └ <Flask 'app'>
+
+  File "/home/app/app/movies/routes.py", line 33, in get
+    return render_template('detail_movie.html', movie=movie)
+           │                                          └ <Movie 28>
+           └ <function render_template at 0x7f776f420cc0>
+
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 152, in render_template
+    return _render(app, template, context)
+           │       │    │         └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+           │       │    └ <Template 'detail_movie.html'>
+           │       └ <Flask 'app'>
+           └ <function _render at 0x7f776f4ba3e0>
+  File "/usr/local/lib/python3.12/site-packages/flask/templating.py", line 133, in _render
+    rv = template.render(context)
+         │        │      └ {'movie': <Movie 28>, 'g': <flask.g of 'app'>, 'request': <Request 'http://127.0.0.1:5000/film/28-the-shawshank-redemption' [...
+         │        └ <function Template.render at 0x7f776f43e0c0>
+         └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 1301, in render
+    self.environment.handle_exception()
+    │    │           └ <function Environment.handle_exception at 0x7f776f43d940>
+    │    └ <flask.templating.Environment object at 0x7f776e0e3b00>
+    └ <Template 'detail_movie.html'>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+          │                              └ None
+          └ <function rewrite_traceback_stack at 0x7f776b7dc7c0>
+  File "/home/app/app/templates/detail_movie.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "/home/app/app/templates/base.html", line 33, in top-level template code
+    {% block content %}
+  File "/home/app/app/templates/detail_movie.html", line 163, in block 'content'
+    {% for mov_similar in movie.get_similar_movie %}
+                          │     └ <property object at 0x7f776c114c70>
+                          └ <Movie 28>
+  File "/usr/local/lib/python3.12/site-packages/jinja2/environment.py", line 485, in getattr
+    return getattr(obj, attribute)
+                   │    └ 'get_similar_movie'
+                   └ <Movie 28>
+
+  File "/home/app/app/movies/models_method.py", line 80, in get_similar_movie
+    filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
+                                                                └ [435, 336, 258048, 468958, 4525, 10851, 463686]
+
+NameError: name 'Movie' is not defined

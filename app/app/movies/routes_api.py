@@ -1,4 +1,4 @@
-from flask_apispec import marshal_with, use_kwargs, doc
+from flask_apispec import marshal_with, doc
 from flask_apispec.views import MethodResource
 from flask_restful import Resource
 from app import logger
