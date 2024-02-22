@@ -1,6 +1,6 @@
-**postgres
+postgres/database/*
 app/app/static/media/*
-loggs/loggs_app/*
+logs/*
 
 **__pycache__
 **venv
