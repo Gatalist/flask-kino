@@ -1,7 +1,6 @@
 from app import db
+from datetime import datetime, timezone
 from app.users.models import User
-from datetime import datetime
-
 
 
 genre_movie = db.Table(
@@ -71,7 +70,6 @@ segment_movie = db.Table(
 )
 
 
-
 class Movie(db.Model):
     __tablename__ = 'movie'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -112,37 +110,46 @@ class Movie(db.Model):
     last_syncs = db.Column(db.DateTime, nullable=True)
 
     segment_id = db.Column(db.Integer, db.ForeignKey('segment.id', ondelete='SET NULL'))
-    segment = db.relationship('Segment', secondary=segment_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    segment = db.relationship('Segment', secondary=segment_movie,
+                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
     
     countries_id = db.Column(db.Integer, db.ForeignKey('country.id', ondelete='SET NULL'))
-    countries = db.relationship('Country', secondary=country_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    countries = db.relationship('Country', secondary=country_movie,
+                                backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     genres_id = db.Column(db.Integer, db.ForeignKey('genre.id', ondelete='SET NULL'))
-    genres = db.relationship('Genre', secondary=genre_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    genres = db.relationship('Genre', secondary=genre_movie,
+                             backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     director_id = db.Column(db.Integer, db.ForeignKey('director.id', ondelete='SET NULL'))
-    director = db.relationship('Director', secondary=director_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    director = db.relationship('Director', secondary=director_movie,
+                               backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
     
     creator_id = db.Column(db.Integer, db.ForeignKey('creator.id', ondelete='SET NULL',))
-    creator = db.relationship('Creator', secondary=creator_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    creator = db.relationship('Creator', secondary=creator_movie,
+                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     actor_id = db.Column(db.Integer, db.ForeignKey('actor.id', ondelete='SET NULL'))
-    actor = db.relationship('Actor', secondary=actor_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    actor = db.relationship('Actor', secondary=actor_movie,
+                            backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     screen_img_id = db.Column(db.Integer, db.ForeignKey('screenshot.id', ondelete='CASCADE'))
-    screen_img = db.relationship('Screenshot', secondary=screenshot_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    screen_img = db.relationship('Screenshot', secondary=screenshot_movie,
+                                 backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
-    similar = db.relationship('Similars', secondary=similars_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    similar = db.relationship('Similars', secondary=similars_movie,
+                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     trailer_id = db.Column(db.Integer, db.ForeignKey('trailer.id', ondelete='SET NULL'))
-    trailer = db.relationship('Trailer', secondary=trailer_movie, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    trailer = db.relationship('Trailer', secondary=trailer_movie,
+                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'))
     user = db.relationship('User', backref=db.backref('movie'), passive_deletes=False)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name_ru}'
@@ -151,7 +158,6 @@ class Movie(db.Model):
     def last_syncs_format(self):
         return str(self.last_syncs).split()[0]
 
-    
     @property
     def first_trailer(self):
         first = [tr for tr in self.trailer]
@@ -168,12 +174,12 @@ class Movie(db.Model):
         list_star = []
         
         if not curent_rating:
-            list_minus = ['star_m' for star in range(10)]
+            list_minus = ['star_m' for _ in range(10)]
             list_star.extend(list_minus)
             return list_star
 
         plus = int(curent_rating.star)
-        list_plus = ['star_p' for star in range(plus)]
+        list_plus = ['star_p' for _ in range(plus)]
         list_star.extend(list_plus)
 
         center = 0
@@ -184,11 +190,12 @@ class Movie(db.Model):
         list_star.extend(list_center)
 
         minus = max_rating - (plus + center)
-        list_minus = ['star_m' for star in range(minus)]
+        list_minus = ['star_m' for _ in range(minus)]
         list_star.extend(list_minus)
         return list_star
 
-    def mod_list_to_str(self, list_obj):
+    @staticmethod
+    def mod_list_to_str(list_obj):
         # убираем с имени знак ',' с последнего елемента списка
         if list_obj:
             list_name = [f'{name},' for name in list_obj]
@@ -233,8 +240,8 @@ class RatingKinopoisk(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.star}'
@@ -245,8 +252,8 @@ class RatingImdb(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
    
     def __repr__(self):
         return f'{self.star}'
@@ -257,8 +264,8 @@ class RatingFilmCritics(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
   
     def __repr__(self):
         return f'{self.star}'
@@ -269,8 +276,8 @@ class Reliase(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     year = db.Column(db.Integer)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
  
     def __repr__(self):
         return f'{self.year}'
@@ -281,8 +288,8 @@ class FilmLength(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     length = db.Column(db.Integer)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
  
     def __repr__(self):
         return f'{self.length}'
@@ -291,10 +298,11 @@ class FilmLength(db.Model):
 class AgeLimit(db.Model):
     __tablename__ = 'agelimit'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(64), index=True, unique=True)
+    # name_old = db.Column(db.String(64), index=True, unique=True)
+    name = db.Column(db.Integer)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -305,8 +313,8 @@ class TypeVideo(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
  
     def __repr__(self):
         return f'{self.name}'
@@ -317,8 +325,8 @@ class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -329,8 +337,8 @@ class Country(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -341,8 +349,8 @@ class Director(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -353,8 +361,8 @@ class Creator(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -366,10 +374,11 @@ class Actor(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
 
     tag_id = db.Column(db.Integer, db.ForeignKey('tagactor.id', ondelete='SET NULL'))
-    tag = db.relationship('TagActor', secondary=tag_actor, backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    tag = db.relationship('TagActor', secondary=tag_actor,
+                          backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -382,8 +391,8 @@ class Screenshot(db.Model):
     name = db.Column(db.String(256), index=True)
     url = db.Column(db.String(256), index=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.url}'
@@ -395,11 +404,11 @@ class Similars(db.Model):
     kinopoisk_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(256), nullable=True, index=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'{self.kinopoisk_id}| {self.name}'
+        return f'{self.name}'
 
 
 class Trailer(db.Model):
@@ -410,11 +419,11 @@ class Trailer(db.Model):
     url = db.Column(db.String(1024), index=True)
     background = db.Column(db.String(256), index=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.url}'
 
 
 class TagActor(db.Model):
@@ -422,8 +431,8 @@ class TagActor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'
@@ -434,8 +443,8 @@ class Segment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True)
 
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated_on = db.Column(db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
+    updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'{self.name}'

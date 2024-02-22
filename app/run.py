@@ -1,4 +1,4 @@
-from app import app
+from app.routes import app
 from app.settings import Config
 
 

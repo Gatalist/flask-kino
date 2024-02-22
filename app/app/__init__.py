@@ -1,4 +1,5 @@
-import sys, datetime
+import sys
+import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -7,19 +8,19 @@ from flask_bcrypt import Bcrypt
 from loguru import logger
 from flask_admin import Admin
 from flask_restful import Api
-from .swagger_doc import Apispec_docs
+from flasgger import Swagger
 from app.settings import Config
+from .swagger import template, swagger_config
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
-
 # add root path
 sys.path.append(app.config.get('ROOT_PATH'))
 
-# life time session
-app.permanent_session_lifetime = datetime.timedelta(days=10)
+# lifetime session
+app.permanent_session_lifetime = datetime.timedelta(days=Config.session_lifetime)
 
 # flask login
 # login_manager = LoginManager(app)
@@ -34,7 +35,7 @@ db = SQLAlchemy(app)
 # class instance Migrate
 migrate = Migrate(app, db, compare_type=True)
 
-# шыфрование
+# шифрование
 bcrypt = Bcrypt(app)
 
 # admin panel
@@ -42,29 +43,15 @@ admin = Admin(app)
 
 # API and documentation
 api = Api(app)
-api_docs = Apispec_docs(app)
+# api_docs = Apispec_docs(app)
+swagger = Swagger(app, config=swagger_config, template=template)
 
-# logging loguru
+# loging loguru
 logger.add(
-    "loggs/loggs_app/debug.log", 
-    format="{time} - [{level}] : {message}", 
-    level="DEBUG", 
+    "logs/logs_app/debug.log",
+    format="{time} - [{level}] : {message}",
+    level="DEBUG",
     rotation="100 KB")
-
-
-# migrations
-from .movies.models import *
-from .users.models import *
-
-
-# blueprints
-from app.movies import movie_blueprint
-from app.users import user_blueprint
-
-
-# Регистрируем Blueprint'ы в приложении
-app.register_blueprint(movie_blueprint, url_prefix='/')
-app.register_blueprint(user_blueprint, url_prefix='/user')
 
 
 @app.shell_context_processor

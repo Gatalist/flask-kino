@@ -1,0 +1,165 @@
+Movie Search
+---
+tags:
+  - Movie
+parameters:
+  - name: query
+    in: query
+    type: "string"
+    description: "The search query."
+    required: true
+  - name: page
+    in: query
+    type: "integer"
+    description: "page number"
+responses:
+  200:
+    description: "Successful response"
+    schema:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              kinopoisk_id:
+                type: "integer"
+                example: 346
+              imdb_id:
+                type: "string"
+                example: "tt12593682"
+              name_ru:
+                type: "string"
+                example: "Матрица"
+                required: true
+              name_original:
+                type: "string"
+                example: "Матрица"
+                required: true
+              rating_kinopoisk:
+                type: "float"
+                example: 7.3
+              rating_imdb:
+                type: "float"
+                example: 7.7
+              rating_critics:
+                type: "float"
+                example: 7.1
+              year:
+                type: "integer"
+                example: 2002
+              film_length:
+                type: "integer"
+                example: 120
+              slogan:
+                type: "string"
+                example: "River's Edge"
+              description:
+                type: "string"
+                example: "Фильм рассказывает о группе подростков, которые узнают о том, что один из них убил свою девушку из их же круга и оставил тело на берегу реки."
+              short_description:
+                type: "string"
+                example: "The most controversial film you will see this year."
+              type_video:
+                type: "string"
+                example: "FILM"
+              age_limits:
+                type: "int"
+                example: 18
+              last_syncs:
+                type: "string"
+                example: "2021-07-29 20:07:49"
+              countries:
+                type: "list"
+                example: ["Германия", "Япония"]
+              genres:
+                type: "list"
+                example: ["Триллер", "Боевик"]
+              director:
+                type: "list"
+                example: ["Брайан Сингер", "Лана Вачовски"]
+              creator:
+                type: "list"
+                example: ["Зак Пенн", "Дэн Харрис"]
+              actor:
+                type: "list"
+                example: ["Лауренц Тирард", "Стивен Фрай", "Джон Малкович", "Киану Ривз"]
+              screen_img:
+                type: "list"
+                example: [
+                  {"name": "1_image", "url": "/static/media/images/2003/298/1_image-2023-12-02-21-56-38.jpg"},
+                  {"name": "2_image", "url": "/static/media/images/2003/298/2_image-2023-12-02-21-56-39.jpg"}]
+              similar:
+                type: "list"
+                example: [{"id": 1888, "name": "Мстители"},
+                          {"id": 8, "name": "Эквилибриум"}]
+              trailer:
+                type: "list"
+                example: [{"kinopoisk_id": 288, "name": "Матрица - трейлер 1", "url": "https://imdb-video.media-imdb.com/vi3907125529/1434659454657-dx9ykf-1563840150443.mp4"},]
+    examples:
+      application/json:
+        pagination:
+          - pages: 21
+            curent_page: 1
+            item_in_page: 10
+            items: 210
+        objects:           
+          - kinopoisk_id: 346
+            imdb_id: "tt12593682"
+            name_ru: "Матрица"
+            name_original: "Матрица"
+            rating_kinopoisk: 7.3
+            rating_imdb: 7.7
+            rating_critics: 7.1
+            year: 2002
+            film_length: 120
+            slogan: "River's Edge"
+            description: "Фильм рассказывает о группе подростков, которые узнают о том, что один из них убил свою девушку из их же круга и оставил тело на берегу реки."
+            short_description: "The most controversial film you will see this year."
+            type_video: "FILM"
+            age_limits: 18
+            last_syncs: "2021-07-29 20:07:49"
+            countries: ["Германия", "Япония"]
+            genres: ["Триллер", "Боевик"]
+            director: ["Брайан Сингер", "Лана Вачовски"]
+            creator: ["Зак Пенн", "Дэн Харрис"]
+            actor: ["Лауренц Тирард", "Стивен Фрай", "Джон Малкович", "Киану Ривз"]
+            screen_img: [
+                {"name": "1_image", "url": "/static/media/images/2003/298/1_image-2023-12-02-21-56-38.jpg"},
+                {"name": "2_image", "url": "/static/media/images/2003/298/2_image-2023-12-02-21-56-39.jpg"}]
+            similar: [{"id": 1888, "name": "Мстители"},
+                      {"id": 8, "name": "Эквилибриум"}]
+            trailer: [{"kinopoisk_id": 288, "name": "Матрица - трейлер 1", "url": "https://imdb-video.media-imdb.com/vi3907125529/1434659454657-dx9ykf-1563840150443.mp4"},]
+          
+          - kinopoisk_id: 346
+            imdb_id: "tt12593682"
+            name_ru: "Матрица"
+            name_original: "Матрица"
+            rating_kinopoisk: 7.3
+            rating_imdb: 7.7
+            rating_critics: 7.1
+            year: 2002
+            film_length: 120
+            slogan: "River's Edge"
+            description: "Фильм рассказывает о группе подростков, которые узнают о том, что один из них убил свою девушку из их же круга и оставил тело на берегу реки."
+            short_description: "The most controversial film you will see this year."
+            type_video: "FILM"
+            age_limits: 18
+            last_syncs: "2021-07-29 20:07:49"
+            countries: ["Германия", "Япония"]
+            genres: ["Триллер", "Боевик"]
+            director: ["Брайан Сингер", "Лана Вачовски"]
+            creator: ["Зак Пенн", "Дэн Харрис"]
+            actor: ["Лауренц Тирард", "Стивен Фрай", "Джон Малкович", "Киану Ривз"]
+            screen_img: [
+                {"name": "1_image", "url": "/static/media/images/2003/298/1_image-2023-12-02-21-56-38.jpg"},
+                {"name": "2_image", "url": "/static/media/images/2003/298/2_image-2023-12-02-21-56-39.jpg"}]
+            similar: [{"id": 1888, "name": "Мстители"},
+                      {"id": 8, "name": "Эквилибриум"}]
+            trailer: [{"kinopoisk_id": 288, "name": "Матрица - трейлер 1", "url": "https://imdb-video.media-imdb.com/vi3907125529/1434659454657-dx9ykf-1563840150443.mp4"},]
+  201:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to Register due to bad request data

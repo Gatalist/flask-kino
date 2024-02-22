@@ -1,0 +1,37 @@
+Director List
+---
+tags:
+  - Director
+responses:
+  200:
+    description: "Successful response"
+    schema:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: "integer"
+                example: 6
+              name:
+                type: "string"
+                example: "Adam Fitcher"
+                required: true
+
+    examples:
+      application/json:
+        items: 210
+        objects:           
+          - id: 6
+            name: "Adam Fitcher"
+
+          - id: 3
+            name: "Monica Korner"
+  201:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to Register due to bad request data

@@ -1,23 +1,24 @@
 from flask import render_template, request, redirect
 from flask.views import MethodView
 from app.settings import Config
-from .Mixin import MixinMovie
+from .services import MixinMovie
 from .models import Movie
 from app import logger
 
 
 class HomeView(MixinMovie, MethodView):
-    @logger.catch
+    # @logger.catch
     def get(self):
         self.create_context()
 
         movie = self.filter_movie()
         movies = self.sort_movie(movie)
+        print(movie.all())
         page = request.args.get('page', 1, type=int)
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index-2.html', pages=pages, **self.context)
 
-    @logger.catch
+    # @logger.catch
     def post(self):
         movie = self.filter_movie(request.form)
         movies = self.sort_movie(movie, request.form)
@@ -28,7 +29,7 @@ class HomeView(MixinMovie, MethodView):
 
 class MovieDetailView(MethodView):
     def get(self, slug):
-        movie = Movie.query.filter(Movie.slug==slug).first()
+        movie = Movie.query.filter(Movie.slug == slug).first()
         return render_template('detail_movie.html', movie=movie)
 
 

@@ -1,0 +1,24 @@
+Movie Change
+---
+tags:
+  - Movie
+parameters:
+  - name: movie_id
+    in: path
+    type': integer
+    required': true
+    description': Идентификатор фильма - число
+    schema:
+      type: object
+      required:
+        - "movie_id"
+
+      
+
+
+responses:
+  201:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to Register due to bad request data
