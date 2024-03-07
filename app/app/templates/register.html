@@ -13,7 +13,7 @@
 
 <div class="row justify-content-center">
     <div class="col-4">
-        <form action="{{ url_for('app_users.register') }}" method="post" novalidate>
+        <form action="{{ url_for('app_user.register') }}" method="post" novalidate>
             {% for cat, msg in get_flashed_messages(True) %}
                 {% if cat == 'error_save' %}
                     <div class="alert alert-danger" role="alert">
@@ -29,7 +29,7 @@
             
             <div class="mb-3">
                 <label class="form-label">Your name</label>
-                <input type="text" name="name" class="form-control" placeholder="Your name">
+                <input type="text" name="username" class="form-control" placeholder="Your name">
                 {% for cat, msg in get_flashed_messages(True) %}
                     {% if cat == 'error_name' %}
                         <div class="alert alert-danger" role="alert">

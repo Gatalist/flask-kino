@@ -67,9 +67,6 @@ class Config(object):
     SECURITY_PASSWORD_SALT = os.getenv('SECURITY_SALT')
     SECURITY_PASSWORD_HASH = os.getenv('SECURITY_HASH')
 
-# class ProdConfig(Config):
-#     DEBUG = False
-
 
 # class DevConfig(Config):
 #     DEVELOPMENT = True

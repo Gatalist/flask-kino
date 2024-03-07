@@ -1,7 +1,7 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 from flask_login import UserMixin
 from flask_security import RoleMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
 
@@ -56,6 +56,13 @@ class User(db.Model, UserMixin):
 
     def get_id(self):
         return self.id
+
+    # @staticmethod
+    # def get_user(user_id):
+    #     user = User.query.get(id=user_id)
+    #     if user:
+    #         return user
+    #     return False
 
     def is_anonymous(self):
         return False

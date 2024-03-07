@@ -1,18 +1,14 @@
 from flask import Blueprint
-from app import db, admin, api  # , api_docs
-
+from app import db, admin
 from app.movies.routes import (HomeView, MovieDetailView, MovieSearchView)
 
 from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingFilmCritics, Reliase, FilmLength,
                                Genre, AgeLimit, TypeVideo, Director, Creator, Actor, Screenshot, Similars, Country,
                                Trailer, TagActor, Segment)
 
-from .admin_logica import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, ReleaseView,
-                           FilmLengthView, GenreView, AgeLimitView, TypeVideoView, DirectorView, TagActorView,
-                           CreatorView, ActorView, ScreenshotView, SimilarsView, CountryView, TrailerView, SegmentView)
-
-from .routes_api import (MoviesList, GenreList, CountryList, DirectorList, ReleaseList, MoviesSearch,
-                         MovieChange, MovieCreate)
+from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, ReleaseView,
+                     FilmLengthView, GenreView, AgeLimitView, TypeVideoView, DirectorView, TagActorView,
+                     CreatorView, ActorView, ScreenshotView, SimilarView, CountryView, TrailerView, SegmentView)
 
 
 movie_blueprint = Blueprint('app_movies', __name__, template_folder='templates', static_folder='static')
@@ -39,19 +35,7 @@ admin.add_view(DirectorView(Director, db.session))
 admin.add_view(CreatorView(Creator, db.session))
 admin.add_view(ActorView(Actor, db.session))
 admin.add_view(ScreenshotView(Screenshot, db.session))
-admin.add_view(SimilarsView(Similars, db.session))
+admin.add_view(SimilarView(Similars, db.session))
 admin.add_view(TrailerView(Trailer, db.session))
 admin.add_view(TagActorView(TagActor, db.session))
 admin.add_view(SegmentView(Segment, db.session))
-
-
-# регистрируем url нашего api
-api.add_resource(MovieCreate, '/api/movie/create/')
-api.add_resource(MovieChange, '/api/movie/<movie_id>/')
-api.add_resource(MoviesSearch, '/api/movie/search/')
-api.add_resource(MoviesList, '/api/movie/')
-
-api.add_resource(ReleaseList, '/api/release/')
-api.add_resource(GenreList, '/api/genre/')
-api.add_resource(DirectorList, '/api/director/')
-api.add_resource(CountryList, '/api/country/')

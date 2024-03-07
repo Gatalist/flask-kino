@@ -53,4 +53,3 @@ class MoviesSchema(Schema):
     actor = fields.List(fields.String())
     screen_img = fields.List(fields.String())
     trailer = fields.List(fields.String())
-    

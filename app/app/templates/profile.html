@@ -11,7 +11,7 @@
     <img src="{{ url_for('static', filename=user.poster) }}" class="img-thumbnail" alt="">
     <div class="card-body">
         <h5 class="card-title">Settings profile</h5>
-        <p class="card-text">Name: {{ user.name }}</p>
+        <p class="card-text">Name: {{ user.username }}</p>
         <p class="card-text">Email: {{ user.email }}</p>
         <input  type="file" class="btn btn-info" value="change avatar">
         <br/>

@@ -6,11 +6,26 @@ from flask import request, jsonify
 from flasgger import swag_from
 from app.movies.schemas import (MoviesSchema, GenreSchema, CountrySchema, DirectorSchema, ReleaseSchema)
 from app.movies.models import (Movie, Genre, Country, Director, Reliase)
-from .services import JsonifyObject, MovieCRUD
+from app.api.service import Authorization, JsonifyObject, MovieCRUD
+
+
+class UserApiRegister(Authorization, MethodResource, Resource):
+    @swag_from('./docs/register.yaml')
+    def post(self):
+        input_data = request.get_json()
+        return self.create_user(input_data)
+
+
+class UserApiLogin(Authorization, MethodResource, Resource):
+    @swag_from('./docs/login.yaml')
+    def post(self):
+        input_data = request.get_json()
+        print(input_data)
+        return self.login_user(input_data)
 
 
 # API изменяем фильм
-class MovieChange(JsonifyObject, MovieCRUD, MethodResource, Resource):
+class MovieChange(MovieCRUD, MethodResource, Resource):
     # @logger.catch
     @marshal_with(MoviesSchema)  # marshalling
     @swag_from('./docs/movies_change.yaml')
@@ -30,7 +45,7 @@ class MovieChange(JsonifyObject, MovieCRUD, MethodResource, Resource):
             serialize_obj = self.serialize_object(obj, MoviesSchema, many=False)
             return self.json_response_one(serialize_obj)
         return self.error_response(404, f"Not found movie id: {movie_id}")
-    
+
     @marshal_with(MoviesSchema)
     @swag_from('./docs/movies_change.yaml')
     def delete(self, movie_id):
@@ -41,7 +56,7 @@ class MovieChange(JsonifyObject, MovieCRUD, MethodResource, Resource):
 
 
 # API создаем новый фильмы
-class MovieCreate(JsonifyObject, MovieCRUD, MethodResource, Resource):
+class MovieCreate(MovieCRUD, MethodResource, Resource):
     # @logger.catch
     @marshal_with(MoviesSchema)
     @swag_from('./docs/movies_create.yaml')
@@ -83,7 +98,6 @@ class MoviesSearch(JsonifyObject, MethodResource, Resource):
         return self.error_response(404, "Not found")
 
 
-# API фильмы на странице
 class MoviesList(JsonifyObject, MethodResource, Resource):
     # @logger.catch
     @marshal_with(MoviesSchema)
@@ -104,7 +118,7 @@ class MoviesList(JsonifyObject, MethodResource, Resource):
             serialize_obj = self.serialize_object(obj_page, MoviesSchema, many=True)
             return self.json_response_many(serialize_obj, obj_page_count, page)
         return self.error_response(404, f"Not found")
-    
+
 
 class ReleaseList(JsonifyObject, MethodResource, Resource):
     @logger.catch
@@ -125,7 +139,7 @@ class GenreList(JsonifyObject, MethodResource, Resource):
     @marshal_with(GenreSchema)  # marshalling
     @swag_from('./docs/genre_list.yaml')
     # @token_required
-    def get(self):    
+    def get(self):
         get_obj = Genre.query
         if get_obj:
             obj_page_count = get_obj.count()

@@ -5,7 +5,7 @@ template = {
         "description": "API for Movie",
         "version": "1.0"
     },
-    "basePath": "/",  # base bash for blueprint registration
+    "basePath": "/api/",  # base bash for blueprint registration
     "schemes": [
         "http",
         "https"

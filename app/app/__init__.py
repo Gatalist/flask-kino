@@ -3,11 +3,10 @@ import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from flask_login import LoginManager
+from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from loguru import logger
 from flask_admin import Admin
-from flask_restful import Api
 from flasgger import Swagger
 from app.settings import Config
 from .swagger import template, swagger_config
@@ -23,8 +22,10 @@ sys.path.append(app.config.get('ROOT_PATH'))
 app.permanent_session_lifetime = datetime.timedelta(days=Config.session_lifetime)
 
 # flask login
-# login_manager = LoginManager(app)
-# login_manager.login_view = 'users.login'
+login_manager = LoginManager()
+# Указываем маршрут для входа в систему
+login_manager.__init__(app)
+login_manager.login_view = 'users.load_user'
 
 # test client for unit test
 client = app.test_client()
@@ -41,8 +42,6 @@ bcrypt = Bcrypt(app)
 # admin panel
 admin = Admin(app)
 
-# API and documentation
-api = Api(app)
 # api_docs = Apispec_docs(app)
 swagger = Swagger(app, config=swagger_config, template=template)
 

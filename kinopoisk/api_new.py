@@ -84,8 +84,7 @@ class Tools(Base, UserAgent):
 
             data_image = self.request_data(url=image_url)
             return self.save_file(path_image, new_name_image, data_image)
-        return None
-    
+
     # сохраняем изображение перебором в цыкле
     def save_image_list(self, name, path_image, image_list) -> list:
         print("\n----------- Save File ----------")
@@ -250,7 +249,7 @@ class ParserKinopoiskIMDB(Tools):
                     data_trailers[f'trailer'] = elem
 
             screen_trailer = {}
-            screen_trailer['screenshots'] = set(screenshot)  # возвращаем картинки
+            screen_trailer['screenshots'] = list(set(screenshot))  # возвращаем картинки
             screen_trailer['trailers'] = data_trailers  # возвращаем трейлеры
 
             # print(screen_trailer)
@@ -293,7 +292,6 @@ class DataBase(Base):
             date_format = "%Y-%m-%dT%H:%M:%S.%f"
             # Преобразование строки в объект datetime
             return datetime.strptime(date_string, date_format)
-        return None
 
     # получаем запись с базы данных (id)
     def select_data(self, table_name: str, select_keys: str, where_key_name: str, where_key_data) -> int:
@@ -348,13 +346,9 @@ class DataBase(Base):
             # получаем всем актеров с тегом - 'popular' c db
             with self.connect_db() as conn:
                 with conn.cursor() as cursor:                
-                    cursor.execute("""
-                        SELECT actor.name
-                        FROM actor
-                        JOIN tag_actor ON actor.id = tag_actor.actor_id
-                        JOIN tagactor ON tag_actor.tagactor_id = tagactor.id
-                        WHERE tagactor.name = 'popular';
-                    """)
+                    cursor.execute("""SELECT actor.name FROM actor JOIN tag_actor ON actor.id = tag_actor.actor_id
+                                      JOIN tagactor ON tag_actor.tagactor_id = tagactor.id 
+                                      WHERE tagactor.name = 'popular';""")
                     popular_actor = cursor.fetchall()
                     popular_actor = [item[0] for item in popular_actor]
                     # print(popular_actor)
@@ -395,7 +389,6 @@ class Processing(DataBase):
                 i += 1
             print(idd)
             return screen
-        return None
     
     # записываем похожие фильмов и возвращаем (id)
     def get_or_create_similar(self, list_value) -> list:
@@ -412,7 +405,6 @@ class Processing(DataBase):
 
             print(lict_obj_id)
             return lict_obj_id
-        return None
     
     # записываем трейлеры к фильму и возвращаем (id)
     def create_trailer(self, list_value) -> list:
@@ -428,7 +420,6 @@ class Processing(DataBase):
                 video.append(idd)
             print(video)
             return video
-        return None
     
     # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_creator(self, elem_list) -> list:
@@ -445,7 +436,6 @@ class Processing(DataBase):
 
             print(lict_obj_id)
             return lict_obj_id
-        return None
     
     # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_actor(self, elem_list) -> list:
@@ -462,7 +452,6 @@ class Processing(DataBase):
 
             print(lict_obj_id)
             return lict_obj_id
-        return None
     
     # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_director(self, elem_list) -> list:
@@ -479,7 +468,6 @@ class Processing(DataBase):
 
             print(lict_obj_id)
             return lict_obj_id
-        return None
     
     # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_country(self, elem_list) -> list:
@@ -497,7 +485,6 @@ class Processing(DataBase):
 
             print(lict_obj_id)
             return lict_obj_id
-        return None
     
     # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_genre(self, elem_list) -> list:
@@ -516,7 +503,6 @@ class Processing(DataBase):
             
             print(lict_obj_id)
             return lict_obj_id
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_agelimit(self, elem) -> int:
@@ -531,7 +517,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_typevideo(self, elem) -> int:
@@ -544,7 +529,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_filmlength(self, elem) -> int:
@@ -557,7 +541,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_reliase(self, elem) -> int:
@@ -570,7 +553,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_rating_critics(self, elem) -> int:
@@ -583,7 +565,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_rating_kinopoisk(self, elem) -> int:
@@ -596,7 +577,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # записываем данные и получаем (id)
     def get_or_create_rating_imdb(self, elem) -> int:
@@ -609,7 +589,6 @@ class Processing(DataBase):
                 insert_keys=keys, insert_values=values)
             print(idd)
             return idd
-        return None
 
     # проверяем фильм в базе, если находим то пропускаем данный фильм
     def get_movie(self, kinopoisk_id) -> object:

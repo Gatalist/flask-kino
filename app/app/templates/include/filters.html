@@ -9,7 +9,7 @@
                         
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="year_{{year.id}}" value="{{year}}" 
-                                {% if year.id in is_active_years %}
+                                {% if is_active_years and year.id in is_active_years %}
                                     checked
                                 {% endif %}
                             >
@@ -28,7 +28,7 @@
                         
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="genre_{{genre.id}}" value="{{genre}}" 
-                            {% if genre.id in is_active_genres %}
+                            {% if is_active_genres and genre.id in is_active_genres %}
                                 checked
                             {% endif %}
                             >
@@ -47,7 +47,7 @@
                         
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="director_{{director.id}}" value="{{director}}" 
-                            {% if director.id in is_active_directors %}
+                            {% if is_active_directors and director.id in is_active_directors %}
                                 checked
                             {% endif %}
                             >

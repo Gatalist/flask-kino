@@ -14,7 +14,9 @@ class HomeView(MixinMovie, MethodView):
         movie = self.filter_movie()
         movies = self.sort_movie(movie)
         print(movie.all())
+
         page = request.args.get('page', 1, type=int)
+        print('page', page, type(page))
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index-2.html', pages=pages, **self.context)
 
