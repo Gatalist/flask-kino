@@ -1,98 +1,102 @@
-from api_new import ParserKinopoiskIMDB, Tools, DataBase, Processing
+from api_new import ParserKinopoiskIMDB, DataBase, Processing
 from datetime import datetime
 import time
 
 
 parser = ParserKinopoiskIMDB()
-tools = Tools()
 db = DataBase()
-procese = Processing()
+processing = Processing()
 
 
-
-def create_popular_actor():
-    file_actor = tools.read_file_actor_name('actor.txt')
-    add_popular_actor = procese.get_or_create_actor(elem_list=file_actor)
-    tag_id = 1
-
-    print(add_popular_actor)
-    conn = db.connect_db()
-    cursor = conn.cursor()
-    for actor_id in add_popular_actor:
-        cursor.execute(f"INSERT INTO tag_actor VALUES (%s, %s);", (actor_id, tag_id))
-    conn.commit()
-
-    # next step
-    # add role, user, tag
-
-
-def parse_and_create_movie():
+# start id -> 298 -> 4 647 040 +-
+def parse_and_create_movie(start_id: int, end_id: int):
     # получение данных с api
-    # start id -> 298 -> 4 647 040 +-
-    for movie_id in range(3820, 5000):
+    for movie_id in range(start_id, end_id):
         print(f'\n\n----> kinopoisk id: {movie_id} <-----')
+        # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
+        if not processing.get_movie(movie_id):
+            # получаем все данные для фильма
+            print('\n----------  Получение данных для фильма ----------\n')
+            movie = parser.request_data_movie(kinopoisk_id=movie_id)
+            if movie == "Forbidden":
+                break
 
-        # получаем все данные для фильма
-        movie = parser.request_data_movie(kinopoisk_id=movie_id)
-        # print(movie)
-        if movie and procese.get_movie(movie.get('kinopoiskId')):
-            piople = parser.request_data_piople(kinopoisk_id=movie.get('kinopoiskId'))
+            if not parser.current_key:
+                print("Not API key")
+                break
 
-            popular_actor = procese.popular_actor(piople.get('actor'))
+            if movie and movie != 404:
+                people = parser.request_data_people(kinopoisk_id=movie.get('kinopoiskId'))
+                popular_actor = processing.popular_actor(people.get('actor'))
+                similar = parser.request_data_similar(kinopoisk_id=movie.get('kinopoiskId'))
+                screen_and_trailer = parser.request_movie_screenshot(imdb_id=movie.get('imdbId'))
 
-            similar = parser.request_data_similar(kinopoisk_id=movie.get('kinopoiskId'))
-            screen_and_trailer = parser.request_data_screenshot_and_trailer(imdb_id=movie.get('imdbId'))
+                # сохраняем картинки и возвращаем ссылки на них
+                path = parser.generate_path(movie)
+                poster = parser.save_image(name='postr', path_image=path, image_url=movie.get('posterUrl'))
+                screenshot_path = parser.save_image_list(
+                    name='image', path_image=path, image_list=screen_and_trailer.get('screenshots', None))
 
-            # сохраняем картинки и возвращаем ссылки на них
-            path = tools.generate_path(movie)
-            poster = tools.save_image(name='postr', path_image=path,
-                image_url=movie.get('posterUrl'))
-            scrinshot_path = tools.save_image_list(name='image', path_image=path, 
-                image_list=screen_and_trailer.get('screenshots', None))
+                # записываем данные в таблицы
+                rating_kinopoisk = processing.get_or_create_rating_kinopoisk(movie.get('ratingKinopoisk'))
+                rating_imdb = processing.get_or_create_rating_imdb(movie.get('ratingImdb'))
+                rating_critics = processing.get_or_create_rating_critics(movie.get('ratingFilmCritics'))
+                release = processing.get_or_create_release(movie.get('year'))
+                film_length = processing.get_or_create_film_length(movie.get('filmLength'))
+                type_video = processing.get_or_create_type_video(movie.get('type'))
+                age_limit = processing.get_or_create_age_limit(movie.get('ratingAgeLimits'))
+                genre = processing.get_or_create_genre(elem_list=movie.get('genres'))
+                country = processing.get_or_create_country(elem_list=movie.get('countries'))
+                director = processing.get_or_create_director(elem_list=people.get('director'))
+                actor = processing.get_or_create_actor(list_actor=popular_actor, count_actor_save=12)
+                creator = processing.get_or_create_creator(elem_list=people.get('creator'))
+                screenshot = processing.create_screen_movie(movie.get('kinopoiskId', None), screenshot_path)
+                similar = processing.get_or_create_similar(similar)
+                new_url = processing.generate_url(movie)
 
-            # записываем данные в таблицы
-            rating_kinopoisk = procese.get_or_create_rating_kinopoisk(movie.get('ratingKinopoisk'))
-            rating_imdb = procese.get_or_create_rating_imdb(movie.get('ratingImdb'))
-            rating_critics = procese.get_or_create_rating_critics(movie.get('ratingFilmCritics'))
-            reliase = procese.get_or_create_reliase(movie.get('year'))
-            filmlength = procese.get_or_create_filmlength(movie.get('filmLength'))
-            typevideo = procese.get_or_create_typevideo(movie.get('type'))
-            agelimit = procese.get_or_create_agelimit(movie.get('ratingAgeLimits'))
-            genre = procese.get_or_create_genre(elem_list=movie.get('genres'))
-            country = procese.get_or_create_country(elem_list=movie.get('countries'))
-            director = procese.get_or_create_director(elem_list=piople.get('director'))
-            actor = procese.get_or_create_actor(elem_list=popular_actor)
-            creator = procese.get_or_create_creator(elem_list=piople.get('creator'))
-            screenshot = procese.create_screen_movie(movie.get('kinopoiskId', None), scrinshot_path)
-            similars = procese.get_or_create_similar(similar)
-            trailer = procese.create_trailer(screen_and_trailer.get('trailers', None))
-            new_url = procese.generate_url(movie)
+                # создаем фильм
+                new_movie = processing.create_movie(kinopoisk_id=movie.get('kinopoiskId', None),
+                                                    imdb_id=movie.get('imdbId', None),
+                                                    name_ru=movie.get('nameRu'),
+                                                    name_original=movie.get('nameOriginal'),
+                                                    poster_url=poster,
+                                                    slug=new_url,
+                                                    rating_kinopoisk_id=rating_kinopoisk,
+                                                    rating_imdb_id=rating_imdb,
+                                                    rating_critics_id=rating_critics,
+                                                    year_id=release,
+                                                    film_length_id=film_length,
+                                                    slogan=movie.get('slogan'),
+                                                    description=movie.get('description'),
+                                                    short_description=movie.get('shortDescription'),
+                                                    type_video_id=type_video,
+                                                    age_limits_id=age_limit,
+                                                    last_syncs=db.converting_date_time(movie.get('lastSync')),
+                                                    user_id=processing.get_user('Admin'),
+                                                    created_on=datetime.now())
 
-            # создаем фильм
-            new_movie = procese.create_movie(kinopoisk_id=movie.get('kinopoiskId', None), imdb_id=movie.get('imdbId', None),
-                name_ru=movie.get('nameRu'), name_original=movie.get('nameOriginal'),
-                poster_url=poster, slug=new_url,
-                rating_kinopoisk_id=rating_kinopoisk, rating_imdb_id=rating_imdb,
-                rating_critics_id=rating_critics, year_id=reliase, film_length_id=filmlength,
-                slogan=movie.get('slogan'), description=movie.get('description'),
-                short_description=movie.get('shortDescription'), type_video_id=typevideo,
-                age_limits_id=agelimit, last_syncs=db.converting_date_time(movie.get('lastSync')),
-                user_id=procese.get_user('Admin'), created_on=datetime.now())
-
-            # сохраняем данные в связаные таблицы many-to-many
-            db.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genre)
-            db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country)
-            db.related_table(table_name='director_movie', movie_id=new_movie, list_data=director)
-            db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor)
-            db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator)
-            db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshot)
-            db.related_table(table_name='similars_movie', movie_id=new_movie, list_data=similars)
-            db.related_table(table_name='trailer_movie', movie_id=new_movie, list_data=trailer)
-
+                #  сохраняем данные в связанные таблицы many-to-many
+                db.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genre)
+                db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country)
+                db.related_table(table_name='director_movie', movie_id=new_movie, list_data=director)
+                db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor)
+                db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator)
+                db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshot)
+                db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar)
+        else:
+            print('\n Фильм уже существует\n')
         print('\n--------- Finish ----------\n\n\n')
         time.sleep(2)
 
 
-# create_popular_actor()
+#  if database clear
+#  before start first parser need next step
+#  add role, add user Admin, add tag popular-actor, run create_popular_actor
+# processing.create_popular_actor(file_actor_name='actor/actor.txt', tag_id=1)
+# processing.create_popular_actor(file_actor_name='actor/1965.txt', tag_id=2)  # 1965
 
-parse_and_create_movie()
+#  9000  9500
+#  9500  10000
+start = int(input("Enter number start: "))
+end = int(input("Enter number end: "))
+parse_and_create_movie(start_id=start, end_id=end)

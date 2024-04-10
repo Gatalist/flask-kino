@@ -1,15 +1,9 @@
-from bs4 import BeautifulSoup as bs
+import random, os, requests, psycopg2, re, json
 from dotenv import dotenv_values
 from datetime import datetime
+from bs4 import BeautifulSoup as bs
 from pathlib import Path
 from slugify import slugify
-import requests
-import psycopg2
-import random
-import json
-import os
-import re
-
 from user_agent import list_user_agent
 from status_code import bade_status_codes
 
@@ -27,13 +21,13 @@ class Parser:
             self.env_file.get('KEY_10'), self.env_file.get('KEY_11'), self.env_file.get('KEY_12'),
             self.env_file.get('KEY_13'), self.env_file.get('KEY_14'), self.env_file.get('KEY_15'),
             self.env_file.get('KEY_16'), self.env_file.get('KEY_17'), self.env_file.get('KEY_18'),
-            self.env_file.get('KEY_19'), self.env_file.get('KEY_20'), self.env_file.get('KEY_21')
+            self.env_file.get('KEY_19'), self.env_file.get('KEY_20')
         ]
 
         self.iter_key = iter(self.list_api_key)
         self.current_key = self.get_next_api_key()
 
-    # получаем следующий api ключ из списка
+    # получаем следующий ключ из списка
     def get_next_api_key(self):
         try:
             self.current_key = next(self.iter_key)
@@ -45,7 +39,7 @@ class Parser:
     def status_key(self):
         print('api_key:', self.current_key)
 
-    # Получение рандомный User-Agent
+    # получение рандомного User-Agent
     @staticmethod
     def get_user_agent() -> json:
         user = random.choice(list_user_agent)
@@ -75,10 +69,8 @@ class Parser:
                 return 400
 
         except requests.exceptions.ConnectionError:
-            print('\nRetry Connection...')
+            print({'error': 'ConnectionError'})
             self.request_data(url, api_key)
-        except RecursionError:
-            raise ConnectionError
 
 
 class Tools(Parser):
@@ -137,7 +129,7 @@ class Tools(Parser):
 
     # считываем всех актеров с файла и возвращаем список
     @staticmethod
-    def read_file_actor_name(file_name: str) -> list:
+    def read_file_actor_name(file_name: str):
         actor_list = []
         with open(file_name) as reader:
             for line in reader.readlines():
@@ -180,7 +172,7 @@ class ParserKinopoiskIMDB(Tools):
             if name and poster and year:
                 return result
 
-    # получаем по API kinopoisk режиссеров, актеров, сценаристов
+    # получаем по API kinopoisk режесеров, актеров, сценаристов
     def request_data_people(self, kinopoisk_id) -> json:
         print(f'\n----------- People parsing ----------')
         parse_url = f"{self.base_kinopoisk_api_url}/api/v1/staff?filmId={kinopoisk_id}"
@@ -204,7 +196,7 @@ class ParserKinopoiskIMDB(Tools):
             'actor': actor,
             'director': director}
 
-    # Получаем по API kinopoisk похожие фильмы
+    # получаем по API kinopoisk похожие фильмы
     def request_data_similar(self, kinopoisk_id) -> json:
         print(f'\n----------- Similar parsing ----------')
         parse_url = f"{self.base_kinopoisk_api_url}/api/v2.2/films/{kinopoisk_id}/similars"
@@ -224,7 +216,7 @@ class ParserKinopoiskIMDB(Tools):
                 return similar
             return []
     
-    # Парсим сайт IMDB и получаем кадры с фильма
+    # парсим сайт IMDB и получаем кадры с фильма, трейлер
     def request_movie_screenshot(self, imdb_id) -> json:
         print(f'\n----------- IMDB parsing ----------')
         parse_url = f"{self.base_imdb_url}{imdb_id}"
@@ -276,126 +268,58 @@ class DataBase(Tools):
         with self.connect_db() as conn:
             with conn.cursor() as cursor:
                 # транзакция в базу
-                cursor.execute(
-                    f"SELECT {select_keys} FROM {table_name} WHERE {where_key_name} = %s;", (where_key_data,)
-                )
+                cursor.execute(f"SELECT {select_keys} FROM {table_name} WHERE {where_key_name} = %s;", (where_key_data,))
                 # получаем объект пример: (1, Админ)
-                result_select = cursor.fetchone()
+                result_select = cursor.fetchall()
                 if result_select:
-                    return result_select[0]
+                    admin_user = result_select[-1]
+                    return admin_user[0]
     
     # создаем запись в базе данных и получаем (id)
-    def insert_data(self, table_name: str, keys_name: tuple, values_data: tuple):
+    def insert_data(self, table_name: str, keys_name: set, values_data: set) -> int:
         with self.connect_db() as conn:
             with conn.cursor() as cursor:
-                keys_ = ', '.join(keys_name)  # преобразовываем tuple в str
-                values_ = ', '.join(['%s' for _ in keys_name])  # # преобразовываем tuple в str и заменяем на %s
+                keys_ = ', '.join(keys_name)  # преобразовываем set в str
+                values_ = ', '.join(['%s' for _ in keys_name])  # # преобразовываем set в str и заменяем на %s
                 # транзакция в базу
-                cursor.execute(
-                    f"INSERT INTO {table_name} ({keys_}) VALUES ({values_});", values_data
-                )
+                cursor.execute(f"INSERT INTO {table_name} ({keys_}) VALUES ({values_});", values_data)
                 conn.commit()
+                # получаем объект пример: (1, Админ)
+                cursor.execute("SELECT lastval();")
+                created_obj = cursor.fetchone()
+                # Возвращаем ID
+                return created_obj[0]
 
     # записываем данные или получаем и возвращаем (id)
     def get_or_create(self, table_name: str, select_key: str, where_key_name: str, where_key_data: any,
-                      insert_keys: tuple, insert_values: tuple) -> int:
-
+                      insert_keys: set, insert_values: set) -> int:
         get_val = self.select_data(
-            table_name=table_name,
-            select_keys=select_key,
-            where_key_name=where_key_name,
-            where_key_data=where_key_data
-        )
-
+            table_name=table_name, select_keys=select_key, where_key_name=where_key_name, where_key_data=where_key_data)
         if get_val:
             return get_val
-        else:
-            self.insert_data(
-                table_name=table_name,
-                keys_name=insert_keys,
-                values_data=insert_values
-            )
-
-            return self.select_data(
-                table_name=table_name,
-                select_keys=select_key,
-                where_key_name=where_key_name,
-                where_key_data=where_key_data
-            )
-
-    # генерируем url к новому фильму
-    def generate_url(self, data_json) -> str:
-        # Получаем последний id фильма с базы
-        with self.connect_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    'SELECT id FROM movies ORDER BY id DESC LIMIT 1'
-                )
-                result_select = cursor.fetchone()
-                if result_select:
-                    movie_id = result_select[0]
-                else:
-                    movie_id = 0
-
-        new_movie_id = str(movie_id + 1)
-        if data_json['nameOriginal']:
-            slug = slugify(data_json['nameRu'] + ' ' + new_movie_id)
-        else:
-            slug = slugify(data_json['nameOriginal'] + ' ' + new_movie_id)
-        return slug
+        return self.insert_data(table_name=table_name, keys_name=insert_keys, values_data=insert_values)
     
     # связываем таблицы
     def related_table(self, table_name, movie_id, list_data) -> None:
-        print('\n-------- Related table ------------')
+        print('\n-------- related table ------------')
         print(table_name, list_data)
         if list_data:
             with self.connect_db() as conn:
                 with conn.cursor() as cursor:
                     for gen_id in list_data:
-                        cursor.execute(
-                            f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id)
-                        )
+                        cursor.execute(f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id))
                     conn.commit()
 
-    # получаем пользователя для записи данных
-    def get_user(self, name) -> object:
-        print('\n------- User ----------')
-        get_val = self.select_data(
-            table_name='users',
-            select_keys='id, username',
-            where_key_name='username',
-            where_key_data=name
-        )
-
-        if get_val:
-            print(get_val)
-            return get_val
-
-    # проверяем фильм в базе, если находим то пропускаем данный фильм
-    def get_movie(self, kinopoisk_id) -> int:
-        print(f'\n----------  Поиск фильм в базе ----------')
-        get_val = self.select_data(
-            table_name='movies',
-            select_keys='id, kinopoisk_id',
-            where_key_name='kinopoisk_id',
-            where_key_data=kinopoisk_id
-        )
-        if get_val:
-            return get_val
-
     # проверяем актеров, сортируем по популярности и возвращаем список
-    def popular_actor(self, list_actor, count_actor_save):
+    def popular_actor(self, list_actor):
         if list_actor:
-            actor_len_list = count_actor_save  # длина списка актеров
-            # получаем всех актеров с тегом - 'popular' c db
+            actor_len_list = 12  # длина списка актеров
+            # получаем всем актеров с тегом - 'popular' c db
             with self.connect_db() as conn:
                 with conn.cursor() as cursor:                
                     cursor.execute(
-                        """SELECT actors.name FROM actors 
-                           JOIN tag_actor ON actors.id = tag_actor.actor_id 
-                           JOIN tags ON tag_actor.tag_id = tags.id 
-                           WHERE tags.name = 'popular';"""
-                    )
+                        """SELECT actor.name FROM actor JOIN tag_actor ON actor.id = tag_actor.actor_id 
+                           JOIN tagactor ON tag_actor.tagactor_id = tagactor.id WHERE tagactor.name = 'popular';""")
                     popular_actor = cursor.fetchall()
                     popular_actor = [item[0] for item in popular_actor]
             
@@ -425,47 +349,30 @@ class Processing(DataBase):
             screen = []
             i = 1
             for src in list_value:
-                screen_name = f'{i}_screenshot'
-
                 keys = ('kinopoisk_id', 'name', 'url', 'created_on')
-                values = (kinopoisk_id, screen_name, src, datetime.now())
-
-                idd = self.get_or_create(
-                    table_name='screenshots',
-                    select_key='id, url',
-                    where_key_name='url',
-                    where_key_data=src,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                values = (kinopoisk_id, f'{i}_screenshot', src, datetime.now())
+                idd = self.insert_data(table_name='screenshot', keys_name=keys, values_data=values)
                 screen.append(idd)
-                print(idd)
                 i += 1
             return screen
     
     # записываем похожие фильмов и возвращаем (id)
     def get_or_create_similar(self, list_value) -> list:
-        print("\n---------- Similar add db ----------")
+        print("\n---------- Similars add db ----------")
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
                 keys = ('kinopoisk_id', 'name', 'created_on')
                 values = (key, val, datetime.now())
-
-                idd = self.get_or_create(
-                    table_name='similars',
-                    select_key='id, kinopoisk_id',
-                    where_key_name='kinopoisk_id',
-                    where_key_data=key,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='similars',
+                    select_key='id, kinopoisk_id', where_key_name='kinopoisk_id', where_key_data=key,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
             print(lict_obj_id)
             return lict_obj_id
     
-    # записываем данные через цикл если их нет и получаем (id)
+    # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_creator(self, elem_list) -> list:
         print("\n---------- Creator add db ----------")
         if elem_list:
@@ -473,49 +380,31 @@ class Processing(DataBase):
             for val in elem_list:
                 keys = ('name', 'created_on')
                 values = (val, datetime.now())
-
-                idd = self.get_or_create(
-                    table_name='creators',
-                    select_key='id, name',
-                    where_key_name='name',
-                    where_key_data=val,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='creator',
+                    select_key='id, name', where_key_name='name', where_key_data=val,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
             print(lict_obj_id)
             return lict_obj_id
     
-    # записываем данные через цикл если их нет и получаем (id)
-    def get_or_create_actor(self, list_actor) -> list:
+    # записываем данные через цыкл если их нет и получаем (id)
+    def get_or_create_actor(self, elem_list) -> list:
         print("\n---------- Actor add db ----------")
-        if list_actor:
+        if elem_list:
             lict_obj_id = []
-            for val in list_actor:
+            for val in elem_list:
                 keys = ('name', 'created_on')
                 values = (val, datetime.now())
-
-                idd = self.get_or_create(
-                    table_name='actors',
-                    select_key='id, name',
-                    where_key_name='name',
-                    where_key_data=val,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='actor',
+                    select_key='id, name', where_key_name='name', where_key_data=val,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
             print(lict_obj_id)
             return lict_obj_id
-
-    def create_popular_actor(self, file_actor_name, tag_id):
-        file_actor = self.read_file_actor_name(file_actor_name)
-        add_popular_actor = self.get_or_create_actor(list_actor=file_actor)
-
-        self.related_table(table_name='tag_actor', movie_id=tag_id, list_data=add_popular_actor)
-
-    # записываем данные через цикл если их нет и получаем (id)
+    
+    # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_director(self, elem_list) -> list:
         print("\n---------- Director add db ----------")
         if elem_list:
@@ -523,20 +412,15 @@ class Processing(DataBase):
             for val in elem_list:
                 keys = ('name', 'created_on')
                 values = (val, datetime.now())
-                idd = self.get_or_create(
-                    table_name='directors',
-                    select_key='id, name',
-                    where_key_name='name',
-                    where_key_data=val,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='director',
+                    select_key='id, name', where_key_name='name', where_key_data=val,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
             print(lict_obj_id)
             return lict_obj_id
     
-    # записываем данные через цикл если их нет и получаем (id)
+    # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_country(self, elem_list) -> list:
         print("\n---------- Country add db ----------")
         if elem_list:
@@ -545,21 +429,15 @@ class Processing(DataBase):
                 val_key = val['country']
                 keys = ('name', 'created_on')
                 values = (val_key, datetime.now())
-
-                idd = self.get_or_create(
-                    table_name='countries',
-                    select_key='id, name',
-                    where_key_name='name',
-                    where_key_data=val_key,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='country',
+                    select_key='id, name', where_key_name='name', where_key_data=val_key,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
 
             print(lict_obj_id)
             return lict_obj_id
     
-    # записываем данные через цикл если их нет и получаем (id)
+    # записываем данные через цыкл если их нет и получаем (id)
     def get_or_create_genre(self, elem_list) -> list:
         print("\n---------- Genre add db ----------")
         if elem_list:
@@ -569,109 +447,73 @@ class Processing(DataBase):
                 keys = ('name', 'created_on')
                 values = (val_key, datetime.now())
 
-                idd = self.get_or_create(
-                    table_name='genres',
-                    select_key='id, name',
-                    where_key_name='name',
-                    where_key_data=val_key,
-                    insert_keys=keys,
-                    insert_values=values
-                )
+                idd = self.get_or_create(table_name='genre',
+                    select_key='id, name', where_key_name='name', where_key_data=val_key,
+                    insert_keys=keys, insert_values=values)
                 lict_obj_id.append(idd)
             
             print(lict_obj_id)
             return lict_obj_id
 
     # записываем данные и получаем (id)
-    def get_or_create_age_limit(self, elem) -> int:
-        print("\n---------- Age limit add db ----------")
-        # if type(elem) == str:
-        if isinstance(elem, str):
+    def get_or_create_agelimit(self, elem) -> int:
+        print("\n---------- Agelimit add db ----------")
+        if type(elem) == str:
             val = "".join(c for c in elem if c.isdecimal())
 
             keys = ('name', 'created_on')
             values = (val, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='age_limits',
-                select_key='id, name',
-                where_key_name='name',
-                where_key_data=val,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd =  self.get_or_create(table_name='agelimit',
+                select_key='id, name', where_key_name='name', where_key_data=val,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
     # записываем данные и получаем (id)
-    def get_or_create_type_video(self, elem) -> int:
-        print("\n---------- Type video add db ----------")
+    def get_or_create_typevideo(self, elem) -> int:
+        print("\n---------- Typevideo add db ----------")
         if elem:
             keys = ('name', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='type_videos',
-                select_key='id, name',
-                where_key_name='name',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='typevideo',
+                select_key='id, name', where_key_name='name', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
     # записываем данные и получаем (id)
-    def get_or_create_film_length(self, elem) -> int:
-        print("\n---------- Film length add db ----------")
+    def get_or_create_filmlength(self, elem) -> int:
+        print("\n---------- filmlength add db ----------")
         if elem:
             keys = ('length', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='film_length',
-                select_key='id, length',
-                where_key_name='length',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='filmlength',
+                select_key='id, length', where_key_name='length', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
     # записываем данные и получаем (id)
-    def get_or_create_release(self, elem) -> int:
-        print("\n---------- Release add db ----------")
+    def get_or_create_reliase(self, elem) -> int:
+        print("\n---------- Reliase add db ----------")
         if elem:
             keys = ('year', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='releases',
-                select_key='id, year',
-                where_key_name='year',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='reliase',
+                select_key='id, year', where_key_name='year', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
     # записываем данные и получаем (id)
     def get_or_create_rating_critics(self, elem) -> int:
-        print("\n---------- Rating film critics add db ----------")
+        print("\n---------- Ratingfilmcritics add db ----------")
         if elem:
             keys = ('star', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='rating_critics',
-                select_key='id, star',
-                where_key_name='star',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='ratingfilmcritics',
+                select_key='id, star', where_key_name='star', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
@@ -681,15 +523,9 @@ class Processing(DataBase):
         if elem:
             keys = ('star', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='rating_kinopoisk',
-                select_key='id, star',
-                where_key_name='star',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='ratingkinopoisk',
+                select_key='id, star', where_key_name='star', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
 
@@ -699,17 +535,46 @@ class Processing(DataBase):
         if elem:
             keys = ('star', 'created_on')
             values = (elem, datetime.now())
-
-            idd = self.get_or_create(
-                table_name='rating_imdb',
-                select_key='id, star',
-                where_key_name='star',
-                where_key_data=elem,
-                insert_keys=keys,
-                insert_values=values
-            )
+            idd = self.get_or_create(table_name='ratingimdb',
+                select_key='id, star', where_key_name='star', where_key_data=elem,
+                insert_keys=keys, insert_values=values)
             print(idd)
             return idd
+
+    # проверяем фильм в базе, если находим то пропускаем данный фильм
+    def get_movie(self, kinopoisk_id) -> object:
+        print(f'\n---- проверяем фильм в базе----')
+        get_val = self.select_data(table_name='movie', select_keys='id, kinopoisk_id', where_key_name='kinopoisk_id', where_key_data=kinopoisk_id)
+        if get_val:
+            print('\nmovie уже существует\n')
+            return True
+        print('\nобработка данных для записи\n')
+    
+    # получаем пользователя для записи данных
+    def get_user(self, name) -> object:
+        print('\n------- User ----------')
+        get_val = self.select_data(table_name='users', select_keys='id, username', where_key_name='username', where_key_data=name)
+        if get_val:
+            print(get_val)
+            return get_val
+
+    # генерируем url к новому фильму
+    def generate_url(self, data_json) -> str:
+        with self.connect_db() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute('SELECT id FROM movie ORDER BY id DESC LIMIT 1')
+                result_select = cursor.fetchone()
+                if result_select:
+                    movie_id = result_select[0]
+                else:
+                    movie_id = 0
+        
+        new_movie_id = str(movie_id + 1)
+        if data_json['nameOriginal']:
+            slug = slugify(new_movie_id + ' ' + data_json['nameOriginal'])
+        else:
+            slug = slugify(new_movie_id + ' ' + data_json['nameRu'])
+        return slug
 
     # добавляем фильм
     def create_movie(self, *args, **kwargs) -> int:
@@ -740,19 +605,17 @@ class Processing(DataBase):
         split_value = keys.split(',')
         replace_value = ['%s, ' for _ in split_value]
         join_value = ' '.join(replace_value)
-        # add movie
-        insert = f"INSERT INTO movies ({keys}) VALUES ({join_value[:-2]});"
+
+        insert = f"INSERT INTO movie ({keys}) VALUES ({join_value[:-2]});"
         with self.connect_db() as conn:
-            with conn.cursor() as cursor:
+            with conn.cursor() as cursor:              
+                # add movie
                 cursor.execute(insert, values)
                 conn.commit()
-                # # get added movie id
-                # cursor.execute(
-                #     "SELECT id FROM movies WHERE kinopoisk_id = %s;", (kwargs['kinopoisk_id'],)
-                #
-                # )
-                # new_movie_id = cursor.fetchone()[0]
-        # get added movie id
-        new_movie_id = self.get_movie(kwargs['kinopoisk_id'])
-        print(f'--- Movie add [+] id = {new_movie_id} ---')
+
+                # get added movie id
+                cursor.execute("SELECT id FROM movie WHERE kinopoisk_id = %s;", (kwargs['kinopoisk_id'],))
+                new_movie_id = cursor.fetchone()[0]
+
+        print('--- add movie ---')
         return new_movie_id

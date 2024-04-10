@@ -1,4 +1,4 @@
-codes = {
+bade_status_codes = {
     400: "Bad Request («неправильный, некорректный запрос»)",
     401: "Unauthorized («не авторизован (не представился)»)",
     402: "Payment Required («необходима оплата»)",

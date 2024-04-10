@@ -10,6 +10,8 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light gy-5">
                 <div class="container-fluid">
                     <div class="collapse navbar-collapse" id="navbarScroll">
+                        {% include 'include/sorted.html' %}
+
                         {% include 'include/search.html' %}
                     </div>
                 </div>
@@ -26,8 +28,7 @@
             {% include 'include/list_card.html' %}
         </div>
     </div>
-    {% if pages.items %}
-        {% include 'include/pagination.html' %}
-    {% endif %}
-  
+   
+    {% include 'include/pagination.html' %}
+
 {% endblock content %}
