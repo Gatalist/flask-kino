@@ -1,0 +1,11 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+    <p>Создан Backup для таблиц:</p>
+    <br>
+
+    {% for user in users %}
+        <p>{{ user }}</p>
+    {% endfor %}
+
+{% endblock body %}

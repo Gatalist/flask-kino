@@ -57,13 +57,6 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return self.id
 
-    # @staticmethod
-    # def get_user(user_id):
-    #     user = User.query.get(id=user_id)
-    #     if user:
-    #         return user
-    #     return False
-
     def is_anonymous(self):
         return False
 

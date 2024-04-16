@@ -6,29 +6,55 @@ from slugify import slugify
 import requests
 import psycopg2
 import random
+import time
 import json
 import os
 import re
-
 from user_agent import list_user_agent
 from status_code import bade_status_codes
 
 
+env_file = dotenv_values(os.path.join(os.path.split(os.getcwd())[0], 'app', '.env'))
+
+list_api_key_1 = [
+    env_file.get('KEY_1'),
+    env_file.get('KEY_2'),
+    env_file.get('KEY_3'),
+    env_file.get('KEY_4'),
+    env_file.get('KEY_5'),
+    env_file.get('KEY_6'),
+    env_file.get('KEY_7'),
+
+    env_file.get('KEY_8'),
+    env_file.get('KEY_9'),
+    env_file.get('KEY_10'),
+]
+
+list_api_key_2 = [
+
+    env_file.get('KEY_11'),
+    env_file.get('KEY_12'),
+    env_file.get('KEY_21'),
+    env_file.get('KEY_22'),
+
+    # env_file.get('KEY_13'),
+    # env_file.get('KEY_14'),
+    # env_file.get('KEY_15'),
+    # env_file.get('KEY_16'),
+    # env_file.get('KEY_17'),
+    # env_file.get('KEY_18'),
+    # env_file.get('KEY_19'),
+    # env_file.get('KEY_20'),
+]
+
+
 class Parser:
-    def __init__(self):
+    def __init__(self, list_api_key):
         self.base_kinopoisk_api_url = "https://kinopoiskapiunofficial.tech"
         self.base_imdb_url = "https://m.imdb.com/title/"
         self.static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static')
-        self.env_file = dotenv_values(os.path.join(os.path.split(os.getcwd())[0], 'app', '.env'))
-        self.list_api_key = [
-            self.env_file.get('KEY_1'), self.env_file.get('KEY_2'), self.env_file.get('KEY_3'),
-            self.env_file.get('KEY_4'), self.env_file.get('KEY_5'), self.env_file.get('KEY_6'),
-            self.env_file.get('KEY_7'), self.env_file.get('KEY_8'), self.env_file.get('KEY_9'),
-            self.env_file.get('KEY_10'), self.env_file.get('KEY_11'), self.env_file.get('KEY_12'),
-            self.env_file.get('KEY_13'), self.env_file.get('KEY_14'), self.env_file.get('KEY_15'),
-            self.env_file.get('KEY_16'), self.env_file.get('KEY_17'), self.env_file.get('KEY_18'),
-            self.env_file.get('KEY_19'), self.env_file.get('KEY_20'), self.env_file.get('KEY_21')
-        ]
+        # self.env_file = dotenv_values(os.path.join(os.path.split(os.getcwd())[0], 'app', '.env'))
+        self.list_api_key = list_api_key
 
         self.iter_key = iter(self.list_api_key)
         self.current_key = self.get_next_api_key()
@@ -160,7 +186,7 @@ class ParserKinopoiskIMDB(Tools):
             # print(result)
             name = result.get('nameRu')
             poster = result.get('posterUrl')
-            year = result.get('year', 0) > 1965
+            year = result.get('year', 0)
 
             if name:
                 print('name', "  |", "True", " |", name)
@@ -171,8 +197,8 @@ class ParserKinopoiskIMDB(Tools):
                 print('poster', "|", "True", " |", poster)
             else:
                 print('poster', "|", "False", "|", poster)
-
-            if year:
+            print(year)
+            if year > 1965:
                 print('year', "  |", "True", " |", year)
             else:
                 print('year', "  |", "False", "|", year, "< 1965")
@@ -253,13 +279,14 @@ class ParserKinopoiskIMDB(Tools):
 
 
 class DataBase(Tools):
+    @staticmethod
     # подключаемся к базе данных
-    def connect_db(self) -> object:
+    def connect_db() -> object:
         return psycopg2.connect(
             host="localhost",
-            database=self.env_file.get('DB_NAME'),
-            user=self.env_file.get('DB_USER'),
-            password=self.env_file.get('DB_PASS')
+            database=env_file.get('DB_NAME'),
+            user=env_file.get('DB_USER'),
+            password=env_file.get('DB_PASS')
         )
 
     # конвертируем дату
@@ -338,7 +365,7 @@ class DataBase(Tools):
                     movie_id = 0
 
         new_movie_id = str(movie_id + 1)
-        if data_json['nameOriginal']:
+        if data_json['nameRu']:
             slug = slugify(data_json['nameRu'] + ' ' + new_movie_id)
         else:
             slug = slugify(data_json['nameOriginal'] + ' ' + new_movie_id)
@@ -417,7 +444,7 @@ class DataBase(Tools):
         return []
 
 
-class Processing(DataBase):
+class Processing(ParserKinopoiskIMDB, DataBase):
     # записываем ссылки на кадры к фильму и получаем (id)
     def create_screen_movie(self, kinopoisk_id, list_value) -> list:
         print("\n---------- Screenshot add db ----------")
@@ -746,13 +773,90 @@ class Processing(DataBase):
             with conn.cursor() as cursor:
                 cursor.execute(insert, values)
                 conn.commit()
-                # # get added movie id
-                # cursor.execute(
-                #     "SELECT id FROM movies WHERE kinopoisk_id = %s;", (kwargs['kinopoisk_id'],)
-                #
-                # )
-                # new_movie_id = cursor.fetchone()[0]
+
         # get added movie id
         new_movie_id = self.get_movie(kwargs['kinopoisk_id'])
         print(f'--- Movie add [+] id = {new_movie_id} ---')
         return new_movie_id
+
+    # start id -> 298 -> 4 647 040 +-
+    def parse_and_create_movie(self, start_id: int, end_id: int):
+        # получение данных с api
+        for movie_id in range(start_id, end_id):
+            print(f'\n\n----> kinopoisk id: {movie_id} <-----')
+            # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
+            if not self.get_movie(movie_id):
+                # получаем все данные для фильма
+                print('\n----------  Получение данных для фильма ----------\n')
+                movie = self.request_data_movie(kinopoisk_id=movie_id)
+                if movie == "Forbidden":
+                    break
+
+                if not self.current_key:
+                    print("Not API key")
+                    break
+
+                if movie and movie != 404:
+                    people = self.request_data_people(kinopoisk_id=movie.get('kinopoiskId'))
+                    popular_actor = self.popular_actor(people.get('actor'), count_actor_save=12)
+                    similar = self.request_data_similar(kinopoisk_id=movie.get('kinopoiskId'))
+                    screen_and_trailer = self.request_movie_screenshot(imdb_id=movie.get('imdbId'))
+
+                    # сохраняем картинки и возвращаем ссылки на них
+                    path = self.generate_path(movie)
+                    poster = self.save_image(name='postr', path_image=path, image_url=movie.get('posterUrl'))
+                    screenshot_path = self.save_image_list(
+                        name='image', path_image=path, image_list=screen_and_trailer.get('screenshots', None))
+
+                    # записываем данные в таблицы
+                    rating_kinopoisk = self.get_or_create_rating_kinopoisk(movie.get('ratingKinopoisk'))
+                    rating_imdb = self.get_or_create_rating_imdb(movie.get('ratingImdb'))
+                    rating_critics = self.get_or_create_rating_critics(movie.get('ratingFilmCritics'))
+                    release = self.get_or_create_release(movie.get('year'))
+                    film_length = self.get_or_create_film_length(movie.get('filmLength'))
+                    type_video = self.get_or_create_type_video(movie.get('type'))
+                    age_limit = self.get_or_create_age_limit(movie.get('ratingAgeLimits'))
+                    genre = self.get_or_create_genre(elem_list=movie.get('genres'))
+                    country = self.get_or_create_country(elem_list=movie.get('countries'))
+                    director = self.get_or_create_director(elem_list=people.get('director'))
+                    actor = self.get_or_create_actor(list_actor=popular_actor)
+                    creator = self.get_or_create_creator(elem_list=people.get('creator'))
+                    screenshot = self.create_screen_movie(movie.get('kinopoiskId', None), screenshot_path)
+                    similar = self.get_or_create_similar(similar)
+                    new_url = self.generate_url(movie)
+
+                    # создаем фильм
+                    new_movie = self.create_movie(
+                        kinopoisk_id=movie.get('kinopoiskId', None),
+                        imdb_id=movie.get('imdbId', None),
+                        name_ru=movie.get('nameRu'),
+                        name_original=movie.get('nameOriginal'),
+                        poster_url=poster,
+                        slug=new_url,
+                        rating_kinopoisk_id=rating_kinopoisk,
+                        rating_imdb_id=rating_imdb,
+                        rating_critics_id=rating_critics,
+                        year_id=release,
+                        film_length_id=film_length,
+                        slogan=movie.get('slogan'),
+                        description=movie.get('description'),
+                        short_description=movie.get('shortDescription'),
+                        type_video_id=type_video,
+                        age_limits_id=age_limit,
+                        last_syncs=self.converting_date_time(movie.get('lastSync')),
+                        user_id=self.get_user('Admin'),
+                        created_on=datetime.now()
+                    )
+
+                    #  сохраняем данные в связанные таблицы many-to-many
+                    self.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genre)
+                    self.related_table(table_name='country_movie', movie_id=new_movie, list_data=country)
+                    self.related_table(table_name='director_movie', movie_id=new_movie, list_data=director)
+                    self.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor)
+                    self.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator)
+                    self.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshot)
+                    self.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar)
+            else:
+                print('\n Фильм уже существует\n')
+            print('\n--------- Finish ----------\n\n\n')
+            time.sleep(1.5)

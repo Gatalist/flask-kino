@@ -31,7 +31,7 @@ def login():
             next_page = url_for('app_movies.home')
         return redirect(next_page)
     print(form.errors)
-    return render_template('login-2.html', title='Sign In', form=form)
+    return render_template('login.html', title='Sign In', form=form)
 
 
 def logout():
@@ -53,7 +53,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('app_user.login'))
-    return render_template('register-2.html', title='Register', form=form)
+    return render_template('register.html', title='Register', form=form)
 
 
 def profile():

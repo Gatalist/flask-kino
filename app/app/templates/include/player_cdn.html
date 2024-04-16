@@ -1,0 +1,15 @@
+<div class="kinobox_player"></div>
+<script src="https://kinobox.tv/kinobox.min.js"></script>
+<script>
+    kbox('.kinobox_player', {
+        search: {
+            kinopoisk: '{{movie.kinopoisk_id}}',
+        },
+        players: {
+            cdnmovies: {enable: true, position: 1, domain: 'https://cdnmovies-stream.online'}
+        },
+        params: {
+            cdnmovies: {domain: 'kinobox.tv'}
+        }
+    });
+</script>

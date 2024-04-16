@@ -72,9 +72,27 @@
 
                     </div>
                     <div class="row">
-                        <p class="card-text mb-auto p-2">Год выхода: {{movie.year}}</p>
-                        <p class="card-text mb-auto p-2">Продолжительность: {{movie.film_length}} мин</p>
-                        <p class="card-text mb-auto p-2">Ограничение: {{movie.age_limits}}+</p>
+                        <p class="card-text mb-auto p-2">Год выхода:
+                            {% if movie.year %}
+                                {{movie.year}}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Продолжительность:
+                            {% if movie.film_length %}
+                                {{movie.film_length}} мин
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </p>
+                        <p class="card-text mb-auto p-2">Ограничение:
+                            {% if movie.age_limits %}
+                                {{movie.age_limits}}+
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </p>
                         <p class="card-text mb-auto p-2">Жанр: 
                             {% for genre in movie.mod_genres %}
                                 {{genre}}
@@ -129,30 +147,16 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Смотереть</button>
                     </li>
-                    {% if movie.trailer_code %}
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Трейлер</button>
-                        </li>
-                    {% endif %}
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="imdb-tab" data-bs-toggle="tab" data-bs-target="#imdb" type="button" role="tab" aria-controls="imdb" aria-selected="false">imbd Трейлер</button>
+                        <button class="nav-link" id="imdb-tab" data-bs-toggle="tab" data-bs-target="#imdb" type="button" role="tab" aria-controls="imdb" aria-selected="false">CDN</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         {% include 'include/player_alloha.html' %}
                     </div>
-                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <div class="embed-responsive embed-responsive-16by9">
-                            <iframe class="embed-responsive-item" width="900" height="470" src="https://www.youtube.com/embed/{{ movie.trailer_code }}?showinfo=0" frameborder="0" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    <div class="tab-pane fadee" id="imdb" role="tabpanel" aria-labelledby="imdb-tab">
-                        <video controls 
-                               width="900" 
-                               height="470" 
-                               src="{{ movie.first_trailer.url }}">
-                        </video>
+                    <div class="tab-pane fade" id="imdb" role="tabpanel" aria-labelledby="imdb-tab">
+                        {% include 'include/player_cdn.html' %}
                     </div>
                 </div>
             </div>
@@ -172,7 +176,7 @@
                             <p class="card-text"></p>
                         </div>
                         <div class="card-footer">
-                            <small class="text-muted">Last updated 3 mins ago</small>
+                            <small class="text-muted">Обновлено: {{mov_similar.last_syncs_format}}</small>
                         </div>
                     </div>
                 </div>

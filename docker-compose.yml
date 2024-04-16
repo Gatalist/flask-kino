@@ -1,27 +1,40 @@
+version: "3.8"
 services:
     postgres_db:
-        container_name: db_nix
+        container_name: postgres_db
         image: postgres:16
+#        build: ./postgres
         restart: always
+        env_file:
+            - ./app/.env
         ports:
-            - 5432:5432
+            - "5432:5432"
         environment:
-            POSTGRES_USER: user_db
-            POSTGRES_PASSWORD: xEhs5hU26nDNdeC
-            POSTGRES_DB: nix_db
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASS}
+            POSTGRES_DB: ${DB_NAME}
         volumes:
+            - ./postgres/backup:/home/backup
             - ./postgres/database:/var/lib/postgresql/data
             - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - my_app_network
 
     pgadmin:
         container_name: pgadmin4
         image: dpage/pgadmin4
         restart: always
+        env_file:
+            - ./app/.env
         environment:
-            PGADMIN_DEFAULT_EMAIL: admin@admin.com
-            PGADMIN_DEFAULT_PASSWORD: root
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
         ports:
             - "5050:80"
+        networks:
+            - my_app_network
+#        volumes:
+#            - pgadmin-data:/var/lib/pgadmin
 
     flask:
         container_name: flask_app
@@ -35,11 +48,23 @@ services:
             - postgres_db
         volumes:
             - ./app:/home/app
+            - ./postgres/backup:/home/backup
+        networks:
+            - my_app_network
 
     nginx:
         build: ./nginx
         ports:
-            - 1337:80
+            - "1337:80"
         depends_on:
             - flask
+        networks:
+            - my_app_network
 
+
+volumes:
+  pgadmin-data:
+
+networks:
+  my_app_network:
+    driver: bridge

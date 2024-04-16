@@ -1,4 +1,5 @@
 import os
+import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -8,36 +9,23 @@ load_dotenv(dotenv_path=dotenv_path)
 
 
 class Config(object):
-    DEBUG: bool = True
     HOST: str = "0.0.0.0"
-
-    PORT: int = 5000
-
-    # db_uri: str = 'postgresql'
-    db_uri: str = os.getenv('db_uri')
-    db_user: str = os.getenv('db_user')
-    db_pass: str = os.getenv('db_pass')
-    db_name: str = os.getenv('db_name')  # database name
-    db_addr: str = os.getenv('db_addr')  # container_name to docker
-
-    session_lifetime = 10
-
-    # TESTING = False
-    # CSRF_ENABLED = True
 
     SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = f'{db_uri}://{db_user}:{db_pass}@{db_addr}/{db_name}'
+
+    SESSION_LIFETIME = datetime.timedelta(days=10)
 
     ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
     STATIC_PATH = os.path.join(ROOT_PATH, 'static')
     TEMPLATES_PATH = os.path.join(ROOT_PATH, 'templates')
     MEDIA_PATH = os.path.join(STATIC_PATH, 'media')
-    PAGINATE_ITEM_IN_PAGE: int = 12
+    ADMIN_ICON_PATH = os.path.join(STATIC_PATH, 'cms.ico')
+
+    PAGINATE_ITEM_IN_PAGE: int = 20
 
     TOKEN_NAME = "Access-Token"
 
-    # URLs
     ADMIN_URL = "/admin"
     SECURITY_URL_PREFIX = ADMIN_URL
     SECURITY_LOGIN_URL = "/login/"
@@ -61,17 +49,56 @@ class Config(object):
     SECURITY_CHANGE_URL = "/change/"
     SECURITY_SEND_PASSWORD_CHANGE_EMAIL = False
 
-    # ALLOWED_EXTENSIONS = ["jpg", "png", "jpeg"]
-    # MAX_CONTENT_LENGTH = 2000 * 1024  # 1 mb
-
     SECURITY_PASSWORD_SALT = os.getenv('SECURITY_SALT')
     SECURITY_PASSWORD_HASH = os.getenv('SECURITY_HASH')
 
 
-# class DevConfig(Config):
-#     DEVELOPMENT = True
-#     DEBUG = True
+class DevConfig(Config):
+    DEVELOPMENT = True
+    DEBUG: bool = True
+    PORT: int = 5000
+
+    # CSRF_ENABLED = True
+
+    db_uri: str = os.getenv('DB_URI')
+    db_user: str = os.getenv('DB_USER')
+    db_pass: str = os.getenv('DB_PASS')
+    db_name: str = os.getenv('DB_NAME')  # database name
+    db_addr: str = os.getenv('DB_ADDR')  # container_name to docker
+
+    SQLALCHEMY_DATABASE_URI = f'{db_uri}://{db_user}:{db_pass}@{db_addr}/{db_name}'
 
 
-# class TestingConfig(Config):
-#     TESTING = True
+class ProdConfig(Config):
+    DEBUG: bool = False
+    PORT: int = 5000
+
+    CSRF_ENABLED = True
+
+    db_uri: str = os.getenv('DB_URI')
+    db_user: str = os.getenv('DB_USER')
+    db_pass: str = os.getenv('DB_PASS')
+    db_name: str = os.getenv('DB_NAME')  # database name
+    db_addr: str = os.getenv('DB_ADDR')  # container_name to docker
+
+    SQLALCHEMY_DATABASE_URI = f'{db_uri}://{db_user}:{db_pass}@{db_addr}/{db_name}'
+
+
+class TestingConfig(Config):
+    TESTING = True
+    DEBUG: bool = True
+    PORT: int = 5001
+    # Отключаем CSRF для тестов
+    WTF_CSRF_ENABLED = False
+    CSRF_ENABLED = False
+
+    db_uri: str = os.getenv('DB_URI')
+    db_user: str = os.getenv('DB_USER')
+    db_pass: str = os.getenv('DB_PASS')
+    db_name: str = os.getenv('DB_NAME')  # database name
+    # db_name: str = os.getenv('test_db_name')  # database name
+    db_addr: str = os.getenv('DB_ADDR')  # container_name to docker
+
+    SQLALCHEMY_DATABASE_URI = f'{db_uri}://{db_user}:{db_pass}@{db_addr}/{db_name}'
+
+

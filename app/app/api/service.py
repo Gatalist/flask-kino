@@ -10,8 +10,8 @@ from slugify import slugify
 from app.settings import Config
 from app import db
 from app.users.models import User
-from app.movies.models import (Movie, RatingKinopoisk, RatingFilmCritics, RatingImdb, Reliase, TypeVideo, AgeLimit,
-                               Country, Genre, Director, Creator, Actor, Screenshot, Similars, Trailer, FilmLength)
+from app.movies.models import (Movie, RatingKinopoisk, RatingCritic, RatingImdb, Release, TypeVideo, AgeLimit,
+                               Country, Genre, Director, Creator, Actor, Screenshot, Similar, FilmLength)
 
 
 class JsonifyObject:
@@ -286,9 +286,9 @@ class MovieCRUD(CRUD, Authorization, File):
         arg_list['rating_kinopoisk'] = self.get_or_create_object(RatingKinopoisk,
                                                                  star=request_data.form.get("rating_kinopoisk", None))
         arg_list['rating_imdb'] = self.get_or_create_object(RatingImdb, star=request_data.form.get("rating_imdb", None))
-        arg_list['rating_critics'] = self.get_or_create_object(RatingFilmCritics,
+        arg_list['rating_critics'] = self.get_or_create_object(RatingCritic,
                                                                star=request_data.form.get("rating_critics", None))
-        arg_list['year'] = self.get_or_create_object(Reliase, year=request_data.form.get("year", None))
+        arg_list['year'] = self.get_or_create_object(Release, year=request_data.form.get("year", None))
         arg_list['film_length'] = self.get_or_create_object(FilmLength,
                                                             length=request_data.form.get("film_length", None))
         arg_list['slogan'] = request_data.form.get("slogan", None)
@@ -349,7 +349,7 @@ class MovieCRUD(CRUD, Authorization, File):
         screen_img = [
             self.create_object(Screenshot, kinopoisk_id=kinopoisk_id, name="movie_id_{kinopoisk_id}_screen", url=item)
             for item in list_screen_img]
-        similar = [self.get_or_create_object(Similars, kinopoisk_id=item.get('id'), name=item.get('name')) for item in
+        similar = [self.get_or_create_object(Similar, kinopoisk_id=item.get('id'), name=item.get('name')) for item in
                    request_data.form.get("similar", [])]
         trailer = [self.create_object(Trailer, kinopoisk_id=item.get("kinopoisk_id"), name=item.get("name"),
                                       url=item.get("url")) for item in request_data.form.get("trailer", [])]

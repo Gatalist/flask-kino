@@ -1,6 +1,6 @@
 from flask import session
 from sqlalchemy.orm import joinedload
-from .models import (Movie, RatingKinopoisk, Reliase, Genre, Director, genre_movie, director_movie)
+from .models import (Movie, RatingKinopoisk, Release, Genre, Director, genre_movie, director_movie)
 
 
 class MixinMovie:
@@ -9,7 +9,7 @@ class MixinMovie:
         {'value': "rating_asc", 'text': 'От мин до мах рейтинга'},
         {'value': "rating_desc", 'text': "От мах до мин рейтинга"},
         {'value': "release_date_asc", 'text': 'От старых до новых'},
-        {'value': "release_date_desc", 'text': 'От новых до старых'}, ]
+        {'value': "release_date_desc", 'text': 'От новых до старых'}]
 
     context = {}
 
@@ -29,7 +29,7 @@ class MixinMovie:
 
     @staticmethod
     def get_years():
-        return Reliase.query.order_by(Reliase.year.desc())
+        return Release.query.order_by(Release.year.desc())
 
     @staticmethod
     def session_data(name, data):
@@ -79,7 +79,7 @@ class MixinMovie:
     def activate_filter(active_release, active_genre, active_directors):
         movies = Movie.query
         if active_release:
-            movies = movies.join(Reliase).filter(Reliase.id.in_(active_release))
+            movies = movies.join(Release).filter(Release.id.in_(active_release))
         if active_genre:
             movies = movies.join(genre_movie).join(Genre).options(
                 joinedload(Movie.genres)).filter(Genre.id.in_(active_genre))
@@ -110,13 +110,13 @@ class MixinMovie:
 
         if sorting == "release_date_asc":
             if session.get('is_active_years'):
-                return movie.order_by(Reliase.year.asc())
-            return movie.join(Reliase).order_by(Reliase.year.asc())
+                return movie.order_by(Release.year.asc())
+            return movie.join(Release).order_by(Release.year.asc())
 
         if sorting == "release_date_desc":
             if session.get('is_active_years'):
-                return movie.order_by(Reliase.year.desc())
-            return movie.join(Reliase).order_by(Reliase.year.desc())
+                return movie.order_by(Release.year.desc())
+            return movie.join(Release).order_by(Release.year.desc())
 
         if sorting == "standard":
             return movie.order_by(Movie.id.desc())

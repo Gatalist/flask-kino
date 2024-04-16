@@ -22,8 +22,6 @@ class RegisterForm(FlaskForm):
                               validators=[DataRequired(), EqualTo('password')],
                               render_kw={"placeholder": "Repeat Password"})
 
-    submit = SubmitField(label='Register')
-
     def validate_username(self, username):
         existing_user_username = User.query.filter_by(username=username.data).first()
         if existing_user_username:
@@ -64,8 +62,6 @@ class LoginForm(FlaskForm):
 
     password = PasswordField(validators=[InputRequired()],
                              render_kw={"placeholder": "Password"})
-
-    submit = SubmitField('Login')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()

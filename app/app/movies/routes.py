@@ -3,7 +3,7 @@ from flask.views import MethodView
 from app.settings import Config
 from .services import MixinMovie
 from .models import Movie
-from app import logger
+from app.extensions import logger
 
 
 class HomeView(MixinMovie, MethodView):
@@ -18,7 +18,7 @@ class HomeView(MixinMovie, MethodView):
         page = request.args.get('page', 1, type=int)
         print('page', page, type(page))
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
-        return render_template('index-2.html', pages=pages, **self.context)
+        return render_template('index.html', pages=pages, **self.context)
 
     # @logger.catch
     def post(self):
@@ -26,7 +26,7 @@ class HomeView(MixinMovie, MethodView):
         movies = self.sort_movie(movie, request.form)
         page = request.args.get('page', 1, type=int)
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
-        return render_template('index-2.html', pages=pages, **self.context)
+        return render_template('index.html', pages=pages, **self.context)
 
 
 class MovieDetailView(MethodView):
@@ -53,4 +53,4 @@ class MovieSearchView(MixinMovie, MethodView):
 
         page = request.args.get('page', 1, type=int)
         pages = search_movie.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
-        return render_template('index-2.html', pages=pages, **self.context)
+        return render_template('index.html', pages=pages, **self.context)

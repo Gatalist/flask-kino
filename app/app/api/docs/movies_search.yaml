@@ -94,9 +94,7 @@ responses:
                 type: "list"
                 example: [{"id": 1888, "name": "Мстители"},
                           {"id": 8, "name": "Эквилибриум"}]
-              trailer:
-                type: "list"
-                example: [{"kinopoisk_id": 288, "name": "Матрица - трейлер 1", "url": "https://imdb-video.media-imdb.com/vi3907125529/1434659454657-dx9ykf-1563840150443.mp4"},]
+
     examples:
       application/json:
         pagination:

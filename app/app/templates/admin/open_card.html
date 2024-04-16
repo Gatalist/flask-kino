@@ -1,0 +1,11 @@
+{% extends 'admin/model/list.html' %}
+
+{% block body %}
+    <h1>Custom List View</h1>
+    {{ super() }}
+{% endblock %}
+
+{% block list_row_actions %}
+    {{ super() }}
+    <a href="http://python.org">{{ get_pk_value(row) }}</a>
+{% endblock %}

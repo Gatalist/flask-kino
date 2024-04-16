@@ -1,11 +1,11 @@
 from flask_apispec import marshal_with
 from flask_apispec.views import MethodResource
 from flask_restful import Resource
-from app import logger
+from app.extensions import logger
 from flask import request, jsonify
 from flasgger import swag_from
 from app.movies.schemas import (MoviesSchema, GenreSchema, CountrySchema, DirectorSchema, ReleaseSchema)
-from app.movies.models import (Movie, Genre, Country, Director, Reliase)
+from app.movies.models import (Movie, Genre, Country, Director, Release)
 from app.api.service import Authorization, JsonifyObject, MovieCRUD
 
 
@@ -126,7 +126,7 @@ class ReleaseList(JsonifyObject, MethodResource, Resource):
     @swag_from('./docs/release_list.yaml')
     # @token_required
     def get(self):
-        get_obj = Reliase.query
+        get_obj = Release.query
         if get_obj:
             obj_page_count = get_obj.count()
             serialize_obj = self.serialize_object(get_obj, ReleaseSchema, many=True)

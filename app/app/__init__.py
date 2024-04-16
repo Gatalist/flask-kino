@@ -1,58 +1,35 @@
 import sys
-import datetime
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
-from flask_bcrypt import Bcrypt
-from loguru import logger
-from flask_admin import Admin
-from flasgger import Swagger
-from app.settings import Config
-from .swagger import template, swagger_config
+from app.settings import ProdConfig, DevConfig
+from .extensions import db, admin, login_manager, swagger, migrate
+from .routes import init_bp
 
 
-app = Flask(__name__)
-app.config.from_object(Config)
+def create_app(config_class):
+    new_app = Flask(__name__)
+    new_app.config.from_object(config_class)
+    sys.path.append(new_app.config['ROOT_PATH'])  # add root path
+    new_app.permanent_session_lifetime = new_app.config['SESSION_LIFETIME']  # lifetime session
 
-# add root path
-sys.path.append(app.config.get('ROOT_PATH'))
+    db.init_app(new_app)
+    migrate.init_app(new_app, db)
 
-# lifetime session
-app.permanent_session_lifetime = datetime.timedelta(days=Config.session_lifetime)
+    login_manager.init_app(new_app)
+    login_manager.login_view = 'users.load_user'
 
-# flask login
-login_manager = LoginManager()
-# Указываем маршрут для входа в систему
-login_manager.__init__(app)
-login_manager.login_view = 'users.load_user'
+    admin.init_app(new_app)
+    admin.name = "FilmNet"
+    admin.icon_url = new_app.config['ADMIN_ICON_PATH']
 
-# test client for unit test
-client = app.test_client()
+    swagger.init_app(new_app)
 
-# create instance DataBase
-db = SQLAlchemy(app)
+    init_bp(new_app)
 
-# class instance Migrate
-migrate = Migrate(app, db, compare_type=True)
+    @new_app.shell_context_processor
+    def make_shell_context():
+        return {"app": new_app, "db": db}
 
-# шифрование
-bcrypt = Bcrypt(app)
-
-# admin panel
-admin = Admin(app)
-
-# api_docs = Apispec_docs(app)
-swagger = Swagger(app, config=swagger_config, template=template)
-
-# loging loguru
-logger.add(
-    "logs/logs_app/debug.log",
-    format="{time} - [{level}] : {message}",
-    level="DEBUG",
-    rotation="100 KB")
+    return new_app
 
 
-@app.shell_context_processor
-def make_shell_context():
-    return {"app": app, "db": db}
+app = create_app(config_class=DevConfig)

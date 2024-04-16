@@ -1,7 +1,6 @@
-from app.routes import app
-from app.settings import Config
+from app import app
 
 
 if __name__ == '__main__':
-    app.run(debug=Config.DEBUG, host=Config.HOST, port=Config.PORT)
+    app.run(debug=app.config['DEBUG'], host=app.config['HOST'], port=app.config['PORT'])
     
