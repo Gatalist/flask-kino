@@ -24,19 +24,22 @@
                 <title>Flask</title>
             {% endif %}
         {% endblock title %}
+        <style>
+            background: rgb(34,193,195);
+            background: radial-gradient(circle, rgba(34,193,195,1) 0%, rgba(145,223,255,1) 100%);
+        </style>
+
     </head>
 
     <body>
         <div class="container">
-            <!-- <div class="row"> -->
+             /
                 {% include 'include/menu.html' %}
 
                 {% block content %}
 
                 {% endblock content %}
-                
-                
-            <!-- </div> -->
+{#            </div>#}
         </div>
 
         {% include 'include/footer.html' %}

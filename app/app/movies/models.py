@@ -142,7 +142,7 @@ class Movie(db.Model):
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'{self.name_ru}'
+        return f'{self.id} {self.name_ru}'
     
     @property
     def last_syncs_format(self):
