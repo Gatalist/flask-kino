@@ -14,7 +14,7 @@ services:
             POSTGRES_PASSWORD: ${DB_PASS}
             POSTGRES_DB: ${DB_NAME}
         volumes:
-            - ./postgres/backup:/home/backup
+#            - ./postgres/backup:/home/backup
             - ./postgres/database:/var/lib/postgresql/data
             - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
@@ -22,7 +22,8 @@ services:
 
     pgadmin:
         container_name: pgadmin4
-        image: dpage/pgadmin4
+#        image: dpage/pgadmin4
+        build: ./postgres
         restart: always
         env_file:
             - ./app/.env
@@ -34,7 +35,8 @@ services:
         networks:
             - my_app_network
 #        volumes:
-#            - pgadmin-data:/var/lib/pgadmin
+#            - ./postgres/backup:/home/backup
+#            - ./postgres/backup:/var/lib/pgadmin/storage/admin_admin.com
 
     flask:
         container_name: flask_app

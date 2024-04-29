@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime, timezone
 from app.users.models import User
 
-
 genre_movie = db.Table(
     'genre_movie',
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
@@ -51,16 +50,16 @@ user_movie = db.Table(
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
 )
 
+segment_movie = db.Table(
+    'segment_movie',
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
+    db.Column('segment_id', db.Integer, db.ForeignKey('segments.id'))
+)
+
 tag_actor = db.Table(
     'tag_actor',
     db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')),
     db.Column('actor_id', db.Integer, db.ForeignKey('actors.id'))
-)
-
-segment_movie = db.Table(
-    'segment_movie',
-    db.Column('movies_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('segments_id', db.Integer, db.ForeignKey('segments.id'))
 )
 
 
@@ -73,7 +72,7 @@ class Movie(db.Model):
     name_ru = db.Column(db.String(256), nullable=True)
     name_original = db.Column(db.String(256), nullable=True)
 
-    poster_url = db.Column(db.String(256),  nullable=True)
+    poster_url = db.Column(db.String(256), nullable=True)
     slug = db.Column(db.String(256), nullable=True)
 
     rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating_kinopoisk.id', ondelete='SET NULL'))
@@ -84,7 +83,7 @@ class Movie(db.Model):
 
     rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating_critics.id', ondelete='SET NULL'))
     rating_critics = db.relationship('RatingCritic', backref=db.backref('movie'), passive_deletes=True)
-    
+
     year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
     year = db.relationship('Release', backref=db.backref('movie'), passive_deletes=True)
 
@@ -97,7 +96,7 @@ class Movie(db.Model):
 
     type_video_id = db.Column(db.Integer, db.ForeignKey('type_videos.id', ondelete='SET NULL'))
     type_video = db.relationship('TypeVideo', backref=db.backref('movie'), passive_deletes=False)
-    
+
     age_limits_id = db.Column(db.Integer, db.ForeignKey('age_limits.id', ondelete='SET NULL'))
     age_limits = db.relationship('AgeLimit', backref=db.backref('movie'), passive_deletes=False)
 
@@ -106,7 +105,7 @@ class Movie(db.Model):
     segment_id = db.Column(db.Integer, db.ForeignKey('segments.id', ondelete='SET NULL'))
     segment = db.relationship('Segment', secondary=segment_movie,
                               backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
-    
+
     countries_id = db.Column(db.Integer, db.ForeignKey('countries.id', ondelete='SET NULL'))
     countries = db.relationship('Country', secondary=country_movie,
                                 backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
@@ -118,8 +117,8 @@ class Movie(db.Model):
     director_id = db.Column(db.Integer, db.ForeignKey('directors.id', ondelete='SET NULL'))
     director = db.relationship('Director', secondary=director_movie,
                                backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
-    
-    creator_id = db.Column(db.Integer, db.ForeignKey('creators.id', ondelete='SET NULL',))
+
+    creator_id = db.Column(db.Integer, db.ForeignKey('creators.id', ondelete='SET NULL', ))
     creator = db.relationship('Creator', secondary=creator_movie,
                               backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
@@ -143,18 +142,18 @@ class Movie(db.Model):
 
     def __repr__(self):
         return f'{self.id} {self.name_ru}'
-    
+
     @property
     def last_syncs_format(self):
         return str(self.last_syncs).split()[0]
-    
+
     @property
     def star_rating_kinopoisk(self):
         max_rating = 10
         current_rating = self.rating_kinopoisk
 
         list_star = []
-        
+
         if not current_rating:
             list_minus = ['star_m' for _ in range(10)]
             list_star.extend(list_minus)
@@ -190,23 +189,23 @@ class Movie(db.Model):
     @property
     def mod_genres(self):
         return self.mod_list_to_str(self.genres)
-    
+
     @property
     def mod_creators(self):
         return self.mod_list_to_str(self.creator)
-    
+
     @property
     def mod_directors(self):
         return self.mod_list_to_str(self.director)
-    
+
     @property
     def mod_actors(self):
         return self.mod_list_to_str(self.actor)
-    
+
     @property
     def mod_countries(self):
         return self.mod_list_to_str(self.countries)
-    
+
     @property
     def get_similar_movie(self):
         similar_values = [sim.kinopoisk_id for sim in self.similar]
@@ -221,7 +220,6 @@ class RatingKinopoisk(db.Model):
     __tablename__ = 'rating_kinopoisk'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -236,7 +234,7 @@ class RatingImdb(db.Model):
 
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
-   
+
     def __repr__(self):
         return f'{self.star}'
 
@@ -245,22 +243,20 @@ class RatingCritic(db.Model):
     __tablename__ = 'rating_critics'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     star = db.Column(db.Float)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
-  
+
     def __repr__(self):
         return f'{self.star}'
-        
+
 
 class Release(db.Model):
     __tablename__ = 'releases'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     year = db.Column(db.Integer)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
- 
+
     def __repr__(self):
         return f'{self.year}'
 
@@ -269,10 +265,9 @@ class FilmLength(db.Model):
     __tablename__ = 'film_length'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     length = db.Column(db.Integer)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
- 
+
     def __repr__(self):
         return f'{self.length}'
 
@@ -292,10 +287,9 @@ class TypeVideo(db.Model):
     __tablename__ = 'type_videos'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
- 
+
     def __repr__(self):
         return f'{self.name}'
 
@@ -304,7 +298,6 @@ class Genre(db.Model):
     __tablename__ = 'genres'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -316,7 +309,6 @@ class Country(db.Model):
     __tablename__ = 'countries'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -350,7 +342,7 @@ class Creator(db.Model):
 
     def __repr__(self):
         return f'{self.name}'
-    
+
 
 class Actor(db.Model):
     __tablename__ = 'actors'
@@ -362,7 +354,6 @@ class Actor(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='SET NULL'))
     tag = db.relationship('Tag', secondary=tag_actor,
                           backref=db.backref('actors', lazy='dynamic'), passive_deletes=False)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -376,7 +367,6 @@ class Screenshot(db.Model):
     kinopoisk_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(256), index=True)
     url = db.Column(db.String(256), index=True)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -389,7 +379,6 @@ class Similar(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     kinopoisk_id = db.Column(db.Integer, nullable=True)
     name = db.Column(db.String(256), nullable=True, index=True)
-
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 

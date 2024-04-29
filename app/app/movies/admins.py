@@ -1,19 +1,19 @@
-import os
-import webbrowser
-import shutil
-from flask_admin import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
-from app import settings
-from flask import url_for, redirect
+from app import settings  # , db
+import shutil
+import os
+from .delete_from_many_to_many import delete_movie
 
 
 class MovieView(ModelView):
     column_list = ['id', 'poster_url', 'kinopoisk_id', 'imdb_id', 'name_ru', 'slug', 'year',
                    'type_video', 'rating_kinopoisk', 'rating_imdb', 'rating_critics']
 
+    column_filters = ['rating_critics.star', 'rating_kinopoisk.star', 'rating_imdb.star']
+
     column_searchable_list = ('kinopoisk_id',)
-    column_sortable_list = ['id', 'kinopoisk_id', 'year']
+    column_sortable_list = ['id', 'kinopoisk_id', 'year', 'rating_critics.star', 'rating_kinopoisk.star', 'rating_imdb.star']
 
     # Определите, как отображать изображение в списке элементов
     column_formatters = {
@@ -37,6 +37,7 @@ class MovieView(ModelView):
         except Exception as e:
             print(f"Ошибка при удалении папки: {e}")
 
+        # delete_movie(model)
     # edit_template = 'admin/open_card.html'
 
     # def custom_action(self, id):
@@ -46,60 +47,60 @@ class MovieView(ModelView):
 
 class RatingKinopoiskView(ModelView):
     column_list = ['id', 'star', 'created_on']
+    column_searchable_list = ('star',)
 
 
 class RatingImdbView(ModelView):
-    pass
-
+    column_list = ['id', 'star', 'created_on']
+    column_searchable_list = ('star',)
 
 class RatingFilmCriticsView(ModelView):
-    pass
-
+    column_list = ['id', 'star', 'created_on']
+    column_searchable_list = ('star',)
 
 class ReleaseView(ModelView):
-    column_list = ['id', 'year']
+    column_list = ['id', 'year', 'created_on']
+    column_searchable_list = ('year',)
 
 
 class FilmLengthView(ModelView):
-    pass
+    column_list = ['id', 'length', 'created_on']
+    column_searchable_list = ('length',)
 
 
 class GenreView(ModelView):
-    column_list = ['id', 'name']
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class CountryView(ModelView):
-    column_list = ['id', 'name']
-
+    column_list = ['id', 'name', 'created_on']
     column_searchable_list = ('name',)
 
 
 class AgeLimitView(ModelView):
-    pass
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class TypeVideoView(ModelView):
-    pass
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class DirectorView(ModelView):
-    pass
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class CreatorView(ModelView):
-    pass
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class ActorView(ModelView):
     column_list = ['id', 'name', 'tag', 'created_on']
-
-    column_labels = {
-        'tag': 'Tags'
-    }
-
-    column_descriptions = {
-        'tag': 'Description for tag'
-    }
+    column_searchable_list = ('name',)
 
 
 class ScreenshotView(ModelView):
@@ -107,13 +108,15 @@ class ScreenshotView(ModelView):
 
 
 class SimilarView(ModelView):
-    column_list = ['id', 'name']
+    column_list = ['id', 'name', 'created_on']
     column_searchable_list = ('name',)
 
 
 class TagActorView(ModelView):
     column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class SegmentView(ModelView):
     column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)

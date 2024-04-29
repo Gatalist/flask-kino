@@ -184,8 +184,8 @@ class ParserKinopoiskIMDB(Tools):
         if request not in bade_status_codes.keys():
             result = request.json()
             # print(result)
-            name = result.get('nameRu')
-            poster = result.get('posterUrl')
+            name = result.get('nameRu', '')
+            poster = result.get('posterUrl', '')
             year = result.get('year', 0)
 
             if name:
@@ -197,14 +197,14 @@ class ParserKinopoiskIMDB(Tools):
                 print('poster', "|", "True", " |", poster)
             else:
                 print('poster', "|", "False", "|", poster)
-            print(year)
-            if year > 1965:
-                print('year', "  |", "True", " |", year)
+
+            if year >= 1965:
+                print('year', "  |", "True", " |", year, ">= 1965")
+                if name and poster:
+                    return result
             else:
                 print('year', "  |", "False", "|", year, "< 1965")
-
-            if name and poster and year:
-                return result
+                return None
 
     # получаем по API kinopoisk режиссеров, актеров, сценаристов
     def request_data_people(self, kinopoisk_id) -> json:
@@ -352,8 +352,10 @@ class DataBase(Tools):
         )
 
         if get_val:
+            print("GET---->")
             return get_val
         else:
+            print("INSERT---->")
             self.insert_data(
                 table_name=table_name,
                 keys_name=insert_keys,
