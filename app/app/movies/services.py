@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 from .models import (Movie, RatingKinopoisk, Release, Genre, Director, genre_movie, director_movie)
 
 
-class MixinMovie:
+class ContextData:
     data_sorted = [
         {'value': "standard", 'text': 'стандартная'},
         {'value': "rating_asc", 'text': 'От мин до мах рейтинга'},
@@ -51,6 +51,8 @@ class MixinMovie:
         self.session_data('is_active_genres', genre)
         self.session_data('is_active_directors', director)
 
+
+class FilterMovie(ContextData):
     def filter_movie(self, form=None):
         if form and form.get('form_name') == 'filter_movie':
             release = self.is_activate_filter(form, 'year_')
@@ -88,6 +90,8 @@ class MixinMovie:
                 joinedload(Movie.genres)).filter(Director.id.in_(active_directors))
         return movies
 
+
+class SortingMovie(ContextData):
     def get_name_sorted(self, name):
         for n in self.data_sorted:
             if n.get('value') == name:

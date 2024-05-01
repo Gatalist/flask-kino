@@ -1,5 +1,5 @@
 from flask import Blueprint
-from app import db, admin
+from app import admin
 from .admins import BackupView, BackupCreateView, BackupRestoreView
 
 

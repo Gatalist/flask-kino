@@ -29,7 +29,7 @@ list_api_key_1 = [
 ]
 
 list_api_key_2 = [
-
+    env_file.get('KEY_23'),
     env_file.get('KEY_11'),
     env_file.get('KEY_12'),
     env_file.get('KEY_21'),

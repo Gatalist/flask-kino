@@ -16,7 +16,7 @@ else:
 processing = Processing(list_keys)
 
 
-# 12 108 # 13057
+# 18000
 start = int(input("\nEnter number start: "))
 end = int(input("\nEnter number end: "))
 processing.parse_and_create_movie_to_range(start_id=start, end_id=end)
@@ -27,7 +27,6 @@ processing.parse_and_create_movie_to_range(start_id=start, end_id=end)
 #  add role, add user Admin, add tag popular-actor, run create_popular_actor
 # processing.create_popular_actor(file_actor_name='actor/actor.txt', tag_id=1)
 # processing.create_popular_actor(file_actor_name='actor/1965.txt', tag_id=2)  # 1965
-
 
 
 # получаем все идд фильмов кинопоиск_ид

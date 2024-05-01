@@ -33,7 +33,7 @@
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 {{ form.password(class_='form-control') }}
-                {% for error in form.password.errors %}
+                {% for error in form.password.errors[0] %}
                     <span style="color: red;">{{ error }}</span><br>
                 {% endfor %}
             </div>

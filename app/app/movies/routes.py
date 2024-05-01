@@ -1,12 +1,12 @@
 from flask import render_template, request, redirect
 from flask.views import MethodView
 from app.settings import Config
-from .services import MixinMovie
+from .services import FilterMovie, SortingMovie
 from .models import Movie
 from app.extensions import logger
 
 
-class HomeView(MixinMovie, MethodView):
+class HomeView(FilterMovie, SortingMovie, MethodView):
     # @logger.catch
     def get(self):
         self.create_context()
@@ -35,7 +35,7 @@ class MovieDetailView(MethodView):
         return render_template('detail_movie.html', movie=movie)
 
 
-class MovieSearchView(MixinMovie, MethodView):
+class MovieSearchView(FilterMovie, MethodView):
     @logger.catch
     def get(self):
         self.create_context()
@@ -44,13 +44,11 @@ class MovieSearchView(MixinMovie, MethodView):
         q = request.args.get('q')
         if q:
             search = movie.filter(Movie.name_ru.ilike(f"%{q}%"))
-            if search:
-                search_movie = search
-            else:
-                search_movie = []
+            if not search:
+                search = []
         else:
             return redirect('/')
 
         page = request.args.get('page', 1, type=int)
-        pages = search_movie.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
+        pages = search.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index.html', pages=pages, **self.context)

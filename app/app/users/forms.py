@@ -6,21 +6,29 @@ import re
 
 
 class RegisterForm(FlaskForm):
-    username = StringField(label='Username',
-                           validators=[InputRequired(), Length(min=3, max=50)],
-                           render_kw={"placeholder": "Username"})
+    username = StringField(
+        label='Username',
+       validators=[InputRequired(), Length(min=3, max=50)],
+       render_kw={"placeholder": "Username"}
+    )
 
-    email = StringField(label='Email',
-                        validators=[DataRequired(), Email()],
-                        render_kw={"placeholder": "Email"})
+    email = StringField(
+        label='Email',
+        validators=[DataRequired(), Email()],
+        render_kw={"placeholder": "Email"}
+    )
 
-    password = PasswordField(label='Password',
-                             validators=[InputRequired(), Length(min=8, max=20)],
-                             render_kw={"placeholder": "Password"})
+    password = PasswordField(
+        label='Password',
+        # validators=[InputRequired(), Length(min=8, max=20)],
+        render_kw={"placeholder": "Password"}
+    )
 
-    password2 = PasswordField(label='Repeat Password',
-                              validators=[DataRequired(), EqualTo('password')],
-                              render_kw={"placeholder": "Repeat Password"})
+    password2 = PasswordField(
+        label='Repeat Password',
+        validators=[DataRequired(), EqualTo('password')],
+        render_kw={"placeholder": "Repeat Password"}
+    )
 
     def validate_username(self, username):
         existing_user_username = User.query.filter_by(username=username.data).first()
@@ -34,34 +42,50 @@ class RegisterForm(FlaskForm):
 
     def validate_password(self, password):
         pwd = password.data
+        errors = []
+
+        if len(pwd) < 8 or len(pwd) > 20:
+            errors.append('Field must be between 8 and 20 characters long')
+
         # Проверка наличия буквы
-        if not any(char.isalpha() for char in pwd):
-            raise ValidationError('Password must contain at least one letter')
+        if not re.findall(r"\w", pwd):
+            errors.append('Password must contain at least one letter')
 
         # проверка наличия большой буквы
-        if not any(char.isupper() for char in pwd) and any(char.isdigit() for char in pwd):
-            raise ValidationError('Password must contain at big letter')
+        if not re.findall(r'[A-Z]', pwd):
+            errors.append('Password must contain at big letter')
+
+        if not re.findall(r'[a-z]', pwd):
+            errors.append('Password must contain at little letter')
 
         # Проверка наличия цифры
-        if not any(char.isdigit() for char in pwd):
-            raise ValidationError('Password must contain at least one digit')
+        if not re.findall(r"[^\d]", pwd):
+            errors.append('Password must contain at least one digit')
 
         # Проверка наличия специальных символов
         if not re.findall(r"[^\w\d]", pwd):
-            raise ValidationError('Password must contain at least one special character')
+            errors.append('Password must contain at least one special character')
 
         # Проверка отсутствия пробелов
         if re.search(r'\s', pwd):
-            raise ValidationError('Password must not contain spaces')
+            errors.append('Password must not contain spaces')
+
+        if errors:
+            print(errors)
+            raise ValidationError(errors)
 
 
 class LoginForm(FlaskForm):
-    email = StringField(label='Email',
-                        validators=[DataRequired()],
-                        render_kw={"placeholder": "Email"})
+    email = StringField(
+        label='Email',
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Email"}
+    )
 
-    password = PasswordField(validators=[InputRequired()],
-                             render_kw={"placeholder": "Password"})
+    password = PasswordField(
+        validators=[InputRequired()],
+        render_kw={"placeholder": "Password"}
+    )
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()

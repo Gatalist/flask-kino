@@ -13,7 +13,9 @@ class MovieView(ModelView):
     column_filters = ['rating_critics.star', 'rating_kinopoisk.star', 'rating_imdb.star']
 
     column_searchable_list = ('kinopoisk_id',)
-    column_sortable_list = ['id', 'kinopoisk_id', 'year', 'rating_critics.star', 'rating_kinopoisk.star', 'rating_imdb.star']
+    column_sortable_list = [
+        'id', 'kinopoisk_id', 'year', 'rating_critics.star', 'rating_kinopoisk.star', 'rating_imdb.star'
+    ]
 
     # Определите, как отображать изображение в списке элементов
     column_formatters = {
@@ -54,9 +56,11 @@ class RatingImdbView(ModelView):
     column_list = ['id', 'star', 'created_on']
     column_searchable_list = ('star',)
 
+
 class RatingFilmCriticsView(ModelView):
     column_list = ['id', 'star', 'created_on']
     column_searchable_list = ('star',)
+
 
 class ReleaseView(ModelView):
     column_list = ['id', 'year', 'created_on']

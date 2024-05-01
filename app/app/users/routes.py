@@ -8,8 +8,8 @@ from werkzeug.security import generate_password_hash
 
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(idd):
+    return User.query.get(int(idd))
 
 
 # @login_manager.request_loader
