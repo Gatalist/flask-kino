@@ -12,8 +12,8 @@
 <div class="row justify-content-center">
     <div class="col-4">
         <form action="{{ url_for('app_user.login') }}" method="post">
-            {{ form.csrf_token }}
-            {{ form.hidden_tag() }}
+{#            {{ form.csrf_token }}#}
+{#            {{ form.hidden_tag() }}#}
             <div class="mb-3">
                 <label class="form-label">Email address</label>
                 {{ form.email(class_='form-control') }}

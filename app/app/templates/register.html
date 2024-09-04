@@ -14,8 +14,8 @@
 <div class="row justify-content-center">
     <div class="col-4">
         <form action="{{ url_for('app_user.register') }}" method="post" novalidate>
-            {{ form.csrf_token }}
-            {{ form.hidden_tag() }}
+{#            {{ form.csrf_token }}#}
+{#            {{ form.hidden_tag() }}#}
             <div class="mb-3">
                 <label class="form-label">Your name</label>
                 {{ form.username(class_='form-control') }}

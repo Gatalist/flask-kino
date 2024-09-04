@@ -1,12 +1,11 @@
 from flask import Blueprint
 from app import admin
-from .admins import BackupView, BackupCreateView, BackupRestoreView
+from .admins import BackupCreateView, BackupRestoreView
 
 
 backup_blueprint = Blueprint('app_backup', __name__, template_folder='templates', static_folder='static')
 
 
-# admin.add_view(BackupView(name='Backup', endpoint='backup', category='Backup'))
 admin.add_view(BackupCreateView(name='Create Backup', endpoint='backup/create', category='Backup'))
 admin.add_view(BackupRestoreView(name='Restore Backup', endpoint='backup/restore', category='Backup'))
 

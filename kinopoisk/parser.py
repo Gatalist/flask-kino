@@ -23,30 +23,33 @@ list_api_key_1 = [
     env_file.get('KEY_4'),
     env_file.get('KEY_5'),
     env_file.get('KEY_6'),
-    env_file.get('KEY_7'),
-
-
 ]
 
 list_api_key_2 = [
-    env_file.get('KEY_23'),
-    env_file.get('KEY_11'),
-    env_file.get('KEY_12'),
-    env_file.get('KEY_21'),
-    env_file.get('KEY_22'),
-
+    env_file.get('KEY_7'),
     env_file.get('KEY_8'),
     env_file.get('KEY_9'),
     env_file.get('KEY_10'),
+    env_file.get('KEY_11'),
+    env_file.get('KEY_12'),
+]
 
-    # env_file.get('KEY_13'),
-    # env_file.get('KEY_14'),
-    # env_file.get('KEY_15'),
-    # env_file.get('KEY_16'),
-    # env_file.get('KEY_17'),
-    # env_file.get('KEY_18'),
-    # env_file.get('KEY_19'),
-    # env_file.get('KEY_20'),
+list_api_key_3 = [
+    env_file.get('KEY_13'),
+    env_file.get('KEY_21'),
+    env_file.get('KEY_22'),
+    env_file.get('KEY_23'),
+    env_file.get('KEY_14'),
+    env_file.get('KEY_15'),
+]
+
+list_api_key_4 = [
+    env_file.get('KEY_16'),
+    env_file.get('KEY_17'),
+    env_file.get('KEY_18'),
+    env_file.get('KEY_19'),
+    env_file.get('KEY_20'),
+    env_file.get('KEY_21'),
 ]
 
 
@@ -198,7 +201,7 @@ class ParserKinopoiskIMDB(Tools):
             else:
                 print('poster', "|", "False", "|", poster)
 
-            if year >= 1965:
+            if year and year >= 1965:
                 print('year', "  |", "True", " |", year, ">= 1965")
                 if name and poster:
                     return result

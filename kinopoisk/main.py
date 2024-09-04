@@ -1,14 +1,16 @@
-from parser import Processing, list_api_key_1, list_api_key_2
+from parser import Processing, list_api_key_1, list_api_key_2, list_api_key_3, list_api_key_4
 
 
-print("Enter number list key 1 or 2")
+print("Enter number list key 1 or 2 or 3")
 number = int(input("\nEnter number: "))
 if number == 1:
     list_keys = list_api_key_1
 elif number == 2:
     list_keys = list_api_key_2
 elif number == 3:
-    list_keys = list_api_key_1 + list_api_key_2
+    list_keys = list_api_key_3
+elif number == 4:
+    list_keys = list_api_key_4
 else:
     list_keys = []
 
@@ -16,7 +18,7 @@ else:
 processing = Processing(list_keys)
 
 
-# 18000
+# 38000
 start = int(input("\nEnter number start: "))
 end = int(input("\nEnter number end: "))
 processing.parse_and_create_movie_to_range(start_id=start, end_id=end)

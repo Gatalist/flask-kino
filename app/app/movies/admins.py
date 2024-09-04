@@ -1,12 +1,9 @@
 from flask_admin.contrib.sqla import ModelView
 from markupsafe import Markup
-from app import settings  # , db
-import shutil
-import os
-from .delete_from_many_to_many import delete_movie
+from .tools import MovieTools
 
 
-class MovieView(ModelView):
+class MovieView(MovieTools, ModelView):
     column_list = ['id', 'poster_url', 'kinopoisk_id', 'imdb_id', 'name_ru', 'slug', 'year',
                    'type_video', 'rating_kinopoisk', 'rating_imdb', 'rating_critics']
 
@@ -24,27 +21,10 @@ class MovieView(ModelView):
     }
 
     def on_model_delete(self, model):
-        #  Ваша логика удаления объекта и папки со всеми картинками
-        print(f'Deleting object: {model}')
-
-        media = settings.Config.MEDIA_PATH
-        media_path = os.path.join(media, 'images', str(model.year), str(model.kinopoisk_id))
-        print(media_path)
-
-        try:
-            shutil.rmtree(media_path)
-            print(f"Папка {media_path} удалена успешно.")
-        except FileNotFoundError:
-            print(f"Папка {media_path} не найдена.")
-        except Exception as e:
-            print(f"Ошибка при удалении папки: {e}")
-
-        # delete_movie(model)
-    # edit_template = 'admin/open_card.html'
-
-    # def custom_action(self, id):
-    #     # Ваша логика обработки пользовательского действия
-    #     return redirect(url_for('admin.user_edit', id=id))
+        # удалить картинки с папки фильма
+        self.delete_image(model)
+        # удалить зависимости с таблиц
+        self.dell_from_table(model)
 
 
 class RatingKinopoiskView(ModelView):

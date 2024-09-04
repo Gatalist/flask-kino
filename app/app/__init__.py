@@ -5,6 +5,7 @@ from .extensions import db, admin, login_manager, swagger, migrate
 from .routes import init_bp
 
 
+
 def create_app(config_class):
     new_app = Flask(__name__)
     new_app.config.from_object(config_class)
@@ -25,6 +26,8 @@ def create_app(config_class):
 
     init_bp(new_app)
 
+    from flask_cors import CORS
+
     @new_app.shell_context_processor
     def make_shell_context():
         return {"app": new_app, "db": db}
@@ -33,3 +36,5 @@ def create_app(config_class):
 
 
 app = create_app(config_class=DevConfig)
+
+
