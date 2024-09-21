@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 from typing import Union, List
 
-from parser.base_parser import WebRequester
+from .parser import WebRequester
 
 
 class FileImage(WebRequester):
@@ -60,7 +60,7 @@ class FileImage(WebRequester):
             new_name = self.generate_new_image_name(name=name, image_url=web_url_image)
             path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
             response_image = self.request_data(url=web_url_image, headers=self.get_user_agent())
-            new_save = self.save_file(name=new_name, image_path=path, request_data=response_image['data'])
+            new_save = self.save_file(name=new_name, image_path=path, request_data=response_image['result'])
             return new_save
 
         if isinstance(web_url_image, list):
@@ -68,6 +68,6 @@ class FileImage(WebRequester):
             for url in web_url_image:
                 new_name = self.generate_new_image_name(name=name, image_url=url)
                 response_image = self.request_data(url=url, headers=self.get_user_agent())
-                new_save = self.save_file(name=new_name, image_path=path, request_data=response_image['data'])
+                new_save = self.save_file(name=new_name, image_path=path, request_data=response_image['result'])
                 new_image_save_path.append(new_save)
             return new_image_save_path

@@ -94,29 +94,29 @@
                             {% endif %}
                         </p>
                         <p class="card-text mb-auto p-2">Жанр: 
-                            {% for genre in movie.mod_genres %}
-                                {{genre}}
+                            {% for genre in movie.genres %}
+                                {{genre}},
                             {% endfor %}
                         </p>
                         <p class="card-text mb-auto p-2">Страна: 
-                            {% for country in movie.mod_countries %}
-                                {{country}}
+                            {% for country in movie.countries %}
+                                {{country}},
                             {% endfor %}
                         </p>
                         <p class="card-text mb-auto p-2">Дата обновления: {{movie.last_syncs_format}}</p>
                         <p class="card-text mb-auto p-2">Сценарист: 
-                            {% for man in movie.mod_creators %}
-                                {{man}}
+                            {% for man in movie.creator %}
+                                {{man}},
                             {% endfor %}
                         </p>
                         <p class="card-text mb-auto p-2">Директор: 
-                            {% for man in movie.mod_directors %}
-                                {{man}}
+                            {% for man in movie.director %}
+                                {{man}},
                             {% endfor %}
                         </p>
                         <p class="card-text mb-auto p-2">Актеры: 
-                            {% for man in movie.mod_actors %}
-                                {{man}}
+                            {% for man in movie.actor %}
+                                {{man}},
                             {% endfor %}
                         </p>
                     </div>

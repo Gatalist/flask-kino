@@ -2,64 +2,75 @@ from app import db
 from datetime import datetime, timezone
 from app.users.models import User
 
+
 genre_movie = db.Table(
-    'genre_movie',
+    'genre_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id'))
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id')),
+    # autoload_with=self.engine
 )
 
 country_movie = db.Table(
-    'country_movie',
+    'country_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('country_id', db.Integer, db.ForeignKey('countries.id'))
+    db.Column('country_id', db.Integer, db.ForeignKey('countries.id')),
+    # autoload_with=self.engine
 )
 
 director_movie = db.Table(
-    'director_movie',
+    'director_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('director_id', db.Integer, db.ForeignKey('directors.id'))
+    db.Column('director_id', db.Integer, db.ForeignKey('directors.id')),
+    # autoload_with=self.engine
 )
 
 creator_movie = db.Table(
-    'creator_movie',
+    'creator_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('creator_id', db.Integer, db.ForeignKey('creators.id'))
+    db.Column('creator_id', db.Integer, db.ForeignKey('creators.id')),
+    # autoload_with=self.engine
 )
 
 actor_movie = db.Table(
-    'actor_movie',
+    'actor_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('actor_id', db.Integer, db.ForeignKey('actors.id'))
+    db.Column('actor_id', db.Integer, db.ForeignKey('actors.id')),
+    # autoload_with=self.engine
 )
 
 screenshot_movie = db.Table(
-    'screenshot_movie',
+    'screenshot_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('screenshot_id', db.Integer, db.ForeignKey('screenshots.id'))
+    db.Column('screenshot_id', db.Integer, db.ForeignKey('screenshots.id')),
+    # autoload_with=self.engine
 )
 
 similar_movie = db.Table(
-    'similar_movie',
+    'similar_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('similar_id', db.Integer, db.ForeignKey('similars.id'))
+    db.Column('similar_id', db.Integer, db.ForeignKey('similars.id')),
+    # autoload_with=self.engine
 )
 
 user_movie = db.Table(
-    'user_movie',
+    'user_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    # autoload_with=self.engine
 )
 
 segment_movie = db.Table(
-    'segment_movie',
+    'segment_movie', #self.metadata,
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('segment_id', db.Integer, db.ForeignKey('segments.id'))
+    db.Column('segment_id', db.Integer, db.ForeignKey('segments.id')),
+    # autoload_with=self.engine
 )
 
 tag_actor = db.Table(
-    'tag_actor',
+    'tag_actor', #self.metadata,
     db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')),
-    db.Column('actor_id', db.Integer, db.ForeignKey('actors.id'))
+    db.Column('actor_id', db.Integer, db.ForeignKey('actors.id')),
+    # autoload_with=self.engine
 )
 
 
@@ -76,29 +87,29 @@ class Movie(db.Model):
     slug = db.Column(db.String(256), nullable=True)
 
     rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating_kinopoisk.id', ondelete='SET NULL'))
-    rating_kinopoisk = db.relationship('RatingKinopoisk', backref=db.backref('movie'), passive_deletes=True)
+    rating_kinopoisk = db.relationship('RatingKinopoisk', backref=db.backref('movie', lazy='dynamic'), passive_deletes=True)
 
     rating_imdb_id = db.Column(db.Integer, db.ForeignKey('rating_imdb.id', ondelete='SET NULL'))
-    rating_imdb = db.relationship('RatingImdb', backref=db.backref('movie'), passive_deletes=True)
+    rating_imdb = db.relationship('RatingImdb', backref=db.backref('movie', lazy='dynamic'), passive_deletes=True)
 
     rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating_critics.id', ondelete='SET NULL'))
-    rating_critics = db.relationship('RatingCritic', backref=db.backref('movie'), passive_deletes=True)
+    rating_critics = db.relationship('RatingCritic', backref=db.backref('movie', lazy='dynamic'), passive_deletes=True)
 
     year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
-    year = db.relationship('Release', backref=db.backref('movie'), passive_deletes=True)
+    year = db.relationship('Release', backref=db.backref('movie', lazy='dynamic'), passive_deletes=True)
 
     film_length_id = db.Column(db.Integer, db.ForeignKey('film_length.id', ondelete='SET NULL'))
-    film_length = db.relationship('FilmLength', backref=db.backref('movie'), passive_deletes=True)
+    film_length = db.relationship('FilmLength', backref=db.backref('movie', lazy='dynamic'), passive_deletes=True)
 
     slogan = db.Column(db.String(512), nullable=True)
     description = db.Column(db.Text, nullable=True)
     short_description = db.Column(db.Text, nullable=True)
 
     type_video_id = db.Column(db.Integer, db.ForeignKey('type_videos.id', ondelete='SET NULL'))
-    type_video = db.relationship('TypeVideo', backref=db.backref('movie'), passive_deletes=False)
+    type_video = db.relationship('TypeVideo', backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     age_limits_id = db.Column(db.Integer, db.ForeignKey('age_limits.id', ondelete='SET NULL'))
-    age_limits = db.relationship('AgeLimit', backref=db.backref('movie'), passive_deletes=False)
+    age_limits = db.relationship('AgeLimit', backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     last_syncs = db.Column(db.DateTime, nullable=True)
 
@@ -135,7 +146,7 @@ class Movie(db.Model):
                               backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'))
-    user = db.relationship('User', backref=db.backref('movie'), passive_deletes=False)
+    user = db.relationship('User', backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
 
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
@@ -175,44 +186,12 @@ class Movie(db.Model):
         list_star.extend(list_minus)
         return list_star
 
-    @staticmethod
-    def mod_list_to_str(list_obj):
-        # убираем с имени знак ',' с последнего елемента списка
-        if list_obj:
-            list_name = [f'{name},' for name in list_obj]
-            last = list_name[-1].replace(',', '')
-            list_name.pop()
-            list_name.append(last)
-            return list_name
-        return list_obj
-
-    @property
-    def mod_genres(self):
-        return self.mod_list_to_str(self.genres)
-
-    @property
-    def mod_creators(self):
-        return self.mod_list_to_str(self.creator)
-
-    @property
-    def mod_directors(self):
-        return self.mod_list_to_str(self.director)
-
-    @property
-    def mod_actors(self):
-        return self.mod_list_to_str(self.actor)
-
-    @property
-    def mod_countries(self):
-        return self.mod_list_to_str(self.countries)
-
     @property
     def get_similar_movie(self):
         similar_values = [sim.kinopoisk_id for sim in self.similar]
-        print('list_sim:', similar_values)
         filtered_movies = Movie.query.filter(Movie.kinopoisk_id.in_(similar_values)).all()
-
-        print('movie', filtered_movies)
+        # print('movie', filtered_movies)
+        # filtered_movies = []
         return filtered_movies
 
 

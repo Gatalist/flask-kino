@@ -1,27 +1,27 @@
 from bs4 import BeautifulSoup as bs
 import re
-from settings import Settings
-from .base_parser import WebRequester
+from .parser import WebRequester
 
 
-class WebRequesterMovieScreenshotIMDB(WebRequester):
+class WebRequesterIMDB(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
 
     def __init__(self):
-        self.film_imdb_url = f"{Settings.base_imdb_url}title/"
+        self.base_imdb_url = "https://m.imdb.com"
+        self.film_imdb_url = f"{self.base_imdb_url}/title/"
         self.pattern = re.compile(r'https://.*?\.jpg')
 
     def request_screenshot(self, imdb_id) -> dict:
         print(f'\n----------- IMDB parsing ----------')
-        header = self.get_user_agent()
+        headers = self.get_user_agent()
 
         parse_url = f"{self.film_imdb_url}{imdb_id}"
-        screenshot_request_data = self.request_data(parse_url, header)
+        screenshot_request_data = self.request_data(url=parse_url, headers=headers, response_type='text')
 
-        if screenshot_request_data["data"]:
+        if screenshot_request_data.get("result"):
             screenshot = []
 
-            soup = bs(screenshot_request_data["data"].text, 'html.parser')
+            soup = bs(screenshot_request_data["result"], 'html.parser')
             find_class = "ipc-shoveler ipc-shoveler--base ipc-shoveler--page0"
             div_tags = soup.find('div', class_=find_class)
 
@@ -33,8 +33,8 @@ class WebRequesterMovieScreenshotIMDB(WebRequester):
                         screenshot.append(matches[-1])
 
             #  возвращаем картинки
-            screenshot_request_data["data"] = list(set(screenshot))
+            screenshot_request_data["result"] = list(set(screenshot))
             return screenshot_request_data
 
-        screenshot_request_data["data"] = {}
+        screenshot_request_data["result"] = {}
         return screenshot_request_data

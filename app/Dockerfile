@@ -14,6 +14,7 @@ ENV PYTHONUNBUFFERED 1
 COPY app poetry.lock pyproject.toml /
 
 RUN poetry config virtualenvs.create false && \
+    poetry add setuptools && \
     poetry install --no-interaction --no-ansi
 
 COPY . .
