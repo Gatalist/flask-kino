@@ -39,10 +39,8 @@ class MovieTools:
     @staticmethod
     def link_many_to_many(movie, link_table):
         # Удаляем записи с таблицы many to many
-        records = db.session.query(link_table).filter(link_table.c.movie_id == movie.id).all()
-        # print(records)
-        for record in records:
-            db.session.query(actor_movie).filter(actor_movie.c.movie_id == record[0]).delete()
+        records = db.session.query(link_table).filter(link_table.c.movie_id == movie.id).delete(synchronize_session=False)
+        print(records)
 
         # Сохранить изменения в базе данных
         db.session.commit()

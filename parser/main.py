@@ -21,14 +21,15 @@ db = Database(
 image = FileImage(Settings.static_path)
 
 # проверяем статус подключения к серверу
-api = WebRequesterKinopoisk(keys_1)
+api = WebRequesterKinopoisk(keys_2)
 imdb = WebRequesterIMDB()
 
 server_status = api.is_resource_availability(url=api.base_kinopoisk_api_url)
 print(server_status)
 
-start_id = 355
-end_id = 400
+start_id = 53_104
+end_id = 100_000
+
 
 # add new user
 # user = db.add_row(
@@ -54,6 +55,9 @@ if server_status:
             # получаем фильм
             movie = api.response_movie(kinopoisk_id=idd, response_type="json")
             print(movie)
+
+            if not api.current_key:
+                break
 
             if not movie.get('result'):
                 continue

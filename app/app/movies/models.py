@@ -161,22 +161,22 @@ class Movie(db.Model):
     @property
     def star_rating_kinopoisk(self):
         max_rating = 10
-        current_rating = self.rating_kinopoisk
+        current_rating = self.rating_kinopoisk.star
 
         list_star = []
 
-        if not current_rating:
+        if current_rating is None:
             list_minus = ['star_m' for _ in range(10)]
             list_star.extend(list_minus)
             return list_star
 
-        plus = int(current_rating.star)
+        plus = int(current_rating)
         list_plus = ['star_p' for _ in range(plus)]
         list_star.extend(list_plus)
 
         center = 0
         list_center = []
-        if current_rating.star - plus > 0.45:
+        if current_rating - plus > 0.45:
             list_center.append('star_c')
             center = 1
         list_star.extend(list_center)

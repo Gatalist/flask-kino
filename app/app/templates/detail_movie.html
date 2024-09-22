@@ -19,10 +19,16 @@
                                     <h3>{{movie.name_ru}}</h3>
                                 </blockquote>
                                 <blockquote class="blockquote">
-                                    <h6>{{movie.name_original}}</h6>
+                                    <h6>
+                                        {% if movie.name_original %}
+                                            {{movie.name_original}}
+                                        {% endif %}
+                                    </h6>
                                 </blockquote>
                                 <figcaption class="blockquote-footer p-2">
-                                    {{movie.slogan}}
+                                    {% if movie.slogan %}
+                                        {{movie.slogan}}
+                                    {% endif %}
                                 </figcaption>
                             </figure>
                         </div>
@@ -30,19 +36,19 @@
                             <div class="row">
                                 <div class="col-6 col-md-6">
                                     <p class="card-text mb-auto">Кинопоиск: 
-                                        {% if movie.rating_kinopoisk %}
+                                        {% if movie.rating_kinopoisk.star %}
                                             {{movie.rating_kinopoisk}}
                                         {% else %}
-                                            0
+                                            -
                                         {% endif %}
                                     </p>
                                 </div>
                                 <div class="col-6 col-md-6">
                                     <p class="card-text mb-auto">Критики: 
-                                        {% if movie.rating_critics %}
+                                        {% if movie.rating_critics.star %}
                                             {{movie.rating_critics}}
                                         {% else %}
-                                            0
+                                            -
                                         {% endif %}
                                     </p>
                                 </div>
@@ -72,73 +78,111 @@
 
                     </div>
                     <div class="row">
-                        <p class="card-text mb-auto p-2">Год выхода:
+
+                        <p class="card-text mb-auto p-2">Год выхода: 
                             {% if movie.year %}
                                 {{movie.year}}
                             {% else %}
-                                Не указано
+                                -
                             {% endif %}
                         </p>
-                        <p class="card-text mb-auto p-2">Продолжительность:
+
+                        <p class="card-text mb-auto p-2">Продолжительность: 
                             {% if movie.film_length %}
                                 {{movie.film_length}} мин
                             {% else %}
-                                Не указано
+                                -
                             {% endif %}
                         </p>
-                        <p class="card-text mb-auto p-2">Ограничение:
+
+                        <p class="card-text mb-auto p-2">Ограничение: 
                             {% if movie.age_limits %}
                                 {{movie.age_limits}}+
                             {% else %}
-                                Не указано
+                                -
                             {% endif %}
                         </p>
+
                         <p class="card-text mb-auto p-2">Жанр: 
-                            {% for genre in movie.genres %}
-                                {{genre}},
-                            {% endfor %}
+                            {% if movie.genres %}
+                                {% for genre in movie.genres %}
+                                    {{genre}},
+                                {% endfor %}
+                            {% else %}
+                                -
+                            {% endif %}
                         </p>
+
                         <p class="card-text mb-auto p-2">Страна: 
-                            {% for country in movie.countries %}
-                                {{country}},
-                            {% endfor %}
+                            {% if movie.countries %}
+                                {% for country in movie.countries %}
+                                    {{country}},
+                                {% endfor %}
+                            {% else %}
+                            -
+                            {% endif %}
                         </p>
-                        <p class="card-text mb-auto p-2">Дата обновления: {{movie.last_syncs_format}}</p>
+
+                        {% if movie.last_syncs_format %}
+                            <p class="card-text mb-auto p-2">Дата обновления: {{movie.last_syncs_format}}</p>
+                        {% endif %}
+
                         <p class="card-text mb-auto p-2">Сценарист: 
-                            {% for man in movie.creator %}
-                                {{man}},
-                            {% endfor %}
+                            {% if movie.creator %}
+                                {% for man in movie.creator %}
+                                    {{man}},
+                                {% endfor %}
+                            {% else %}
+                            -
+                            {% endif %}
                         </p>
+
                         <p class="card-text mb-auto p-2">Директор: 
-                            {% for man in movie.director %}
-                                {{man}},
-                            {% endfor %}
+                            {% if movie.director %}
+                                {% for man in movie.director %}
+                                    {{man}},
+                                {% endfor %}
+                            {% else %}
+                            -
+                            {% endif %}
                         </p>
+                        
                         <p class="card-text mb-auto p-2">Актеры: 
-                            {% for man in movie.actor %}
-                                {{man}},
-                            {% endfor %}
+                            {% if movie.actor %}
+                                {% for man in movie.actor %}
+                                    {{man}},
+                                {% endfor %}
+                            {% else %}
+                            -
+                            {% endif %}
                         </p>
+
                     </div>
                     <div class="row">
-                        <p class="card-text mb-auto p-2">{{movie.description}}</p>
+                        <p class="card-text mb-auto p-2">
+                            {% if movie.description %}
+                                {{movie.description}}
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mb-2 mt-5">
-        <div class="col-md-12">
-            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-                {% for screen in movie.screen_img %}
-                <div class="col-2 p-4 d-flex flex-column position-static">
-                    <img src="{{ screen.url }}" class="figure-img img-fluid rounded" alt="{{screen.name}}">
+    {% if movie.screen_img %}
+        <div class="row mb-2 mt-5">
+            <div class="col-md-12">
+                <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                    {% for screen in movie.screen_img %}
+                        <div class="col-2 p-4 d-flex flex-column position-static">
+                            <img src="{{ screen.url }}" class="figure-img img-fluid rounded" alt="{{screen.name}}">
+                        </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
         </div>
-    </div>
+    {% endif %}
 
     <div class="row mb-2 justify-content-center">
         <div class="col-md-8 ">
