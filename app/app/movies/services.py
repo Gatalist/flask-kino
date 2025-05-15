@@ -21,7 +21,10 @@ class ContextData:
 
     @staticmethod
     def top_directors():
-        return Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+        if len(Director.query.all()) > 0:
+            return Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+        else:
+            return []
 
     @staticmethod
     def get_genres():

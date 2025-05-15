@@ -13,40 +13,41 @@
                             </a>
                             <br>
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Год: 
+                                <small class="text-muted">
                                     {% if movie.year %}
-                                        {{movie.year}}
+                                        Год: {{movie.year}}
                                     {% else %}
-                                        -
+                                        Год: -
                                     {% endif %}
                                 </small>
                             </div>
                             <br>
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Жанры: 
-                                    {% if movie.genres %}
-                                        {% for genre in movie.genres %}
+                                <small class="text-muted">
+                                    Жанры:
+                                    {% if movie.mod_genres %}
+                                        {% for genre in movie.mod_genres %}
                                             {{genre}}
                                         {% endfor %}
                                     {% else %}
-                                        -
+                                        Жанры: -
                                     {% endif %}
                                 </small>
                             </div>
                             <br>
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">IMDB: 
-                                    {% if movie.rating_imdb.star %}
-                                        {{ movie.rating_imdb }} <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded" width="15">
+                                <small class="text-muted">
+                                    {% if movie.rating_imdb %}
+                                        IMDB: {{ movie.rating_imdb }} <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded" width="15">
                                     {% else %}
-                                        - <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded" width="15">
+                                        IMDB: 0 <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded" width="15">
                                     {% endif %}
                                 </small>
-                                <small class="text-muted">КиноПоиск: 
-                                    {% if movie.rating_kinopoisk.star %}
-                                        {{ movie.rating_kinopoisk }} <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded" width="15">
+                                <small class="text-muted">
+                                    {% if movie.rating_kinopoisk %}
+                                        КиноПоиск: {{ movie.rating_kinopoisk }} <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded" width="15">
                                     {% else %}
-                                        - <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded" width="15">
+                                        КиноПоиск: 0 <img src="/static/source/image/star/star-3.png" class="figure-img img-fluid rounded" width="15">
                                     {% endif %}
                                 </small>
                             </div>

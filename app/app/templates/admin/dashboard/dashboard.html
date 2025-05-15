@@ -1,36 +1,11 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <p>Создан Backup для таблиц:</p>
+    <br>
 
-    {% if backup_files %}
-        <!-- Форма для выбора бэкапа -->
-        <form method="POST">
-            <label for="backup_file">Choose a backup to restore:</label>
-            <select name="backup_file" id="backup_file">
-                {% for backup in backup_files %}
-                    <option value="{{ backup }}">{{ backup }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Restore</button>
-        </form>
-    {% endif %}
-
-    {% if users %}
-        <p>Создан Backup для таблиц:</p>
-        <br>
-
-        {% for user in users %}
-            <p>{{ user }}</p>
-        {% endfor %}
-    {% endif %}
+    {% for user in users %}
+        <p>{{ user }}</p>
+    {% endfor %}
 
 {% endblock body %}

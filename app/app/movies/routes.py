@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, make_response, url_for
+from flask import render_template, request, redirect
 from flask.views import MethodView
 from app.settings import Config
 from .services import FilterMovie, SortingMovie
@@ -27,7 +27,6 @@ class HomeView(FilterMovie, SortingMovie, MethodView):
         page = request.args.get('page', 1, type=int)
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index.html', pages=pages, **self.context)
-        # return redirect(url_for('index.html', page=page, **self.context))
 
 
 class MovieDetailView(MethodView):

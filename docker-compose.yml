@@ -1,9 +1,10 @@
-version: "3.8"
+
 services:
     postgres_db:
         container_name: postgres_db
         image: postgres:16
-        restart: unless-stopped
+#        build: ./postgres
+        restart: always
         env_file:
             - ./app/.env
         ports:
@@ -13,7 +14,7 @@ services:
             POSTGRES_PASSWORD: ${DB_PASS}
             POSTGRES_DB: ${DB_NAME}
         volumes:
-            - ./postgres/backup:/home/backup
+#            - ./postgres/backup:/home/backup
             - ./postgres/database:/var/lib/postgresql/data
             - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
@@ -22,7 +23,8 @@ services:
     pgadmin:
         container_name: pgadmin4
         image: dpage/pgadmin4
-        restart: unless-stopped
+#        build: ./postgres
+        restart: always
         env_file:
             - ./app/.env
         environment:
@@ -32,17 +34,16 @@ services:
             - "5050:80"
         networks:
             - my_app_network
-        volumes:
-            - ./postgres/backup:/home/backup
-            - ./postgres/backup:/var/lib/pgadmin/storage/admin_admin.com
+#        volumes:
+#            - ./postgres/backup:/home/backup
+#            - ./postgres/backup:/var/lib/pgadmin/storage/admin_admin.com
 
     flask:
         container_name: flask_app
         build: ./app
-        command: gunicorn --bind 0.0.0.0:5000 run:app
-        # command: python run.py
-        # restart: always
-        restart: unless-stopped
+#        command: gunicorn --bind 0.0.0.0:5000 run:app
+        command: python run.py
+        restart: always
         ports:
             - "5000:5000"
         depends_on:
@@ -61,11 +62,6 @@ services:
             - flask
         networks:
             - my_app_network
-        volumes:
-            - ./app:/home/app
-
-# volumes:
-#  pgadmin-data:
 
 networks:
   my_app_network:
