@@ -76,7 +76,6 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
         self.start_from_year = start_from_year
         self.placeholder_hashes = [
             'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
-            'e694f356b24631d5cd890c25e80e063e58d88e6154df1e071cb3bc934594e48c'
         ] # SHA256 хеш изображения-заглушки
 
     def is_placeholder_image(self, image_url) -> bool:
