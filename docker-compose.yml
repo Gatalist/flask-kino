@@ -42,7 +42,14 @@ services:
         container_name: flask_app
         build: ./app
 #        command: gunicorn --bind 0.0.0.0:5000 run:app
-        command: python run.py
+#        command: python run.py
+        command: >
+            sh -c "
+                if [ ! -d migrations ]; then flask db init; fi &&
+                flask db migrate &&
+                flask db upgrade &&
+                python run.py
+            "
         restart: always
         ports:
             - "5000:5000"

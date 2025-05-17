@@ -1,3 +1,8 @@
+import requests
+from PIL import Image
+from io import BytesIO
+import hashlib
+
 from settings import Settings
 from .base_parser import WebRequester
 
@@ -63,12 +68,26 @@ class WebRequesterKinopoisk(WebRequester):
 
 
 class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
-    """Получаем по API данные фильм с сервера Kinopoisk"""
+    """Получаем данные о фильм по API с сервера Kinopoisk"""
 
     def __init__(self, list_api_key, start_from_year):
         super().__init__(list_api_key)
         self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/"
         self.start_from_year = start_from_year
+        self.placeholder_hashes = [
+            'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
+            'e694f356b24631d5cd890c25e80e063e58d88e6154df1e071cb3bc934594e48c'
+        ] # SHA256 хеш изображения-заглушки
+
+    def is_placeholder_image(self, image_url) -> bool:
+        # Проверка по хешу
+        response = requests.get(image_url, timeout=10)
+        if response.status_code == 200:
+            image_hash = hashlib.sha256(response.content).hexdigest()
+            print("poster_hash:", image_hash, "\n")
+            if image_hash in self.placeholder_hashes:
+                return True
+        return False
 
     def request_data_api(self, kinopoisk_id: int) -> dict:
         """Получаем данные по API kinopoisk"""
@@ -88,24 +107,17 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             name = movie_data.get('nameRu', '')
             poster = movie_data.get('posterUrl', '')
             year = movie_data.get('year', 0)
+            request_data['filter'] = True if year and year >= self.start_from_year else False
 
-            if not name:
-                print("nameRu", "|", "False", "|", name)
-            else:
-                print("nameRu", "|", "True ", "|", name)
+            print("nameRu |", "True " if name else "False", "|", name)
+            print("poster |", "True " if poster else "False", "|", poster)
+            print("year   |", f"True | {year}\n" if request_data['filter'] else f"False | {year} < {self.start_from_year}\n")
 
-            if not poster:
-                print("poster", "|", "False", "|", poster)
-            else:
-                print("poster", "|", "True ", "|", poster)
+            image_plug = False
+            if poster:
+                image_plug = self.is_placeholder_image(poster)
 
-            if year and year > self.start_from_year:
-                print("year", "  |", "True ", "|", f"{year}\n")
-                request_data['filter'] = True
-            else:
-                print("year", "  |", "False", "|", year, "< 1965\n")
-
-            if name and poster and request_data["filter"]:
+            if name and poster and request_data["filter"] and not image_plug:
                 request_data["data"] = request_data["data"].json()
                 return request_data
 

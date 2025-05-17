@@ -5,11 +5,14 @@ from .models import (Movie, RatingKinopoisk, Release, Genre, Director, genre_mov
 
 class ContextData:
     data_sorted = [
-        {'value': "standard", 'text': 'стандартная'},
-        {'value': "rating_asc", 'text': 'От мин до мах рейтинга'},
-        {'value': "rating_desc", 'text': "От мах до мин рейтинга"},
-        {'value': "release_date_asc", 'text': 'От старых до новых'},
-        {'value': "release_date_desc", 'text': 'От новых до старых'}]
+        {'value': "standard", 'text': 'Нет сортировки'},
+        {'value': "release_date_desc", 'text': 'По дате (новые)'},
+        {'value': "release_date_asc", 'text': 'По дате (старые)'},
+        {'value': "rating_desc", 'text': "По рейтингу (высокий)"},
+        {'value': "rating_asc", 'text': 'По рейтингу (низкий)'},
+        {'value': "title_asc", 'text': 'По названию (A-Z)'},
+        {'value': "title_desc", 'text': 'По названию (Z-A)'},
+    ]
 
     context = {}
 

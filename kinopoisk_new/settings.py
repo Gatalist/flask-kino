@@ -18,7 +18,7 @@ class Settings:
 
     user_agents = list_user_agent
 
-    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'test_img')
+    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
 
     status_codes = {
         # status 2хх

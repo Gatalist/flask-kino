@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block other_scripts_head %}
+    <script src="{{ url_for('static', filename='kinobox/kinobox.min.js') }}"></script>
+{% endblock other_scripts_head %}
 
-    <div class="row mb-2 mt-5">
-        <div class="col-md-12">
+{% block content %}
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 mt-5">
             <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                 <div class="col-4 p-4 d-flex flex-column position-static">
                     <figure class="figure">
                         <img src="{{ movie.poster_url }}" class="figure-img img-fluid rounded" alt="{{movie.name_ru}}">
                     </figure>
                 </div>
-                
+
                 <div class="col-8 p-4 d-flex flex-column position-static">
                     <div class="row">
                         <div class="col-10 col-sm-6">
@@ -29,7 +33,7 @@
                         <div class="col-2 col-sm-6">
                             <div class="row">
                                 <div class="col-6 col-md-6">
-                                    <p class="card-text mb-auto">Кинопоиск: 
+                                    <p class="card-text mb-auto">Кинопоиск:
                                         {% if movie.rating_kinopoisk %}
                                             {{movie.rating_kinopoisk}}
                                         {% else %}
@@ -38,7 +42,7 @@
                                     </p>
                                 </div>
                                 <div class="col-6 col-md-6">
-                                    <p class="card-text mb-auto">Критики: 
+                                    <p class="card-text mb-auto">Критики:
                                         {% if movie.rating_critics %}
                                             {{movie.rating_critics}}
                                         {% else %}
@@ -46,11 +50,11 @@
                                         {% endif %}
                                     </p>
                                 </div>
-                                
+
                             </div>
-                            
+
                             <div class="row">
-                                {% for star in movie.star_rating_kinopoisk %} 
+                                {% for star in movie.star_rating_kinopoisk %}
                                     {% if star == 'star_p' %}
                                         <div class="col-1 g-0 rounded mx-auto d-block">
                                             <img src="/static/source/image/star/star-1.png" class="figure-img img-fluid rounded">
@@ -93,28 +97,28 @@
                                 Не указано
                             {% endif %}
                         </p>
-                        <p class="card-text mb-auto p-2">Жанр: 
+                        <p class="card-text mb-auto p-2">Жанр:
                             {% for genre in movie.mod_genres %}
                                 {{genre}}
                             {% endfor %}
                         </p>
-                        <p class="card-text mb-auto p-2">Страна: 
+                        <p class="card-text mb-auto p-2">Страна:
                             {% for country in movie.mod_countries %}
                                 {{country}}
                             {% endfor %}
                         </p>
                         <p class="card-text mb-auto p-2">Дата обновления: {{movie.last_syncs_format}}</p>
-                        <p class="card-text mb-auto p-2">Сценарист: 
+                        <p class="card-text mb-auto p-2">Сценарист:
                             {% for man in movie.mod_creators %}
                                 {{man}}
                             {% endfor %}
                         </p>
-                        <p class="card-text mb-auto p-2">Директор: 
+                        <p class="card-text mb-auto p-2">Директор:
                             {% for man in movie.mod_directors %}
                                 {{man}}
                             {% endfor %}
                         </p>
-                        <p class="card-text mb-auto p-2">Актеры: 
+                        <p class="card-text mb-auto p-2">Актеры:
                             {% for man in movie.mod_actors %}
                                 {{man}}
                             {% endfor %}
@@ -126,10 +130,8 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row mb-2 mt-5">
-        <div class="col-md-12">
+        <div class="col-md-12 mt-5">
             <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
                 {% for screen in movie.screen_img %}
                 <div class="col-2 p-4 d-flex flex-column position-static">
@@ -138,53 +140,68 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
 
-    <div class="row mb-2 justify-content-center">
-        <div class="col-md-8 ">
-            <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Смотереть</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="imdb-tab" data-bs-toggle="tab" data-bs-target="#imdb" type="button" role="tab" aria-controls="imdb" aria-selected="false">CDN</button>
-                    </li>
+
+        <div class="justify-content-center">
+            <div class="col-md-8" id="player-tabs">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs"  role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="alloha-tab" data-moviekinopoiskid="{{ movie.kinopoisk_id }}" data-bs-toggle="tab" data-bs-target="#alloha" type="button" role="tab" aria-controls="alloha" aria-selected="true">Player 1 (Alloha)</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="videocdn-tab" data-moviekinopoiskid="{{ movie.kinopoisk_id }}" data-bs-toggle="tab" data-bs-target="#videocdn" type="button" role="tab" aria-controls="videocdn" aria-selected="false">Player 2 (Videocdn)</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="kodik-tab" data-moviekinopoiskid="{{ movie.kinopoisk_id }}" data-bs-toggle="tab" data-bs-target="#kodik" type="button" role="tab" aria-controls="kodik" aria-selected="false">Player 3 (Kodik)</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cdnmovies-tab" data-moviekinopoiskid="{{ movie.kinopoisk_id }}" data-bs-toggle="tab" data-bs-target="#cdnmovies" type="button" role="tab" aria-controls="cdnmovies" aria-selected="false">Player 4 (Cdnmovies)</button>
+                  </li>
                 </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
 
-                        {% include 'include/player_cdn.html' %}
-                    </div>
-                    <div class="tab-pane fade" id="imdb" role="tabpanel" aria-labelledby="imdb-tab">
-                        {% include 'include/player_alloha.html' %}
-                    </div>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                  <div class="tab-pane active" id="alloha" role="tabpanel" aria-labelledby="alloha-tab" tabindex="0">
+                      <div class="alloha-player"></div>
+                  </div>
+                  <div class="tab-pane" id="videocdn" role="tabpanel" aria-labelledby="videocdn-tab" tabindex="1">
+                      <div class="videocdn-player"></div>
+                  </div>
+                  <div class="tab-pane" id="kodik" role="tabpanel" aria-labelledby="kodik-tab" tabindex="2">
+                      <div class="kodik-player"></div>
+                  </div>
+                  <div class="tab-pane" id="cdnmovies" role="tabpanel" aria-labelledby="cdnmovies-tab" tabindex="3">
+                      <div class="cdnmovies-player"></div>
+                  </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row row-cols-1 row-cols-md-6 g-4">
-        {% for mov_similar in movie.get_similar_movie %}
-            {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
-                                <h5 class="card-title">{{ mov_similar.name_ru }}</h5>
-                            </a>
-                            <p class="card-text"></p>
-                        </div>
-                        <div class="card-footer">
-                            <small class="text-muted">Обновлено: {{mov_similar.last_syncs_format}}</small>
+        <div class="row row-cols-1 row-cols-md-6 g-4">
+            {% for mov_similar in movie.get_similar_movie %}
+                {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
+                                    <h5 class="card-title">{{ mov_similar.name_ru }}</h5>
+                                </a>
+                                <p class="card-text"></p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">Обновлено: {{mov_similar.last_syncs_format}}</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endif %}
-        {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>
-  
-    
 
 {% endblock content %}
+
+{% block other_scripts_body %}
+   <script src="{{ url_for('static', filename='scripts/detail_movie.js') }}"></script>
+{% endblock other_scripts_body %}

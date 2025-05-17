@@ -1,36 +1,41 @@
-<nav style='margin-top: 50px; margin-bottom: 200px'>
-    <ul class="pagination justify-content-md-center">
-
-        <li class="page-item ">
-            {% if pages.has_prev %}
-                <a class="btn page-link" href="{{ url_for('app_movies.home', page=pages.prev_num, q=q) }}" aria-label="Previous">
-            {% else %}
-                <a class="btn page-link disabled" aria-label="Previous">
-            {% endif %}
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-        </li>
-
-        {% for page in pages.iter_pages() %}
-            <li class="page-item">
-            {% if page == pages.page %}
-                <a class="btn btn-primary disabled">{{page}}</a>
-            {% else %}
-                <a class="btn page-link" href="{{ url_for('app_movies.home', page=page, q=q) }}">{{page}}</a>
-            {% endif %}
-            </li>
-        {% endfor %}
-
+<nav class="mt-5">
+  <ul class="pagination justify-content-center">
+    {% if pages.has_prev %}
         <li class="page-item">
-            {% if pages.has_next %}
-                <a class="btn page-link" href="{{ url_for('app_movies.home', page=pages.next_num, q=q) }}" aria-label="Next">
-            {% else %}
-                <a class="btn page-link disabled" aria-label="Next">
-            {% endif %}
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-        </li> 
-        
-    </ul>
-</nav>
+          <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.prev_num, q=q) }}">&laquo;</a>
+        </li>
+    {% else %}
+        <li class="page-item">
+            <a class="page-link pagination-custom-disabled">&laquo;</a>
+        </li>
+    {% endif %}
 
+    {% for page in pages.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+        {% if page %}
+            {% if page == pages.page %}
+                <li class="page-item">
+                    <a class="page-link pagination-custom-active" href="#">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=page, q=q) }}">{{ page }}</a>
+                </li>
+            {% endif %}
+        {% else %}
+            <li class="page-item">
+                <a class="page-link pagination-custom-disabled">...</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+
+    {% if pages.has_next %}
+        <li class="page-item">
+          <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.next_num, q=q) }}">&raquo;</a>
+        </li>
+    {% else %}
+        <li class="page-item">
+            <a class="page-link pagination-custom-disabled">&raquo;</a>
+        </li>
+    {% endif %}
+  </ul>
+</nav>

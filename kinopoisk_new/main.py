@@ -12,9 +12,6 @@ from settings import Settings
 keys_1 = Settings.api_keys[1]
 keys_2 = Settings.api_keys[2]
 keys_3 = Settings.api_keys[3]
-keys_4 = Settings.api_keys[4]
-
-# keys_1 = ["r435t2tr-252524-253452-25235", "rt35t2tr-25g524-25b452-2a235"]
 
 
 db = PostgresDB(
@@ -35,13 +32,16 @@ web_screenshot = WebRequesterMovieScreenshotIMDB()
 server_status, message = api_movie.check_resource_status()
 print(message)
 
-# start_id = 298
-start_id = 324
-end_id = 500
+# min id = 298
+start_id = 971
+end_id = 973
+
+image_put = [971, 973, 904]
 
 if server_status == 200:
     # получение данных с api
-    for idd in range(start_id, end_id):
+    # for idd in range(start_id, end_id):
+    for idd in image_put:
         print(f'\n\n----> kinopoisk id: {idd} <-----')
 
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
@@ -53,8 +53,8 @@ if server_status == 200:
 
             # получаем фильм
             movie = api_movie.get_ready_api_data(kinopoisk_id=idd)
-            if movie['status_code'] == 200 and movie['filter']:
-                print(movie)
+            if movie['status_code'] == 200 and movie['filter'] and movie['data']:
+                print(f"get_ready_api_data: {movie}")
 
                 # получаем все данные для фильма
                 print('\n----------  Получение данных для фильма ----------\n')
@@ -208,7 +208,7 @@ if server_status == 200:
                     table_name='directors',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data_list=movie['data'].get('director', None),
+                    where_key_data_list=people['data'].get('director', None),
                     insert_keys=('name', 'created_on'),
                     dict_key_name=''
                 )
@@ -219,7 +219,7 @@ if server_status == 200:
                     table_name='creators',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data_list=movie['data'].get('writer', None),
+                    where_key_data_list=people['data'].get('writer', None),
                     insert_keys=('name', 'created_on'),
                     dict_key_name=''
                 )

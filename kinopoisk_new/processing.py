@@ -43,7 +43,7 @@ class FileImage(WebRequester):
 
     def generate_movie_path(self, kinopoisk_id, year) -> str:
         """Генерируем путь к папке фильма"""
-        new_path = os.path.join(self.static_path, 'media', 'images', str(year), str(kinopoisk_id))
+        new_path = os.path.join(self.static_path, 'images', str(year), str(kinopoisk_id))
         return self.get_or_create_path(new_path)
 
     @staticmethod
