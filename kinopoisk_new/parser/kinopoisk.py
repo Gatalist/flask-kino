@@ -1,6 +1,5 @@
 import requests
 from PIL import Image
-from io import BytesIO
 import hashlib
 
 from settings import Settings
@@ -108,13 +107,13 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             year = movie_data.get('year', 0)
             request_data['filter'] = True if year and year >= self.start_from_year else False
 
-            print("nameRu |", "True " if name else "False", "|", name)
-            print("poster |", "True " if poster else "False", "|", poster)
-            print("year   |", f"True | {year}\n" if request_data['filter'] else f"False | {year} < {self.start_from_year}\n")
-
             image_plug = False
             if poster:
                 image_plug = self.is_placeholder_image(poster)
+
+            print("nameRu |", "True " if name else "False", "|", name)
+            print("poster |", "True " if poster and not image_plug else "False", "(plug)" if image_plug else "", "|", poster)
+            print("year   |", f"True | {year}\n" if request_data['filter'] else f"False | {year} < {self.start_from_year}\n")
 
             if name and poster and request_data["filter"] and not image_plug:
                 request_data["data"] = request_data["data"].json()

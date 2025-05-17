@@ -1,9 +1,8 @@
 
 services:
-    postgres_db:
-        container_name: postgres_db
+    flask-postgres:
+        container_name: flask_postgres
         image: postgres:16
-#        build: ./postgres
         restart: always
         env_file:
             - ./app/.env
@@ -18,31 +17,13 @@ services:
             - ./postgres/database:/var/lib/postgresql/data
             - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
-            - my_app_network
+            - flask_app_network
 
-    pgadmin:
-        container_name: pgadmin4
-        image: dpage/pgadmin4
-#        build: ./postgres
-        restart: always
-        env_file:
-            - ./app/.env
-        environment:
-            PGADMIN_DEFAULT_EMAIL: 'admin@admin.com'
-            PGADMIN_DEFAULT_PASSWORD: 'root'
-        ports:
-            - "5050:80"
-        networks:
-            - my_app_network
-#        volumes:
-#            - ./postgres/backup:/home/backup
-#            - ./postgres/backup:/var/lib/pgadmin/storage/admin_admin.com
-
-    flask:
+    flask-app:
         container_name: flask_app
-        build: ./ap
+        build: ./app
         environment:
-            DB_HOST: postgres_db
+            DB_HOST: flask-postgres
             DB_PORT: 5432
             DB_USER: ${DB_USER}
             DB_PASSWORD: ${DB_PASS}
@@ -51,22 +32,34 @@ services:
         ports:
             - "5000:5000"
         depends_on:
-            - postgres_db
+            - flask-postgres
         volumes:
             - ./app:/home/app
             - ./postgres/backup:/home/backup
         networks:
-            - my_app_network
+            - flask_app_network
 
-    nginx:
+    flask-nginx:
+        container_name: flask_nginx
         build: ./nginx
         ports:
-            - "1337:80"
+            - "80:80"
+            - "443:443"
+        command: "/bin/sh /nginx-autoreload.sh"
+        volumes:
+            - ./app/app/static:/app/staticfiles
+            - ./nginx/nginx-autoreload.sh:/nginx-autoreload.sh
+#            - ./nginx/conf_dev/:/etc/nginx/conf.d/:ro
+            #      - ./nginx/conf_prod/:/etc/nginx/conf.d/:ro
+            #      - ./nginx/ssl_https:/home/ssl_https
+        environment:
+            - FLASK_PORT=${FLASK_PORT:?error missing FLASK_PORT env}
         depends_on:
-            - flask
+            - flask-app
         networks:
-            - my_app_network
+            - flask_app_network
+        restart: always
 
 networks:
-  my_app_network:
+  flask_app_network:
     driver: bridge

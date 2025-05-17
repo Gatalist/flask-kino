@@ -33,15 +33,15 @@ server_status, message = api_movie.check_resource_status()
 print(message)
 
 # min id = 298
-start_id = 971
-end_id = 973
+start_id = 307
+end_id = 500
 
-image_put = [971, 973, 904]
+# image_put = [971, 973, 904]
 
 if server_status == 200:
     # получение данных с api
-    # for idd in range(start_id, end_id):
-    for idd in image_put:
+    for idd in range(start_id, end_id):
+    # for idd in image_put:
         print(f'\n\n----> kinopoisk id: {idd} <-----')
 
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
@@ -244,7 +244,7 @@ if server_status == 200:
                     table_name='users',
                     select_keys='id, username',
                     where_key_name='username',
-                    where_key_data='Admin'
+                    where_key_data='admin'
                 )
 
                 # создаем фильм
@@ -267,7 +267,11 @@ if server_status == 200:
                     age_limits_id=age_limit,
                     last_syncs=db.converting_date_time(movie['data'].get('lastSync')),
                     user_id=user,
-                    created_on=db.current_datetime()
+                    created_on=db.current_datetime(),
+                    has_3d=movie['data'].get('has3D'),
+                    has_imax=movie['data'].get('hasImax'),
+                    short_film=movie['data'].get('shortFilm'),
+                    publish=True,
                 )
 
                 #  сохраняем данные в связанные таблицы many-to-many

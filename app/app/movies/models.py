@@ -65,9 +65,15 @@ tag_actor = db.Table(
 
 class Movie(db.Model):
     __tablename__ = 'movies'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     kinopoisk_id = db.Column(db.Integer, nullable=True, info={'label': 'Кинопоиск ID'})
     imdb_id = db.Column(db.String(12), nullable=True)
+
+    publish = db.Column(db.Boolean, default=True)
+    has_3d = db.Column(db.Boolean, default=False)
+    has_imax = db.Column(db.Boolean, default=False)
+    short_film = db.Column(db.Boolean, default=False)
 
     name_ru = db.Column(db.String(256), nullable=True)
     name_original = db.Column(db.String(256), nullable=True)

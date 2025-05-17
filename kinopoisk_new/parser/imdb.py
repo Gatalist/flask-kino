@@ -28,7 +28,7 @@ class WebRequesterMovieScreenshotIMDB(WebRequester):
             if div_tags:
                 for img_tag in div_tags.find_all('img', class_='ipc-image'):
                     img_url = img_tag.get('srcset')
-                    print("div_tags img_url", img_url)
+                    # print("div_tags img_url", img_url)
                     if img_url:
                         matches = self.pattern.findall(img_url)
                         screenshot.append(matches[-1])

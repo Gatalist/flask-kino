@@ -94,7 +94,7 @@ class PostgresDB:
     # записываем данные или получаем и возвращаем (id)
     def get_or_create(
             self, table_name: str, select_key: str, where_key_name: str,
-            where_key_data: any, insert_keys: tuple, insert_values: tuple) -> int:
+            where_key_data: any, insert_keys: tuple, insert_values: tuple) -> int | None:
 
         if where_key_data:
             get_val = self.select_data(
@@ -121,11 +121,13 @@ class PostgresDB:
                     where_key_name=where_key_name,
                     where_key_data=where_key_data
                 )
+        return None
 
     def create_screen_movie(self, kinopoisk_id, list_value) -> list:
         print("\n---------- Screenshot add db ----------")
+        print(list_value)
+        screen = []
         if list_value:
-            screen = []
             i = 1
             for src in list_value:
                 screen_name = f'{i}_screenshot'
@@ -144,10 +146,11 @@ class PostgresDB:
                 screen.append(idd)
                 print(idd)
                 i += 1
-            return screen
+        return screen
 
     def get_or_create_similar(self, list_value) -> list:
         print("\n---------- Similar add db ----------")
+        print(list_value)
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
@@ -208,8 +211,9 @@ class PostgresDB:
     # связываем таблицы
     def related_table(self, table_name, movie_id, list_data) -> None:
         print('\n-------- Related table ------------')
-        print(table_name, list_data)
+
         if list_data:
+            print(table_name, list_data)
             with self.connection as conn:
                 with conn.cursor() as cursor:
                     for gen_id in list_data:
@@ -217,6 +221,8 @@ class PostgresDB:
                             f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id)
                         )
                     conn.commit()
+        else:
+            print(table_name, '[]')
 
     # проверяем актеров, сортируем по популярности и возвращаем список
     def popular_actor(self, list_actor, count_actor_save):
@@ -273,7 +279,11 @@ class PostgresDB:
             kwargs['age_limits_id'],
             kwargs['last_syncs'],
             kwargs['user_id'],
-            kwargs['created_on']
+            kwargs['created_on'],
+            kwargs['has_3d'],
+            kwargs['has_imax'],
+            kwargs['short_film'],
+            kwargs['publish']
         )
 
         # генерируем '%s' для value по длине заполняемых полей
