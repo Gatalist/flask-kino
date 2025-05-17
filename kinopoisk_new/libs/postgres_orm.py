@@ -123,7 +123,7 @@ class PostgresDB:
                 )
         return None
 
-    def create_screen_movie(self, kinopoisk_id, list_value) -> list:
+    def create_screen_movie(self, kinopoisk_id: int, list_value: list) -> list:
         print("\n---------- Screenshot add db ----------")
         print(list_value)
         screen = []
@@ -148,7 +148,7 @@ class PostgresDB:
                 i += 1
         return screen
 
-    def get_or_create_similar(self, list_value) -> list:
+    def get_or_create_similar(self, list_value) -> list | None:
         print("\n---------- Similar add db ----------")
         print(list_value)
         if list_value:
@@ -171,7 +171,7 @@ class PostgresDB:
             return lict_obj_id
 
     def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, where_key_data_list: list,
-                                insert_keys: tuple, dict_key_name: str) -> list:
+                                insert_keys: tuple, dict_key_name: str) -> list | None:
         if where_key_data_list:
             new_obj_list_id = []
             for val in where_key_data_list:
@@ -208,8 +208,19 @@ class PostgresDB:
                     movie_id = result_select[0]
                 return movie_id
 
+    def get_tag_id(self, name: str) -> int | None:
+        """Получаем последний id фильма с базы"""
+        with self.connection as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    f"SELECT id FROM tags WHERE name='{name}' LIMIT 1"
+                )
+                result_select = cursor.fetchone()
+                if result_select:
+                    return result_select[0]
+
     # связываем таблицы
-    def related_table(self, table_name, movie_id, list_data) -> None:
+    def related_table(self, table_name: str, movie_id: int, list_data: list) -> None:
         print('\n-------- Related table ------------')
 
         if list_data:
@@ -225,9 +236,8 @@ class PostgresDB:
             print(table_name, '[]')
 
     # проверяем актеров, сортируем по популярности и возвращаем список
-    def popular_actor(self, list_actor, count_actor_save):
+    def popular_actor(self, list_actor: list, count_actor_save: None | int = None) -> list:
         if list_actor:
-            actor_len_list = count_actor_save  # длина списка актеров
             # получаем всех актеров с тегом - 'popular' c db
             with self.connection as conn:
                 with conn.cursor() as cursor:
@@ -249,12 +259,12 @@ class PostgresDB:
             # получаем простых актеров с входящего списка
             other_list_actor = [item for item in list_actor if item not in new_list_actor]
             # до заполняем список актеров если нужно
-            len_list = len(new_list_actor)
-            if len_list < actor_len_list:
-                add_actor = actor_len_list - len_list
-                res = new_list_actor + other_list_actor[:add_actor]
-                return res
-            return new_list_actor
+            all_actors = new_list_actor + other_list_actor
+            if count_actor_save:
+                len_list = len(all_actors)
+                if len_list > count_actor_save:
+                    return all_actors[:count_actor_save]
+            return all_actors
         return []
 
     # добавляем фильм

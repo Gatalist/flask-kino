@@ -5,6 +5,7 @@ from parser.kinopoisk import (
 )
 from parser.imdb import WebRequesterMovieScreenshotIMDB
 from libs.postgres_orm import PostgresDB
+from libs.services import get_popular_actor_from_file
 from processing import FileImage
 from settings import Settings
 
@@ -31,6 +32,43 @@ web_screenshot = WebRequesterMovieScreenshotIMDB()
 # проверяем статус подключения к серверу
 server_status, message = api_movie.check_resource_status()
 print(message)
+
+# добавляем популярных актеров и делаем из них сегмент
+tag_popular_actor = db.get_tag_id('popular')
+if not tag_popular_actor:
+    print("create tag popular actor")
+    get_actors = get_popular_actor_from_file('./actor/actors.txt')
+    actor = db.get_or_create_from_list(
+        table_name='actors',
+        select_key='id, name',
+        where_key_name='name',
+        where_key_data_list=get_actors,
+        insert_keys=('name', 'created_on'),
+        dict_key_name=''
+    )
+
+    tag_popular_actor = db.get_or_create(
+        table_name='tags',
+        select_key='id, name',
+        where_key_name='name',
+        where_key_data="popular",
+        insert_keys=('name', 'created_on'),
+        insert_values=("popular", db.current_datetime())
+    )
+
+    #  сохраняем данные в связанные таблицы many-to-many
+    db.related_table(table_name='tag_actor', movie_id=tag_popular_actor, list_data=actor)
+
+# получаем пользователя
+user = db.select_data(
+    table_name='users',
+    select_keys='id, username',
+    where_key_name='username',
+    where_key_data='admin'
+)
+
+if not user:
+    raise Exception("not user in db: create admin user")
 
 # min id = 298
 start_id = 307
@@ -225,8 +263,10 @@ if server_status == 200:
                 )
                 print(creator)
 
+                # Popular actor add db
+                popular_actor = db.popular_actor(people['data'].get('actor'), count_actor_save=30)
+
                 # Actor add db
-                popular_actor = db.popular_actor(people['data'].get('actor'), count_actor_save=12)
                 actor = db.get_or_create_from_list(
                     table_name='actors',
                     select_key='id, name',
