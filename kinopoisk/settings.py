@@ -8,7 +8,8 @@ load_dotenv()
 
 
 class Settings:
-    host = "localhost"
+    # host = "localhost"
+    host = os.getenv('DB_ADDR')
     database = os.getenv('DB_NAME')
     user = os.getenv('DB_USER')
     password = os.getenv('DB_PASS')
@@ -18,7 +19,8 @@ class Settings:
 
     user_agents = list_user_agent
 
-    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
+    # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
+    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static', 'movie')
 
     status_codes = {
         # status 2хх

@@ -1,9 +1,10 @@
 from flask import session
 from sqlalchemy.orm import joinedload
-from .models import (Movie, RatingKinopoisk, Release, Genre, Director, genre_movie, director_movie)
+from .models import (Movie, RatingKinopoisk, Release, Genre, Director, Country, genre_movie, director_movie, country_movie)
 
 
 class ContextData:
+    context = {}
     data_sorted = [
         {'value': "standard", 'text': 'Нет сортировки'},
         {'value': "release_date_desc", 'text': 'По дате (новые)'},
@@ -14,18 +15,24 @@ class ContextData:
         {'value': "title_desc", 'text': 'По названию (Z-A)'},
     ]
 
-    context = {}
-
     def create_context(self):
         self.context["movies_sorted"] = self.data_sorted
         self.context["all_release"] = self.get_years()
         self.context["all_genres"] = self.get_genres()
         self.context["all_directors"] = self.top_directors()
+        self.context["all_countries"] = self.get_countries()
 
     @staticmethod
     def top_directors():
         if len(Director.query.all()) > 0:
             return Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+        else:
+            return []
+
+    @staticmethod
+    def get_countries():
+        if len(Country.query.all()) > 0:
+            return Country.query.join(country_movie).group_by(Country.id).order_by(Country.id.desc())[:15]
         else:
             return []
 
