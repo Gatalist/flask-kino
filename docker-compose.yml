@@ -74,6 +74,29 @@ services:
         networks:
             - flask_app_network
 
+#    wireguard-vpn:
+#        image: linuxserver/wireguard
+#        container_name: wireguard
+#        cap_add:
+#            - NET_ADMIN
+##            - SYS_MODULE
+#        environment:
+#            - PUID=1000          # UID пользователя
+#            - PGID=1000          # GID пользователя
+##            - PEERS=client1
+##            - IPTABLES_BACKEND=legacy  # или просто отключить iptables
+##            - ENABLE_IPTABLES=false
+#        volumes:
+#            - ./wireguard/config/WireGuardProtonVpn-US-FREE-41.conf:/config/wg_confs/wg0.conf
+#        ports:
+#            - "5021:51820/udp"
+#        sysctls:
+#            - net.ipv4.conf.all.src_valid_mark=1
+#        restart: unless-stopped
+#        networks:
+#            - flask_app_network
+
+
 networks:
   flask_app_network:
     driver: bridge
