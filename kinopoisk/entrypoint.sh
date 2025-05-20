@@ -31,7 +31,7 @@ fi
 
 
 # Function to wait for the FLASK service to be healthy
-wait_for_app_service() {
+wait_for_app_flask() {
     echo "Waiting for app service on port PORT..."
     while ! curl -s "http://flask-app:$FLASK_PORT" > /dev/null; do
         echo "App service not ready, waiting..."
@@ -40,17 +40,35 @@ wait_for_app_service() {
     echo "App service is ready."
 }
 
-wait_for_wireguard_port() {
-    echo "⏳ Waiting for WireGuard tunnel wg0... [port: 51820]"
-    while ! nc -z wireguard-vpn 51820; do
-        echo "WireGuard service not ready, waiting... [port: 51820]"
-        sleep 5
+# wait_for_app_wireguard() {
+#     echo "⏳ Waiting for WireGuard tunnel wg0... [port: 51820]"
+#     while ! nc -z wireguard-vpn 51820; do
+    # while ! wg show wg0 > /dev/null 2>&1; do
+#         echo "WireGuard service not ready, waiting... [port: 51820]"
+#         sleep 5
+#     done
+#     echo "✅ WireGuard tunnel is active [port: 51820]"
+# }
+
+wait_for_app_wireguard() {
+    echo "⏳ Проверка подключения через VPN..."
+
+    while true; do
+        IP=$(curl -s https://ipinfo.io/ip)
+        if [ -n "$IP" ]; then
+            echo "🌍 Внешний IP через VPN: $IP"
+            break
+        else
+            echo "WireGuard не работает (нет внешнего IP), ждём..."
+            sleep 5
+        fi
     done
-    echo "✅ WireGuard tunnel is active [port: 51820]"
+    echo "✅ WireGuard tunnel is active"
 }
 
-wait_for_app_service
-wait_for_wireguard
+
+wait_for_app_flask
+wait_for_app_wireguard
 
 echo "🚀 Запуск парсера..."
 exec python main.py

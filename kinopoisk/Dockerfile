@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && apt-get install -y \
     curl \
+    netcat-openbsd \
     postgresql-client \
     build-essential \
     libpq-dev \

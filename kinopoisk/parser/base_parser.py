@@ -5,7 +5,7 @@ from settings import Settings
 
 class WebRequester:
     """Базовый клас получения данных с сервера"""
-    timeout = 5  # мах время ожидания ответа сервера
+    timeout = 7  # мах время ожидания ответа сервера
 
     @staticmethod
     def new_base_response_dict():
