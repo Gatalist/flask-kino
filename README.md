@@ -9,3 +9,11 @@ Run in terminal:
 `flask db migrate`
 `flask db upgrade`
 
+### iptables for wireguard:
+Run in terminal:
+`sudo dnf install iptables iptables-legacy`
+`sudo modprobe ip_tables`
+
+### permission for folder on use in docker:
+Run in terminal (for folder accesses):
+`sudo chcon -Rt svirt_sandbox_file_t ./wireguard/config/us/`

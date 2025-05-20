@@ -1,5 +1,8 @@
 FROM python:3.12
 
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 RUN apt-get update && apt-get install -y \
     curl \
     postgresql-client \
@@ -7,15 +10,11 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/root/poetry python3 -
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /home/app
-
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
 
 COPY pyproject.toml poetry.lock* /home/app/
 

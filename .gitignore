@@ -1,5 +1,6 @@
 postgres/database/*
 app/app/static/media/*
+app/app/static/movie/*
 logs/*
 
 **__pycache__

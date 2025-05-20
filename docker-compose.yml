@@ -13,7 +13,6 @@ services:
             POSTGRES_PASSWORD: ${DB_PASS}
             POSTGRES_DB: ${DB_NAME}
         volumes:
-#            - ./postgres/backup:/home/backup
             - ./postgres/database:/var/lib/postgresql/data
             - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
         networks:
@@ -35,7 +34,6 @@ services:
             - flask-postgres
         volumes:
             - ./app:/home/app
-#            - ./app/app/static:/app/app/static
             - ./postgres/backup:/home/backup
         networks:
             - flask_app_network
@@ -50,9 +48,9 @@ services:
         volumes:
             - ./app/app/static:/app/staticfiles
             - ./nginx/nginx-autoreload.sh:/nginx-autoreload.sh
-            #            - ./nginx/conf_dev/:/etc/nginx/conf.d/:ro
-            #      - ./nginx/conf_prod/:/etc/nginx/conf.d/:ro
-            #      - ./nginx/ssl_https:/home/ssl_https
+            # - ./nginx/conf_dev/:/etc/nginx/conf.d/:ro
+            # - ./nginx/conf_prod/:/etc/nginx/conf.d/:ro
+            # - ./nginx/ssl_https:/home/ssl_https
         environment:
             - FLASK_PORT=${FLASK_PORT:?error missing FLASK_PORT env}
         depends_on:
@@ -60,6 +58,34 @@ services:
         networks:
             - flask_app_network
         restart: always
+
+    wireguard-vpn:
+        image: linuxserver/wireguard
+        container_name: wireguard_vpn
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - IPTABLES_BACKEND=legacy
+            - ENABLE_IPTABLES=true
+        volumes:
+            # - ./wireguard/config/us/:/config/wg_confs
+            - ./wireguard/config/nl/:/config/wg_confs
+            - ./wireguard/check-wg.sh:/check-wg.sh
+        ports:
+            - "5021:51820/udp"
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1
+        restart: unless-stopped
+        networks:
+            - flask_app_network
+        healthcheck:
+            test: ["CMD-SHELL", "sh /check-wg.sh"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     movie-parser:
         container_name: movie_parser
@@ -69,33 +95,16 @@ services:
         entrypoint: [ "sh", "./entrypoint.sh" ]
         depends_on:
             - flask-app
+        environment:
+            - FLASK_PORT=5000
         volumes:
             - ./app/app/static:/home/app/static
-        networks:
-            - flask_app_network
+        network_mode: "service:wireguard-vpn"
 
-#    wireguard-vpn:
-#        image: linuxserver/wireguard
-#        container_name: wireguard
-#        cap_add:
-#            - NET_ADMIN
-##            - SYS_MODULE
-#        environment:
-#            - PUID=1000          # UID пользователя
-#            - PGID=1000          # GID пользователя
-##            - PEERS=client1
-##            - IPTABLES_BACKEND=legacy  # или просто отключить iptables
-##            - ENABLE_IPTABLES=false
-#        volumes:
-#            - ./wireguard/config/WireGuardProtonVpn-US-FREE-41.conf:/config/wg_confs/wg0.conf
-#        ports:
-#            - "5021:51820/udp"
-#        sysctls:
-#            - net.ipv4.conf.all.src_valid_mark=1
-#        restart: unless-stopped
-#        networks:
-#            - flask_app_network
 
+volumes:
+  postgres_data:
+  volume_app:
 
 networks:
   flask_app_network:
