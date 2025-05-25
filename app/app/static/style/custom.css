@@ -54,6 +54,16 @@ body {
     border-color: var(--border-color);
 }
 
+.card-poster {
+    height: 300px;
+}
+
+.card-img {
+    height: 350px;
+    object-fit: cover;
+    background-position: center;
+}
+
 .card-link-genre {
   text-transform: capitalize;
   text-decoration: none;
@@ -124,6 +134,16 @@ body {
 .icon-color {
     color: var(--accent-color);
 }
+.btn-filters {
+    background-color: var(--accent-color);
+    color: var(--card-bg-light);
+    border-color: var(--border-color);
+}
+
+.btn-filters:hover {
+    background-color: rgba(0, 204, 0, 0.6);
+    border-color: var(--border-color);
+}
 
 /*.dark-theme {*/
 /*    --background: var(--background-dark);*/
@@ -140,4 +160,3 @@ body {
 /*    --text-secondary: var(--text-secondary-light);*/
 /*    --border-color: var(--border-color-light);*/
 /*}*/
-

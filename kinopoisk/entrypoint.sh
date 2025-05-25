@@ -28,8 +28,6 @@ else
     exit 1
 fi
 
-
-
 # Function to wait for the FLASK service to be healthy
 wait_for_app_flask() {
     echo "Waiting for app service on port PORT..."
@@ -39,16 +37,6 @@ wait_for_app_flask() {
     done
     echo "App service is ready."
 }
-
-# wait_for_app_wireguard() {
-#     echo "⏳ Waiting for WireGuard tunnel wg0... [port: 51820]"
-#     while ! nc -z wireguard-vpn 51820; do
-    # while ! wg show wg0 > /dev/null 2>&1; do
-#         echo "WireGuard service not ready, waiting... [port: 51820]"
-#         sleep 5
-#     done
-#     echo "✅ WireGuard tunnel is active [port: 51820]"
-# }
 
 wait_for_app_wireguard() {
     echo "⏳ Проверка подключения через VPN..."

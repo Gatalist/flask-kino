@@ -71,8 +71,8 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 691
-end_id = 700
+start_id = 298
+end_id = 600
 
 # image_put = [971, 973, 904]
 

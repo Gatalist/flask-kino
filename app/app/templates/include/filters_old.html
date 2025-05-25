@@ -1,0 +1,65 @@
+{#<form method="post" action="{{ url_for('app_movies.home') }}">#}
+{#    <input type="hidden" name="form_name" value="filter_movie">#}
+{#    <div class="accordion" id="accordionExample">#}
+{#        <h4 class="accordion-header text-center">Год</h4>#}
+{#        <div class="accordion-item" style="overflow: scroll; height: 450px;">#}
+{#            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">#}
+{#                <div class="accordion-body">#}
+{#                    {% for year in all_release %}#}
+{##}
+{#                        <div class="form-check">#}
+{#                            <input class="form-check-input" type="checkbox" name="year_{{year.id}}" value="{{year}}" #}
+{#                                {% if is_active_years and year.id in is_active_years %}#}
+{#                                    checked#}
+{#                                {% endif %}#}
+{#                            >#}
+{#                            <label class="form-check-label" for="{{year}}">{{year}}</label>#}
+{#                        </div>#}
+{##}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        <h4 class="accordion-header text-center" style="margin-top: 30px;">Жанр</h4>#}
+{#        <div class="accordion-item" style="overflow: scroll; height: 450px;">#}
+{#            <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">#}
+{#                <div class="accordion-body">#}
+{#                    {% for genre in all_genres %}#}
+{##}
+{#                        <div class="form-check">#}
+{#                            <input class="form-check-input" type="checkbox" name="genre_{{genre.id}}" value="{{genre}}" #}
+{#                            {% if is_active_genres and genre.id in is_active_genres %}#}
+{#                                checked#}
+{#                            {% endif %}#}
+{#                            >#}
+{#                            <label class="form-check-label" for="{{genre}}">{{genre.name}}</label>#}
+{#                        </div>#}
+{##}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        <h4 class="accordion-header text-center" style="margin-top: 30px;">Режисер</h4>#}
+{#        <div class="accordion-item" style="overflow: scroll; height: 450px;">#}
+{#            <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">#}
+{#                <div class="accordion-body">#}
+{#                    {% for director in all_directors %}#}
+{##}
+{#                        <div class="form-check">#}
+{#                            <input class="form-check-input" type="checkbox" name="director_{{director.id}}" value="{{director}}" #}
+{#                            {% if is_active_directors and director.id in is_active_directors %}#}
+{#                                checked#}
+{#                            {% endif %}#}
+{#                            >#}
+{#                            <label class="form-check-label" for="{{director}}">{{director}}</label>#}
+{#                        </div>#}
+{##}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#    <div class="d-grid gap-2 col-6 mx-auto" style="margin-top: 30px;">#}
+{#        <button type="submit" class="btn btn-primary">Применить</button>#}
+{#    </div>#}
+{#</form>#}

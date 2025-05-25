@@ -19,7 +19,7 @@ wait_for_app_service
 # Run NGINX and set up auto-reload every 6 hours
 echo "Starting NGINX with auto-reload every 6 hours..."
 (
-    while :; do
+    while true; do
         sleep 6h
         echo "Reloading NGINX..."
         nginx -s reload

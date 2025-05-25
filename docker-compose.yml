@@ -59,47 +59,50 @@ services:
             - flask_app_network
         restart: always
 
-    wireguard-vpn:
-        image: linuxserver/wireguard
-        container_name: wireguard_vpn
-        cap_add:
-            - NET_ADMIN
-            - SYS_MODULE
-        environment:
-            - PUID=1000
-            - PGID=1000
-            - IPTABLES_BACKEND=legacy
-            - ENABLE_IPTABLES=true
-        volumes:
-            # - ./wireguard/config/us/:/config/wg_confs
-            - ./wireguard/config/nl/:/config/wg_confs
-            - ./wireguard/check-wg.sh:/check-wg.sh
-        ports:
-            - "5021:51820/udp"
-        sysctls:
-            - net.ipv4.conf.all.src_valid_mark=1
-        restart: unless-stopped
-        networks:
-            - flask_app_network
-        healthcheck:
-            test: ["CMD-SHELL", "sh /check-wg.sh"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
+    # no work in windows
+#    wireguard-vpn:
+#        image: linuxserver/wireguard
+#        container_name: wireguard_vpn
+#        cap_add:
+#            - NET_ADMIN
+#            - SYS_MODULE
+#        environment:
+#            - PUID=1000
+#            - PGID=1000
+#            - IPTABLES_BACKEND=legacy
+#            - ENABLE_IPTABLES=true
+#        volumes:
+#            # - ./wireguard/config/us/:/config/wg_confs
+#            - ./wireguard/config/nl/:/config/wg_confs
+#            - ./wireguard/check-wg.sh:/check-wg.sh
+#        ports:
+#            - "5021:51820/udp"
+#        sysctls:
+#            - net.ipv4.conf.all.src_valid_mark=1
+#        restart: unless-stopped
+#        networks:
+#            - flask_app_network
+#        healthcheck:
+#            test: ["CMD-SHELL", "sh /check-wg.sh"]
+#            interval: 10s
+#            timeout: 5s
+#            retries: 5
 
-    movie-parser:
-        container_name: movie_parser
-        build: ./kinopoisk
-        env_file:
-            - ./kinopoisk/.env
-        entrypoint: [ "sh", "./entrypoint.sh" ]
-        depends_on:
-            - flask-app
-        environment:
-            - FLASK_PORT=5000
-        volumes:
-            - ./app/app/static:/home/app/static
-        network_mode: "service:wireguard-vpn"
+#    movie-parser:
+#        container_name: movie_parser
+#        build: ./kinopoisk
+#        env_file:
+#            - ./kinopoisk/.env
+#        entrypoint: [ "sh", "./entrypoint.sh" ]
+#        depends_on:
+#            - flask-app
+#        environment:
+#            - FLASK_PORT=5000
+#        volumes:
+#            - ./app/app/static:/home/app/static
+##        network_mode: "service:wireguard-vpn"
+#        networks:
+#            - flask_app_network
 
 
 volumes:

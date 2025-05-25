@@ -1,6 +1,6 @@
 import sys
 from flask import Flask
-from app.settings import ProdConfig, DevConfig
+from .settings import ProdConfig, DevConfig
 from .extensions import db, admin, login_manager, swagger, migrate
 from .routes import init_bp
 
@@ -19,14 +19,13 @@ def create_app(config_class):
     login_manager.login_view = 'users.load_user'
 
     admin.init_app(new_app)
-    admin.name = "FilmNet"
     admin.icon_url = new_app.config['ADMIN_ICON_PATH']
 
     swagger.init_app(new_app)
 
     init_bp(new_app)
 
-    from flask_cors import CORS
+    # from flask_cors import CORS
 
     @new_app.shell_context_processor
     def make_shell_context():

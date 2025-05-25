@@ -9,7 +9,7 @@ from .swagger import template, swagger_config
 
 db = SQLAlchemy()
 migrate = Migrate(compare_type=True)
-admin = Admin()
+admin = Admin(name="FilmNet", template_mode="bootstrap4", base_template='admin/custom_master.html')
 swagger = Swagger(config=swagger_config, template=template)
 login_manager = LoginManager()
 
