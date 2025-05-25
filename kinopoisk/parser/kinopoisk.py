@@ -112,7 +112,7 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
                 image_plug = self.is_placeholder_image(poster)
 
             print("nameRu |", "True " if name else "False", "|", name)
-            print("poster |", "True " if poster and not image_plug else "False", "(plug)" if image_plug else "", "|", poster)
+            print("poster |", "True " if poster and not image_plug else "False", "| (plug)" if image_plug else "|", poster)
             print("year   |", f"True | {year}\n" if request_data['filter'] else f"False | {year} < {self.start_from_year}\n")
 
             if name and poster and request_data["filter"] and not image_plug:

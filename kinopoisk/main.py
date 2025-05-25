@@ -10,9 +10,9 @@ from processing import FileImage
 from settings import Settings
 
 
-keys_1 = Settings.api_keys[1]
-keys_2 = Settings.api_keys[2]
-keys_3 = Settings.api_keys[3]
+keys_1 = Settings.api_keys[1] + Settings.api_keys[2]
+keys_2 = Settings.api_keys[3] + Settings.api_keys[4]
+keys_3 = Settings.api_keys[5] + Settings.api_keys[6]
 
 
 db = PostgresDB(
@@ -71,8 +71,8 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 298
-end_id = 600
+start_id = 11000
+end_id = 12000
 
 # image_put = [971, 973, 904]
 
@@ -322,7 +322,8 @@ if server_status == 200:
                 db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator)
                 db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshots)
                 db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar)
-
+            elif movie['status_code'] == 402:
+                break
         else:
             print('\n Фильм уже существует\n')
         print('\n--------- Finish ----------\n\n\n')
