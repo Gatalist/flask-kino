@@ -17,3 +17,9 @@ Run in terminal:
 ### permission for folder on use in docker:
 Run in terminal (for folder accesses):
 `sudo chcon -Rt svirt_sandbox_file_t ./wireguard/config/us/`
+
+### install in server 
+`sudo dnf install iptables-legacy`
+`sudo alternatives --set iptables /usr/sbin/iptables-legacy`
+`sudo alternatives --set ip6tables /usr/sbin/ip6tables-legacy`
+`sudo systemctl restart docker`

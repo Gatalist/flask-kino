@@ -74,7 +74,6 @@ if not user:
 start_id = 11000
 end_id = 12000
 
-# image_put = [971, 973, 904]
 
 if server_status == 200:
     # получение данных с api
