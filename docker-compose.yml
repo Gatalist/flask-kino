@@ -99,7 +99,7 @@ services:
             - FLASK_PORT=5000
         volumes:
             - ./app/app/static:/home/app/static
-        # network_mode: "service:wireguard-vpn"
+#        network_mode: "service:wireguard-vpn"
         networks:
             - flask_app_network
 
