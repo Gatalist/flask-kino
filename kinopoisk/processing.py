@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import os
-from typing import Union, List
+from typing import Union, List, Tuple
 import requests
 from io import BytesIO
 from flask import Response, jsonify
@@ -70,17 +70,50 @@ class FileImage(WebRequester):
         new_save = self.save_file(name=new_name, image_path=save_path, request_data=response_image['data'], webp=webp_image)
         return new_save
 
+    # def web_save_image(self, web_url_image: Union[str, List[str]], name: str, kinopoisk_id: int, year: int) -> Union[str, List[str]]:
+    #     """Сохраняем изображения и возвращаем путь к файлу.
+    #     Формат выходных данных равен формату входных данных str->str, list->list"""
+    #     path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
+    #     if isinstance(web_url_image, str):
+    #         return self.get_image(web_url_image=web_url_image, save_path=path, name=name)
+    #     elif isinstance(web_url_image, list):
+    #         new_image_save_path = []
+    #         for url in web_url_image:
+    #             new_name = self.get_image(web_url_image=url, save_path=path, name=name)
+    #             new_image_save_path.append(new_name)
+    #         return new_image_save_path
+    #     else:
+    #         return []
+
+    def fetch_all_images(self, urls: List[str]) -> List[Tuple[str, requests.Response]]:
+        """Скачиваем все изображения и возвращаем список кортежей (url, response)"""
+        responses = []
+        for url in urls:
+            try:
+                response = self.request_data(url=url, headers=self.get_user_agent())
+                responses.append((url, response['data']))
+            except Exception as e:
+                raise ConnectionError(f"[-] HTTP ошибка: Ошибка при загрузке {url}: {e}")
+        return responses
+
     def web_save_image(self, web_url_image: Union[str, List[str]], name: str, kinopoisk_id: int, year: int) -> Union[str, List[str]]:
-        """Сохраняем изображения и возвращаем путь к файлу.
-        Формат выходных данных равен формату входных данных str->str, list->list"""
+        """Сохраняем изображения только после полной загрузки всех"""
         path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
+
         if isinstance(web_url_image, str):
             return self.get_image(web_url_image=web_url_image, save_path=path, name=name)
+
         elif isinstance(web_url_image, list):
-            new_image_save_path = []
-            for url in web_url_image:
-                new_name = self.get_image(web_url_image=url, save_path=path, name=name)
-                new_image_save_path.append(new_name)
-            return new_image_save_path
-        else:
-            return []
+            responses = self.fetch_all_images(web_url_image)
+            if not responses:
+                print("Не удалось загрузить все изображения — сохранение прервано.")
+                return []
+
+            new_image_save_paths = []
+            for url, response_data in responses:
+                new_name = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
+                new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
+                new_image_save_paths.append(new_path)
+            return new_image_save_paths
+
+        return []

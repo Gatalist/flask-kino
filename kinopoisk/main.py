@@ -10,9 +10,7 @@ from processing import FileImage
 from settings import Settings
 
 
-keys_1 = Settings.api_keys[1] + Settings.api_keys[2]
-keys_2 = Settings.api_keys[3] + Settings.api_keys[4]
-keys_3 = Settings.api_keys[5] + Settings.api_keys[6]
+keys = Settings.api_keys[1] + Settings.api_keys[2] + Settings.api_keys[3] + Settings.api_keys[4] + Settings.api_keys[5] + Settings.api_keys[6]
 
 
 db = PostgresDB(
@@ -24,9 +22,9 @@ db = PostgresDB(
 
 image = FileImage(Settings.static_path)
 
-api_movie = WebRequesterKinopoiskMovie(list_api_key=keys_1, start_from_year=1965)
-api_people = WebRequesterKinopoiskPeople(keys_2)
-api_similar = WebRequesterKinopoiskSimilar(keys_3)
+api_movie = WebRequesterKinopoiskMovie(list_api_key=keys, start_from_year=1965)
+api_people = WebRequesterKinopoiskPeople(keys)
+api_similar = WebRequesterKinopoiskSimilar(keys)
 web_screenshot = WebRequesterMovieScreenshotIMDB()
 
 # проверяем статус подключения к серверу
@@ -71,8 +69,8 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 11000
-end_id = 12000
+start_id = 34_302
+end_id = 45_000
 
 
 if server_status == 200:

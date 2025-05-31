@@ -106,15 +106,18 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             poster = movie_data.get('posterUrl', '')
             year = movie_data.get('year', 0)
             request_data['filter'] = True if year and year >= self.start_from_year else False
-            image_plug = False
-            if poster:
-                image_plug = self.is_placeholder_image(poster)
 
-            print("nameRu |", "True " if name else "False", "|", name)
-            print("poster |", "True " if poster and not image_plug else "False ", "| (plug)" if image_plug else "|", poster)
-            print("year   |", f"True  | {year}\n" if request_data['filter'] else f"False | {year} < {self.start_from_year}\n")
+            print("nameRu |", "True  |" if name else "False |", name)
+            print("year   |", f"True  | {year}" if request_data['filter'] else f"False | {year} < {self.start_from_year}")
+            print("poster |", "True  |" if poster else "False |", poster)
+            
+            if name and poster and request_data["filter"]:
+                if self.is_placeholder_image(poster):
+                    request_data['filter'] = False
+                    print("poster (plug)\n")
+                    request_data["data"] = {}
+                    return request_data
 
-            if name and poster and request_data["filter"] and not image_plug:
                 request_data["data"] = request_data["data"].json()
                 return request_data
 

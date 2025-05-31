@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 import os
-from libs.user_agent import list_user_agent
 
 
 # Загрузка переменных окружения из .env файла
@@ -16,8 +15,6 @@ class Settings:
 
     base_kinopoisk_api_url = "https://kinopoiskapiunofficial.tech"
     base_imdb_url = "https://m.imdb.com/"
-
-    user_agents = list_user_agent
 
     # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
     static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static', 'movie')

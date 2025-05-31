@@ -1,5 +1,7 @@
 import random
 import requests
+import logging
+from fake_useragent import UserAgent
 from settings import Settings
 
 
@@ -20,9 +22,8 @@ class WebRequester:
 
     @staticmethod
     def get_user_agent() -> dict:
-        """Получение рандомный User-Agent"""
-        user = random.choice(Settings.user_agents)
-        return {'User-Agent': user}
+        """Получение рандомный User-Agent"""        
+        return {'User-Agent': UserAgent().random}
 
     def check_request_status(self, code):
         """Формируем новый словарь статус с полученными данными"""
@@ -62,8 +63,14 @@ class WebRequester:
                 new_request = self.check_request_status(code)
                 return new_request
 
-        except requests.ConnectionError:
-            raise '[-] Ошибка подключения...'
+        except requests.ConnectionError as conn_err:
+            raise ConnectionError(f"[-] Ошибка подключения: {conn_err}")
 
         except requests.Timeout:
-            raise '[-] Время ожидания истекло, нет доступа к ресурсу...'
+            raise ConnectionError(f"[-] Таймаут при подключении к {url}")
+        
+        except requests.exceptions.HTTPError as http_err:
+            raise ConnectionError(f"[-] HTTP ошибка: {http_err}")
+
+        except requests.exceptions.RequestException as req_err:
+            raise ConnectionError(f"[-] Ошибка запроса: {req_err}")
