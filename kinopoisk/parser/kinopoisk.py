@@ -1,9 +1,9 @@
 import requests
-from PIL import Image
 import hashlib
 
 from settings import Settings
 from .base_parser import WebRequester
+from kinopoisk.libs.services import logger
 
 
 class WebRequesterKinopoisk(WebRequester):
@@ -25,7 +25,7 @@ class WebRequesterKinopoisk(WebRequester):
     def check_current_key(self):
         """Проверяем если закончились ключи то возвращаем 402 ошибку"""
         if self.current_key is None:
-            print("[-] Больше нет API ключей\n")
+            logger.info("[-] Больше нет API ключей\n")
             response = self.new_base_response_dict()
             response["status_code"] = 402
             response["status"] = False
@@ -42,8 +42,7 @@ class WebRequesterKinopoisk(WebRequester):
 
     def request_data_from_api(self, parse_url, message) -> dict:
         """Получаем по API kinopoisk"""
-        print(f'\n----------- {message} ----------')
-        print('api_key:', self.current_key, '\n')
+        logger.info(f'\n----------- {message} ----------\napi_key: {self.current_key}\n')
 
         status = self.check_current_key()
         if status:
@@ -53,9 +52,9 @@ class WebRequesterKinopoisk(WebRequester):
 
         if request_data["status_code"] == 402 or request_data["status_code"] == 401:
             if request_data["status_code"] == 401:
-                print("[-] Не действительный API ключ\n")
+                logger.info("[-] Не действительный API ключ\n")
             if request_data["status_code"] == 401:
-                print("Превышен лимит запросов по ключу\n")
+                logger.info("Превышен лимит запросов по ключу\n")
             self.get_next_api_key()
 
             status = self.check_current_key()
@@ -82,7 +81,7 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
         response = requests.get(image_url, timeout=10)
         if response.status_code == 200:
             image_hash = hashlib.sha256(response.content).hexdigest()
-            print("poster_hash:", image_hash, "\n")
+            logger.info("poster_hash:", image_hash, "\n")
             if image_hash in self.placeholder_hashes:
                 return True
         return False
@@ -107,14 +106,14 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             year = movie_data.get('year', 0)
             request_data['filter'] = True if year and year >= self.start_from_year else False
 
-            print("nameRu |", "True  |" if name else "False |", name)
-            print("year   |", f"True  | {year}" if request_data['filter'] else f"False | {year} < {self.start_from_year}")
-            print("poster |", "True  |" if poster else "False |", poster)
+            logger.info("nameRu |", "True  |" if name else "False |", name)
+            logger.info("year   |", f"True  | {year}" if request_data['filter'] else f"False | {year} < {self.start_from_year}")
+            logger.info("poster |", "True  |" if poster else "False |", poster)
             
             if name and poster and request_data["filter"]:
                 if self.is_placeholder_image(poster):
                     request_data['filter'] = False
-                    print("poster (plug)\n")
+                    logger.info("poster (plug)\n")
                     request_data["data"] = {}
                     return request_data
 

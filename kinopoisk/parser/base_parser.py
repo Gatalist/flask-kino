@@ -1,8 +1,8 @@
 import random
 import requests
-import logging
 from fake_useragent import UserAgent
 from settings import Settings
+from kinopoisk.libs.services import logger
 
 
 class WebRequester:
@@ -27,7 +27,7 @@ class WebRequester:
 
     def check_request_status(self, code):
         """Формируем новый словарь статус с полученными данными"""
-        print("status_code =", code, '\n')
+        logger.info("status_code =", code, '\n')
         response = self.new_base_response_dict()
 
         if code == 200:
@@ -55,13 +55,10 @@ class WebRequester:
                 new_request = self.check_request_status(request_data.status_code)
                 if new_request["status_code"] == 200:
                     new_request["data"] = request_data
-
                 return new_request
 
             else:
-                code = 400
-                new_request = self.check_request_status(code)
-                return new_request
+                return self.check_request_status(400)
 
         except requests.ConnectionError as conn_err:
             raise ConnectionError(f"[-] Ошибка подключения: {conn_err}")

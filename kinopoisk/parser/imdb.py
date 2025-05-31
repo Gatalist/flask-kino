@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import re
 from settings import Settings
 from .base_parser import WebRequester
-
+from kinopoisk.libs.services import logger
 
 class WebRequesterMovieScreenshotIMDB(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
@@ -12,7 +12,7 @@ class WebRequesterMovieScreenshotIMDB(WebRequester):
         self.pattern = re.compile(r'https://.*?\.jpg')
 
     def request_screenshot(self, imdb_id) -> dict:
-        print(f'\n----------- IMDB parsing ----------')
+        logger.info(f'\n----------- IMDB parsing ----------')
         header = self.get_user_agent()
 
         parse_url = f"{self.film_imdb_url}{imdb_id}"
@@ -28,7 +28,6 @@ class WebRequesterMovieScreenshotIMDB(WebRequester):
             if div_tags:
                 for img_tag in div_tags.find_all('img', class_='ipc-image'):
                     img_url = img_tag.get('srcset')
-                    # print("div_tags img_url", img_url)
                     if img_url:
                         matches = self.pattern.findall(img_url)
                         screenshot.append(matches[-1])

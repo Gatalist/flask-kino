@@ -4,7 +4,6 @@ import os
 from typing import Union, List, Tuple
 import requests
 from io import BytesIO
-from flask import Response, jsonify
 from PIL import Image
 
 from parser.base_parser import WebRequester
@@ -69,21 +68,6 @@ class FileImage(WebRequester):
         response_image = self.request_data(url=web_url_image, headers=self.get_user_agent())
         new_save = self.save_file(name=new_name, image_path=save_path, request_data=response_image['data'], webp=webp_image)
         return new_save
-
-    # def web_save_image(self, web_url_image: Union[str, List[str]], name: str, kinopoisk_id: int, year: int) -> Union[str, List[str]]:
-    #     """Сохраняем изображения и возвращаем путь к файлу.
-    #     Формат выходных данных равен формату входных данных str->str, list->list"""
-    #     path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
-    #     if isinstance(web_url_image, str):
-    #         return self.get_image(web_url_image=web_url_image, save_path=path, name=name)
-    #     elif isinstance(web_url_image, list):
-    #         new_image_save_path = []
-    #         for url in web_url_image:
-    #             new_name = self.get_image(web_url_image=url, save_path=path, name=name)
-    #             new_image_save_path.append(new_name)
-    #         return new_image_save_path
-    #     else:
-    #         return []
 
     def fetch_all_images(self, urls: List[str]) -> List[Tuple[str, requests.Response]]:
         """Скачиваем все изображения и возвращаем список кортежей (url, response)"""
