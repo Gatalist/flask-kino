@@ -3,7 +3,7 @@ import hashlib
 
 from settings import Settings
 from .base_parser import WebRequester
-from kinopoisk.libs.services import logger
+from libs.services import logger
 
 
 class WebRequesterKinopoisk(WebRequester):
@@ -42,7 +42,7 @@ class WebRequesterKinopoisk(WebRequester):
 
     def request_data_from_api(self, parse_url, message) -> dict:
         """Получаем по API kinopoisk"""
-        logger.info(f'\n----------- {message} ----------\napi_key: {self.current_key}\n')
+        logger.info(f'----------- {message} ----------\napi_key: {self.current_key}\n')
 
         status = self.check_current_key()
         if status:
@@ -81,7 +81,7 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
         response = requests.get(image_url, timeout=10)
         if response.status_code == 200:
             image_hash = hashlib.sha256(response.content).hexdigest()
-            logger.info("poster_hash:", image_hash, "\n")
+            logger.info(f"poster_hash: {image_hash}\n")
             if image_hash in self.placeholder_hashes:
                 return True
         return False
@@ -106,9 +106,9 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             year = movie_data.get('year', 0)
             request_data['filter'] = True if year and year >= self.start_from_year else False
 
-            logger.info("nameRu |", "True  |" if name else "False |", name)
-            logger.info("year   |", f"True  | {year}" if request_data['filter'] else f"False | {year} < {self.start_from_year}")
-            logger.info("poster |", "True  |" if poster else "False |", poster)
+            logger.info(f'nameRu | {"True  |" if name else "False |"} {name}')
+            logger.info(f'year   | {"True  |" if request_data["filter"] else "False |"} {year} < {self.start_from_year}"')
+            logger.info(f'poster | {"True  |" if poster else "False |"} {poster}')
             
             if name and poster and request_data["filter"]:
                 if self.is_placeholder_image(poster):

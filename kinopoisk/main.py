@@ -69,7 +69,7 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 34_302
+start_id = 41_285
 end_id = 45_000
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 import psycopg2
 from psycopg2 import OperationalError
 from slugify import slugify
-import time
+from libs.services import logger
 
 
 class PostgresDB:
@@ -30,11 +30,11 @@ class PostgresDB:
                 user=self.user,
                 password=self.password
             )
-            print("[+] Подключение к базе PostgreSQL successful")
+            logger.info("[+] Подключение к базе PostgreSQL successful")
             return connection
 
         except OperationalError as error:
-            print(f"[-] Ошибка подключения к базе PostgreSQL:\n{error}")
+            logger.debug(f"[-] Ошибка подключения к базе PostgreSQL: {error}")
             return None
 
     @staticmethod
@@ -46,10 +46,8 @@ class PostgresDB:
         """Генерируем url к новому фильму"""
         new_movie_id = str(last_movie_id + 1)
         if name_ru:
-            slug = slugify(name_ru + ' ' + new_movie_id)
-        else:
-            slug = slugify(name_original + ' ' + new_movie_id)
-        return slug
+            return slugify(name_ru + ' ' + new_movie_id)
+        return slugify(name_original + ' ' + new_movie_id)
 
     @staticmethod
     def get_digit_age_limit(text) -> str:
@@ -105,10 +103,10 @@ class PostgresDB:
             )
 
             if get_val:
-                print(f"[+] GET----> [{get_val}]")
+                logger.info(f"[+] GET----> [{get_val}]")
                 return get_val
             else:
-                print(f"[+] INSERT----> [{get_val}]")
+                logger.info(f"[+] INSERT----> [{get_val}]")
                 self.insert_data(
                     table_name=table_name,
                     keys_name=insert_keys,
@@ -124,8 +122,8 @@ class PostgresDB:
         return None
 
     def create_screen_movie(self, kinopoisk_id: int, list_value: list) -> list:
-        print("\n---------- Screenshot add db ----------")
-        print(list_value)
+        logger.info("\n---------- Screenshot add db ----------")
+        logger.info(list_value)
         screen = []
         if list_value:
             i = 1
@@ -144,13 +142,12 @@ class PostgresDB:
                     insert_values=values
                 )
                 screen.append(idd)
-                print(idd)
                 i += 1
         return screen
 
     def get_or_create_similar(self, list_value) -> list | None:
-        print("\n---------- Similar add db ----------")
-        print(list_value)
+        logger.info("\n---------- Similar add db ----------")
+        logger.info(list_value)
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
@@ -167,7 +164,7 @@ class PostgresDB:
                 )
                 lict_obj_id.append(idd)
 
-            print(lict_obj_id)
+            logger.info(lict_obj_id)
             return lict_obj_id
 
     def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, where_key_data_list: list,
@@ -192,7 +189,7 @@ class PostgresDB:
                 )
                 new_obj_list_id.append(idd)
 
-            print(new_obj_list_id)
+            logger.info(new_obj_list_id)
             return new_obj_list_id
 
     def get_last_movie_id(self):
@@ -221,10 +218,10 @@ class PostgresDB:
 
     # связываем таблицы
     def related_table(self, table_name: str, movie_id: int, list_data: list) -> None:
-        print('\n-------- Related table ------------')
+        logger.info('\n-------- Related table ------------')
 
         if list_data:
-            print(table_name, list_data)
+            logger.info(f"{table_name}, {list_data}")
             with self.connection as conn:
                 with conn.cursor() as cursor:
                     for gen_id in list_data:
@@ -233,7 +230,7 @@ class PostgresDB:
                         )
                     conn.commit()
         else:
-            print(table_name, '[]')
+            logger.info(f"{table_name}: []")
 
     # проверяем актеров, сортируем по популярности и возвращаем список
     def popular_actor(self, list_actor: list, count_actor_save: None | int = None) -> list:
@@ -313,5 +310,5 @@ class PostgresDB:
             select_keys='id, kinopoisk_id',
             where_key_name='kinopoisk_id',
             where_key_data=kwargs['kinopoisk_id'])
-        print(f'--- Movie add [+] id = {new_movie_id} ---')
+        logger.info(f'--- Movie add [+] id = {new_movie_id} ---')
         return new_movie_id

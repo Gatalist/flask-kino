@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import re
 from settings import Settings
 from .base_parser import WebRequester
-from kinopoisk.libs.services import logger
+from libs.services import logger
 
 class WebRequesterMovieScreenshotIMDB(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""

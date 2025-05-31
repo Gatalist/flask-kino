@@ -2,7 +2,7 @@ import random
 import requests
 from fake_useragent import UserAgent
 from settings import Settings
-from kinopoisk.libs.services import logger
+from libs.services import logger
 
 
 class WebRequester:
@@ -27,7 +27,7 @@ class WebRequester:
 
     def check_request_status(self, code):
         """Формируем новый словарь статус с полученными данными"""
-        logger.info("status_code =", code, '\n')
+        logger.info(f"status_code = {code}\n")
         response = self.new_base_response_dict()
 
         if code == 200:
