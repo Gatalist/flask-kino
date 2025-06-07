@@ -107,7 +107,7 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
             request_data['filter'] = True if year and year >= self.start_from_year else False
 
             logger.info(f'nameRu | {"True  |" if name else "False |"} {name}')
-            logger.info(f'year   | {"True  |" if request_data["filter"] else "False |"} {year} < {self.start_from_year}"')
+            logger.info(f'year   | {"True  |" if request_data["filter"] else "False |"} {year}')
             logger.info(f'poster | {"True  |" if poster else "False |"} {poster}')
             
             if name and poster and request_data["filter"]:

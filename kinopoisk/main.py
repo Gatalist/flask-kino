@@ -10,7 +10,7 @@ from processing import FileImage
 from settings import Settings
 
 
-keys = Settings.api_keys[1] + Settings.api_keys[2] + Settings.api_keys[3] + Settings.api_keys[4] + Settings.api_keys[5] + Settings.api_keys[6]
+keys = Settings.api_keys[1] + Settings.api_keys[2] + Settings.api_keys[3] + Settings.api_keys[4]
 
 
 db = PostgresDB(
@@ -69,8 +69,8 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 41_285
-end_id = 45_000
+start_id = 83_269
+end_id = 85_000
 
 
 if server_status == 200:

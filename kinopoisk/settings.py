@@ -50,30 +50,26 @@ class Settings:
         1: [
             os.getenv('KEY_1'), os.getenv('KEY_2'),
             os.getenv('KEY_3'), os.getenv('KEY_4'),
-        ],
-
-        2: [
             os.getenv('KEY_5'), os.getenv('KEY_6'),
             os.getenv('KEY_7'), os.getenv('KEY_8'),
         ],
 
-        3: [
+        2: [
             os.getenv('KEY_9'), os.getenv('KEY_10'),
             os.getenv('KEY_11'), os.getenv('KEY_12'),
-        ],
-
-        4: [
             os.getenv('KEY_13'), os.getenv('KEY_14'),
             os.getenv('KEY_15'), os.getenv('KEY_16'),
         ],
 
-        5: [
+        3: [
             os.getenv('KEY_17'), os.getenv('KEY_18'),
             os.getenv('KEY_19'), os.getenv('KEY_20'),
-        ],
-
-        6: [
             os.getenv('KEY_21'), os.getenv('KEY_22'),
             os.getenv('KEY_23'), os.getenv('KEY_24'),
+        ],
+
+        4: [
+            os.getenv('KEY_25'), os.getenv('KEY_26'),
+            os.getenv('KEY_27'), os.getenv('KEY_28'),
         ],
     }

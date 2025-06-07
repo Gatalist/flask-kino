@@ -68,6 +68,7 @@ class ContextData:
 class FilterMovie(ContextData):
     def filter_movie(self, form=None):
         if form and form.get('form_name') == 'filter_movie':
+            print(form)
             release = self.is_activate_filter(form, 'year_')
             genre = self.is_activate_filter(form, 'genre_')
             director = self.is_activate_filter(form, 'director_')

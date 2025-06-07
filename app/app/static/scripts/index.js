@@ -1,11 +1,15 @@
-// $(document).ready(function(){
-//
-//      var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
-//         removeItemButton: true,
-//         maxItemCount:5,
-//         searchResultLimit:5,
-//         renderChoiceLimit:5
-//       });
-//
-//
-//  });
+function parseData(data) {
+    try {
+        // console.log("data->", data);
+        if (data) {
+            return JSON5.parse(data.replace(/None/g, null));
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Помилка парсингу JSON:", error);
+        return null;
+    }
+}
+
+// const theadParseData = parseData(container.dataset.tablehead);

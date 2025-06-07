@@ -1,11 +1,12 @@
 <form id="form_args" class="mb-5" method="post" action="{{ url_for('app_movies.home') }}">
+    <input type="hidden" name="form_name" value="filter_movie">
     <div class="container">
         <div class="row mt-1 justify-content-center">
             <div class="col-md-2 me-3">
                 <div class="form-group">
                   <label for="year" class="form-label">Год</label>
                   <select class="selectpicker" multiple data-placeholder="Все годы">
-                    {% for year in all_release %}#}
+                    {% for year in all_release %}
                         <option value="{{year.id}}">{{year}}</option>
                     {% endfor %}
                   </select>

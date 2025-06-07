@@ -61,13 +61,13 @@ class WebRequester:
                 return self.check_request_status(400)
 
         except requests.ConnectionError as conn_err:
-            raise ConnectionError(f"[-] Ошибка подключения: {conn_err}")
+            raise ConnectionError(f"[-] Ошибка подключения")
 
         except requests.Timeout:
-            raise ConnectionError(f"[-] Таймаут при подключении к {url}")
+            raise TimeoutError(f"[-] Таймаут при подключении к {url}")
         
         except requests.exceptions.HTTPError as http_err:
-            raise ConnectionError(f"[-] HTTP ошибка: {http_err}")
+            raise ConnectionError(f"[-] HTTP ошибка")
 
         except requests.exceptions.RequestException as req_err:
-            raise ConnectionError(f"[-] Ошибка запроса: {req_err}")
+            raise ConnectionError(f"[-] Ошибка запроса")
