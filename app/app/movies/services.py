@@ -1,22 +1,23 @@
+import requests
 from flask import session
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.util import _ORMJoin
 from .models import (Movie, RatingKinopoisk, Release, Genre, Director, Country, genre_movie, director_movie, country_movie)
 
 
 class ContextData:
     context = {}
-    data_sorted = [
-        {'value': "standard", 'text': 'Нет сортировки'},
-        {'value': "release_date_desc", 'text': 'По дате (новые)'},
-        {'value': "release_date_asc", 'text': 'По дате (старые)'},
-        {'value': "rating_desc", 'text': "По рейтингу (высокий)"},
-        {'value': "rating_asc", 'text': 'По рейтингу (низкий)'},
-        {'value': "title_asc", 'text': 'По названию (A-Z)'},
-        {'value': "title_desc", 'text': 'По названию (Z-A)'},
+    all_sorting = [
+        {'id': "date_desc", 'value': 'По дате (новые)'},
+        {'id': "date_asc", 'value': 'По дате (старые)'},
+        {'id': "rating_desc", 'value': "По рейтингу (высокий)"},
+        {'id': "rating_asc", 'value': 'По рейтингу (низкий)'},
+        {'id': "title_desc", 'value': 'По названию (A-Z)'},
+        {'id': "title_asc", 'value': 'По названию (Z-A)'},
     ]
 
     def create_context(self):
-        self.context["movies_sorted"] = self.data_sorted
+        self.context["all_sorting"] = self.all_sorting
         self.context["all_release"] = self.get_years()
         self.context["all_genres"] = self.get_genres()
         self.context["all_directors"] = self.top_directors()
@@ -25,24 +26,28 @@ class ContextData:
     @staticmethod
     def top_directors():
         if len(Director.query.all()) > 0:
-            return Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+            _directors = Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+            return [{'id': elem.id, 'value': elem.name} for elem in _directors]
         else:
             return []
 
     @staticmethod
     def get_countries():
         if len(Country.query.all()) > 0:
-            return Country.query.join(country_movie).group_by(Country.id).order_by(Country.id.desc())[:15]
+            _countries = Country.query.join(country_movie).group_by(Country.id).order_by(Country.id.desc())[:15]
+            return [{'id': elem.id, 'value': elem.name} for elem in _countries]
         else:
             return []
 
     @staticmethod
     def get_genres():
-        return Genre.query
+        _genres = Genre.query
+        return [{'id': elem.id, 'value': elem.name} for elem in _genres]
 
     @staticmethod
     def get_years():
-        return Release.query.order_by(Release.year.desc())
+        _years = Release.query.order_by(Release.year.desc())
+        return [{'id': elem.id, 'value': elem.year} for elem in _years]
 
     @staticmethod
     def session_data(name, data):
@@ -54,89 +59,100 @@ class ContextData:
         session.modified = True
         return session
 
-    def update_context_session(self, release, genre, director):
+    def update_context_session(self, release, genre, country, director, sorting):
         # Добавляем активные фильтры в context
         self.context["is_active_years"] = release
         self.context["is_active_genres"] = genre
+        self.context["is_active_countries"] = country
         self.context["is_active_directors"] = director
+        self.context["is_active_sorted"] = sorting
         # добавляем фильтра в сессию
         self.session_data('is_active_years', release)
         self.session_data('is_active_genres', genre)
+        self.session_data('is_active_countries', country)
         self.session_data('is_active_directors', director)
+        self.session_data('is_active_sorted', sorting)
 
 
 class FilterMovie(ContextData):
-    def filter_movie(self, form=None):
+    def filter_movie(self, form: requests = None) -> object:
         if form and form.get('form_name') == 'filter_movie':
             print(form)
-            release = self.is_activate_filter(form, 'year_')
-            genre = self.is_activate_filter(form, 'genre_')
-            director = self.is_activate_filter(form, 'director_')
-            self.update_context_session(release, genre, director)
-        else:
-            release = session.get('is_active_years')
-            genre = session.get('is_active_genres')
-            director = session.get('is_active_directors')
-            self.update_context_session(release, genre, director)
-        # фильтруем фильмы
-        return self.activate_filter(release, genre, director)
+            release = self.is_activate_filter(form, 'years')
+            genre = self.is_activate_filter(form, 'genres')
+            country = self.is_activate_filter(form, 'countries')
+            director = self.is_activate_filter(form, 'directors')
+            sorting = form.get("sorting")
+            self.update_context_session(release, genre, country, director, sorting)
+        return self.activate_filter()
 
     @staticmethod
-    def is_activate_filter(form, filter_name):
-        list_activate_filter = []
-        for _filter in form:
-            if _filter.startswith(filter_name):
-                filter_id = _filter[len(filter_name):]
-                list_activate_filter.append(int(filter_id))
-        print(list_activate_filter)
-        return list_activate_filter
+    def is_activate_filter(form: requests, filter_name: str) -> list:
+        active_filter = form.getlist(filter_name)
+
+        if active_filter:
+            active_filter = [int(item) for item in active_filter]
+        print(filter_name, active_filter)
+        return active_filter
 
     @staticmethod
-    def activate_filter(active_release, active_genre, active_directors):
-        movies = Movie.query
-        if active_release:
-            movies = movies.join(Release).filter(Release.id.in_(active_release))
-        if active_genre:
-            movies = movies.join(genre_movie).join(Genre).options(
-                joinedload(Movie.genres)).filter(Genre.id.in_(active_genre))
-        if active_directors:
-            movies = movies.join(director_movie).join(Director).options(
-                joinedload(Movie.genres)).filter(Director.id.in_(active_directors))
-        return movies
+    def activate_filter() -> object:
+        release = session.get('is_active_years')
+        genre = session.get('is_active_genres')
+        country = session.get('is_active_countries')
+        director = session.get('is_active_directors')
+        sorting = session.get('is_active_sorted')
 
+        joined_table = []
+        query = Movie.query
+        print("join_tables 1:", joined_table)
 
-class SortingMovie(ContextData):
-    def get_name_sorted(self, name):
-        for n in self.data_sorted:
-            if n.get('value') == name:
-                return n.get('text')
+        if release:
+            if "Release" not in joined_table:
+                query = query.join(Release, Movie.year_id == Release.id)
+                joined_table.append("Release")
+            query = query.filter(Release.id.in_(release))
 
-    def sort_movie(self, movie, form=None):
-        if form and form.get('form_name') == 'sorted_movie':
-            sorting = form.get('sorted')
-            self.session_data('sorted', sorting)
-            self.context["sorted_name"] = self.get_name_sorted(sorting)
-        else:
-            sorting = session.get('sorted')
-            self.context["sorted_name"] = self.get_name_sorted(sorting)
+        if genre:
+            if "Genre" not in joined_table:
+                query = query.join(genre_movie).join(Genre)
+                joined_table.append("Genre")
+            query = query.options(joinedload(Movie.genres)).filter(Genre.id.in_(genre))
 
-        if sorting == "rating_asc":
-            return movie.join(RatingKinopoisk).order_by(RatingKinopoisk.star.asc())
+        if country:
+            if "Country" not in joined_table:
+                query = query.join(country_movie).join(Country)
+                joined_table.append("Country")
+            query = query.options(joinedload(Movie.countries)).filter(Country.id.in_(country))
 
-        if sorting == "rating_desc":
-            return movie.join(RatingKinopoisk).order_by(RatingKinopoisk.star.desc())
+        if director:
+            if "Director" not in joined_table:
+                query = query.join(director_movie).join(Director)
+                joined_table.append("Director")
+            query = query.options(joinedload(Movie.genres)).filter(Director.id.in_(director))
 
-        if sorting == "release_date_asc":
-            if session.get('is_active_years'):
-                return movie.order_by(Release.year.asc())
-            return movie.join(Release).order_by(Release.year.asc())
+        if sorting:
+            if sorting == "rating_asc" or sorting == "rating_desc":
+                if "RatingKinopoisk" not in joined_table:
+                    query = query.join(RatingKinopoisk, Movie.rating_kinopoisk_id == RatingKinopoisk.id)
+                    joined_table.append("RatingKinopoisk")
 
-        if sorting == "release_date_desc":
-            if session.get('is_active_years'):
-                return movie.order_by(Release.year.desc())
-            return movie.join(Release).order_by(Release.year.desc())
+                if sorting == "rating_asc":
+                    query = query.order_by(RatingKinopoisk.star.asc())
 
-        if sorting == "standard":
-            return movie.order_by(Movie.id.desc())
+                if sorting == "rating_desc":
+                    query = query.order_by(RatingKinopoisk.star.desc())
 
-        return movie
+            if sorting == "date_asc" or sorting == "date_desc":
+                if "Release" not in joined_table:
+                    query = query.join(Release, Movie.year_id == Release.id)
+                    joined_table.append("Release")
+
+                if sorting == "date_asc":
+                    query = query.order_by(Release.year.asc())
+
+                if sorting == "date_desc":
+                    query = query.order_by(Release.year.desc())
+
+        print("join_tables 2:", joined_table)
+        return query

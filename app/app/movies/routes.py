@@ -1,18 +1,18 @@
 from flask import render_template, request, redirect
 from flask.views import MethodView
 from app.settings import Config
-from .services import FilterMovie, SortingMovie
+from .services import FilterMovie
 from .models import Movie
 from app.extensions import logger
 
 
-class HomeView(FilterMovie, SortingMovie, MethodView):
+class HomeView(FilterMovie, MethodView):
     # @logger.catch
     def get(self):
         self.create_context()
 
-        movie = self.filter_movie()
-        movies = self.sort_movie(movie)
+        movies = self.filter_movie()
+        # movies = self.sort_movie(movie)
         # print(movie.all())
 
         page = request.args.get('page', 1, type=int)
@@ -24,8 +24,8 @@ class HomeView(FilterMovie, SortingMovie, MethodView):
 
     # @logger.catch
     def post(self):
-        movie = self.filter_movie(request.form)
-        movies = self.sort_movie(movie, request.form)
+        movies = self.filter_movie(request.form)
+        # movies = self.sort_movie(movie)
         page = request.args.get('page', 1, type=int)
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index.html', pages=pages, **self.context)
