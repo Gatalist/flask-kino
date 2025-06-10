@@ -9,20 +9,11 @@
         </div>
 
         <div class="row">
-            <div class="col-12">
-                {% include 'include/filters.html' %}
-            </div>
+            {% include 'include/filters.html' %}
         </div>
-        <div class="row">
-            <div class="col-12">
-                {% include 'include/search.html' %}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                {% include 'include/list_card.html' %}
-            </div>
-        </div>
+
+        {% include 'include/list_card.html' %}
+
         <div class="row">
             <div class="col-12">
                 {% include 'include/pagination.html' %}

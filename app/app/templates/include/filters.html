@@ -1,34 +1,47 @@
-<form id="form_args" class="mb-5" method="post" action="{{ url_for('app_movies.home') }}">
-    <input type="hidden" name="form_name" value="filter_movie">
-    <div class="container">
-        <div class="row mt-1 justify-content-center">
-            <div class="col-md-2 me-3">
-                <div class="form-group" id="select-years" data-filteryears="{{ all_release }}" data-activefilteryears="{{ is_active_years }}"></div>
-            </div>
-            <div class="col-md-2 me-3">
-                <div class="form-group" id="select-genres" data-filtergenres="{{ all_genres }}" data-activefiltergenres="{{ is_active_genres }}"></div>
-            </div>
-            <div class="col-md-2 me-3">
-                <div class="form-group" id="select-countries" data-filtercountries="{{ all_countries }}" data-activefiltercountries="{{ is_active_countries }}"></div>
-            </div>
-            <div class="col-md-2 me-3">
-                <div class="form-group" id="select-directors" data-filterdirectors="{{ all_directors }}" data-activefilterdirectors="{{ is_active_directors }}"></div>
-            </div>
-            <div class="col-md-2 me-3">
-                <div class="form-group" id="select-sorting" data-filtersorting="{{ all_sorting }}" data-activesorted="{{ is_active_sorted }}"></div>
-            </div>
-        </div>
-        <div class="row mt-4 justify-content-center">
-            <div class="col-auto">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-filters" id="apply-filter">Применить</button>
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="form-group">
-                    <button type="button" class="btn btn-primary btn-filters" id="clear-filter">Очистить</button>
-                </div>
+
+<div class="block-filters mt-5 mb-5">
+    <div class="row">
+        <div class="col-auto me-auto">Фильтры</div>
+        <div class="col-auto" >
+            <div class="btn-filters-visible" id="btn-filters-visible">
+                <i class="bi bi-dash-circle fs-4"></i>
             </div>
         </div>
     </div>
-</form>
+
+    <div class="row filters-show" id="filters-visible">
+        <form id="form_args"  method="post" action="{{ url_for('app_movies.home') }}">
+            <input type="hidden" name="form_name" value="filter_movie">
+            <div class="row justify-content-center">
+                <div class="mt-2 col-xs-12 col-ms-6 col-md-4 col-lg-3 col-xxl-2">
+                    <div class="form-group" id="select-years" data-filteryears="{{ all_release }}" data-activefilteryears="{{ is_active_years }}"></div>
+                </div>
+                <div class="mt-2 col-xs-12 col-ms-6 col-md-4 col-lg-3 col-xxl-2">
+                    <div class="form-group" id="select-genres" data-filtergenres="{{ all_genres }}" data-activefiltergenres="{{ is_active_genres }}"></div>
+                </div>
+                <div class="mt-2 col-xs-12 col-ms-6 col-md-4 col-lg-3 col-xxl-2">
+                    <div class="form-group" id="select-countries" data-filtercountries="{{ all_countries }}" data-activefiltercountries="{{ is_active_countries }}"></div>
+                </div>
+                <div class="mt-2 col-xs-12 col-ms-6 col-md-4 col-lg-3 col-xxl-2">
+                    <div class="form-group" id="select-directors" data-filterdirectors="{{ all_directors }}" data-activefilterdirectors="{{ is_active_directors }}"></div>
+                </div>
+                <div class="mt-2 col-xs-12 col-ms-6 col-md-4 col-lg-3 col-xxl-2">
+                    <div class="form-group" id="select-sorting" data-filtersorting="{{ all_sorting }}" data-activesorted="{{ is_active_sorted }}"></div>
+                </div>
+            </div>
+            <div class="row mt-4 justify-content-center">
+                <div class="col-auto">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-filters" id="apply-filter"><i class="bi bi-funnel-fill"></i> Фильтровать</button>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary btn-filters" id="clear-filter"><i class="bi bi-trash"></i> Очистить</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<hr class="bg-light">

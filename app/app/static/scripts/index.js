@@ -6,6 +6,7 @@ const formFilterCountriesID = "#select-countries";
 const formFilterDirectorsID = "#select-directors";
 const formFilterSortingID = "#select-sorting";
 const formClearFilterID = "#clear-filter";
+const formApplyFilterID = "#apply-filter";
 
 const formFilters = document.getElementById(formFiltersID);
 const formFilterYears = formFilters.querySelector(formFilterYearsID);
@@ -14,6 +15,7 @@ const formFilterCountries = formFilters.querySelector(formFilterCountriesID);
 const formFilterDirectors = formFilters.querySelector(formFilterDirectorsID);
 const formFilterSorting = formFilters.querySelector(formFilterSortingID);
 const formClearFilter = formFilters.querySelector(formClearFilterID);
+const formApplyFilter = formFilters.querySelector(formApplyFilterID);
 
 const dataYears = parseData(formFilterYears.dataset.filteryears);
 const dataGenres = parseData(formFilterGenres.dataset.filtergenres);
@@ -39,6 +41,7 @@ formClearFilter.addEventListener('click', function () {
     clear_options({FilterId: formFilterCountriesID});
     clear_options({FilterId: formFilterDirectorsID});
     clear_options({FilterId: formFilterSortingID, multiple: false});
+    formApplyFilter.click();
 });
 
 function parseData(data) {
@@ -73,7 +76,6 @@ function clear_options({FilterId, multiple=true}) {
     } else {
         $(value).val('');
     }
-
 }
 
 function createFilter({element, labelName, labelText, placeholder, dataList, multiple=true}) {
@@ -146,3 +148,23 @@ function renderActiveFilter() {
 
 renderFilter();
 renderActiveFilter();
+
+const btnFilterVisibleID = "#btn-filters-visible";
+const filterVisibleID = "#filters-visible";
+
+const btnFilterVisible = document.querySelector(btnFilterVisibleID);
+const filterVisible = document.querySelector(filterVisibleID);
+
+btnFilterVisible.addEventListener('click', function () {
+    console.log("click")
+    const active = filterVisible.classList.contains('filters-show');
+    if (active) {
+        filterVisible.classList.remove('filters-show');
+        filterVisible.classList.add('filters-hidden');
+        btnFilterVisible.innerHTML = `<i class="bi bi-plus-circle fs-4"></i>`;
+    } else {
+        filterVisible.classList.add('filters-show');
+        filterVisible.classList.remove('filters-hidden');
+        btnFilterVisible.innerHTML = `<i class="bi bi-dash-circle fs-4"></i>`;
+    }
+});
