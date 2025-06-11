@@ -96,6 +96,19 @@ body {
     z-index: 1;
 }
 
+.search-card-shadow {
+    transition: transform 0.3s ease;
+}
+
+.search-card-shadow:hover {
+    transform: scale(1.01);
+    box-shadow:
+        0 0 5px 1px rgba(0, 204, 0, 0.8),
+        0 0 10px 3px rgba(0, 204, 0, 0.6),
+        0 0 20px 6px rgba(0, 204, 0, 0.3);
+    z-index: 1;
+}
+
 .pagination-custom {
     background-color: var(--card-bg);
     color: var(--accent-color);
@@ -177,12 +190,72 @@ body {
 
 .filters-show {
     display: block;
-    transition: background-color 0.5s ease, border-color 0.5s ease;
+    transition: max-height 0.5s ease-out, padding 0.5s ease-out;
 }
 
 .filters-hidden {
     display: none;
-    transition: background-color 0.5s ease, border-color 0.5s ease;
+    transition: max-height 0.5s ease-out;
+}
+
+.head-filter{
+    padding-bottom: 25px;
+}
+
+.btn-check:checked+.btn,.btn.active,.btn.show,.btn:first-child:active,:not(.btn-check)+.btn:active {
+    color: var(--text-color-dark);
+    background-color: var(--background);
+    border-color: var(--border-color-dark);
+}
+
+.navbar-search{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5px 0 5px;
+}
+
+.navbar-search:hover {
+    background-color: var(--background);
+    color: var(--card-bg-light);
+    border-color: var(--border-color);
+    padding: 0 5px 0 5px;
+    border-radius: 30px;
+    box-shadow:
+        0 0 5px 1px rgba(0, 204, 0, 0.8),
+        0 0 10px 3px rgba(0, 204, 0, 0.6),
+        0 0 20px 6px rgba(0, 204, 0, 0.3);
+}
+
+.search-card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.search-card-image {
+    width: 50px;
+    border-radius: 5px;
+}
+
+.search-card-img {
+    height: 50px;
+    object-fit: cover;
+    background-position: center;
+}
+
+.searched-list {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.form-control:focus {
+    border-color: var(--border-color);
+    box-shadow:
+        0 0 5px 1px rgba(0, 204, 0, 0.8),
+        0 0 10px 3px rgba(0, 204, 0, 0.6),
+        0 0 20px 6px rgba(0, 204, 0, 0.3);
 }
 
 /*.dark-theme {*/
