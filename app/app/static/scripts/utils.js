@@ -48,7 +48,8 @@ export function createModal({modalId, callback}) {
         const loadingSpinner = document.getElementById('loading-spinner');
         const allSearchResult = document.getElementById('all-search-result');
 
-        input.addEventListener('input', async function () {
+        input.addEventListener('input', debounce(async function () {
+        // input.addEventListener('input', async function () {
             const query = input.value.trim();
             if (query.length === 0) {
                 searchedList.innerHTML = '';
@@ -85,7 +86,7 @@ export function createModal({modalId, callback}) {
                     searchedList.innerHTML = '';
                 }
             }
-        });
+        }, 500));
         resolve();
     });
 }
@@ -158,4 +159,12 @@ async function apiFetch({method, url, data = {}}) {
     .catch(error => {
         console.error('Fetch error:', error);
     });
+}
+
+function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
 }
