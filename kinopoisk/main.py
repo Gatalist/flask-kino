@@ -69,8 +69,8 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 83_269
-end_id = 85_000
+start_id = 129_661
+end_id = 130_000
 
 
 if server_status == 200:

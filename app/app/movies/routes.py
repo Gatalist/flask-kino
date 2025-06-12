@@ -41,9 +41,10 @@ class MovieSearchView(FilterMovie, MethodView):
     @logger.catch
     def get(self):
         self.create_context()
-        
+
         movie = Movie.query
         q = request.args.get('q')
+        print("q", q)
         if q:
             search = movie.filter(Movie.name_ru.ilike(f"%{q}%"))
             if not search:

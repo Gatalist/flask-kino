@@ -82,7 +82,7 @@ class FilterMovie(ContextData):
             genre = self.is_activate_filter(form, 'genres')
             country = self.is_activate_filter(form, 'countries')
             director = self.is_activate_filter(form, 'directors')
-            sorting = form.get("sorting")
+            sorting = form.get("sorting", '')
             self.update_context_session(release, genre, country, director, sorting)
         return self.activate_filter()
 

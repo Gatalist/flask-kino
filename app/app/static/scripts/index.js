@@ -146,7 +146,7 @@ function renderActiveFilter() {
     set_options({FilterId: formFilterGenresID, setList: activeDataGenres ? activeDataGenres: []});
     set_options({FilterId: formFilterCountriesID, setList: activeDataCountries ? activeDataCountries: []});
     set_options({FilterId: formFilterDirectorsID, setList: activeDataDirectors ? activeDataDirectors: []});
-    set_options({FilterId: formFilterSortingID, setValue: activeDataSorted, multiple: false});
+    set_options({FilterId: formFilterSortingID, setValue: activeDataSorted ? activeDataSorted: '' , multiple: false});
 }
 
 renderFilter();
