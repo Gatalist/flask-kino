@@ -11,13 +11,13 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/app
+WORKDIR /app
 
 COPY ./req.txt /req.txt
 
 RUN pip install --upgrade pip
 RUN pip install -r /req.txt
 
-COPY . /home/app
+COPY . /app
 
 RUN chmod +x entrypoint.sh

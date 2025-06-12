@@ -264,6 +264,12 @@ class PostgresDB:
             return all_actors
         return []
 
+    def get_all_ids(self, table_name: str):
+        with self.connection as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(f"SELECT id FROM {table_name};")
+                return [row[0] for row in cursor.fetchall()]
+
     # добавляем фильм
     def create_movie(self, *args, **kwargs) -> int:
         keys = ', '.join([f'{i}' for i in kwargs.keys()])

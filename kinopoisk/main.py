@@ -7,6 +7,7 @@ from parser.imdb import WebRequesterMovieScreenshotIMDB
 from libs.postgres_orm import PostgresDB
 from libs.services import get_popular_actor_from_file
 from processing import FileImage
+from time import sleep
 from settings import Settings
 
 
@@ -69,9 +70,10 @@ if not user:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 129_661
-end_id = 130_000
+start_id = 130_042
+end_id = 140_000
 
+sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api
