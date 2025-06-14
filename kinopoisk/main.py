@@ -73,7 +73,7 @@ if not user:
 start_id = 130_042
 end_id = 140_000
 
-sleep(1_000_000)
+# sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api

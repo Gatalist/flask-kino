@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check if FLASK_PORT is set, otherwise show an error and exit
 : "${FLASK_PORT:?error missing FLASK_PORT env}"
