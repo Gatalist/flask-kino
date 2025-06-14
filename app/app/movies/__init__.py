@@ -3,24 +3,24 @@ from app import db, admin
 from app.movies.routes import (HomeView, MovieDetailView, MovieSearchView)
 
 from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingCritic, Release, FilmLength,
-                               Genre, AgeLimit, TypeVideo, Director, Creator, Actor, Screenshot, Similar, Country,
+                               Genre, AgeLimit, TypeVideo, Person, Screenshot, Similar, Country,
                                Tag, Segment)
 
 from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, ReleaseView,
-                     FilmLengthView, GenreView, AgeLimitView, TypeVideoView, DirectorView, TagActorView,
-                     CreatorView, ActorView, ScreenshotView, SimilarView, CountryView, SegmentView)
+                     FilmLengthView, GenreView, AgeLimitView, TypeVideoView, TagActorView,
+                     PersonView, ScreenshotView, SimilarView, CountryView, SegmentView)
 
 
 movie_blueprint = Blueprint('app_movies', __name__, template_folder='templates', static_folder='static')
 
 
-# регистрируем роуты для нашего blueprint
+# register router blueprint
 movie_blueprint.add_url_rule('/', view_func=HomeView.as_view('home'))
 movie_blueprint.add_url_rule('film/<slug>/', view_func=MovieDetailView.as_view('movie_detail'))
 movie_blueprint.add_url_rule('search/', view_func=MovieSearchView.as_view('movie_search'))
 
 
-# регистрируем модели в нашей админке
+# register admin model
 admin.add_view(MovieView(Movie, db.session, name='Фильмы', category="Каталог"))
 admin.add_view(RatingKinopoiskView(RatingKinopoisk, db.session, name='Кинопоиск', category="Рейтинг"))
 admin.add_view(RatingImdbView(RatingImdb, db.session, name='Imdb', category="Рейтинг"))
@@ -31,9 +31,7 @@ admin.add_view(GenreView(Genre, db.session, name='Жанр', category="Ката�
 admin.add_view(CountryView(Country, db.session, name='Страна', category="Каталог"))
 admin.add_view(AgeLimitView(AgeLimit, db.session, name='Возрастное ограничение', category="Каталог"))
 admin.add_view(TypeVideoView(TypeVideo, db.session, name='Категория', category="Каталог"))
-admin.add_view(DirectorView(Director, db.session, name='Режиссер', category="Каталог"))
-admin.add_view(CreatorView(Creator, db.session, name='Сценарист', category="Каталог"))
-admin.add_view(ActorView(Actor, db.session, name='Актеры', category="Каталог"))
+admin.add_view(PersonView(Person, db.session, name='Люди', category="Каталог"))
 admin.add_view(ScreenshotView(Screenshot, db.session, name='Кадры с фильма', category="Каталог"))
 admin.add_view(SimilarView(Similar, db.session, name='Похожие фильмы', category="Каталог"))
 admin.add_view(TagActorView(Tag, db.session, name='Теги-актеров'))

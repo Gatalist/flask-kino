@@ -72,19 +72,9 @@ class TypeVideoView(ModelView):
     column_searchable_list = ('name',)
 
 
-class DirectorView(ModelView):
-    column_list = ['id', 'name', 'created_on']
-    column_searchable_list = ('name',)
-
-
-class CreatorView(ModelView):
-    column_list = ['id', 'name', 'created_on']
-    column_searchable_list = ('name',)
-
-
-class ActorView(ModelView):
-    column_list = ['id', 'name', 'tag', 'created_on']
-    column_searchable_list = ('name',)
+class PersonView(ModelView):
+    column_list = ['id', 'name_ru', 'person_id', 'created_on']
+    column_searchable_list = ('name_ru',)
 
 
 class ScreenshotView(ModelView):

@@ -32,6 +32,7 @@ services:
         depends_on:
             - flask-postgres
         volumes:
+            - ./app:/home/app
             - ./volume_files/movie:/home/app/app/static/movie
             - ./postgres/backup:/home/backup
         networks:

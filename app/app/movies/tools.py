@@ -2,7 +2,7 @@ from app import db, settings
 import shutil
 import os
 from .models import (
-    segment_movie, actor_movie, country_movie, creator_movie, Movie, Actor,
+    segment_movie, actor_movie, country_movie, creator_movie,
     director_movie, genre_movie, screenshot_movie, similar_movie, user_movie
 )
 
@@ -42,7 +42,7 @@ class MovieTools:
         records = db.session.query(link_table).filter(link_table.c.movie_id == movie.id).all()
         # print(records)
         for record in records:
-            db.session.query(actor_movie).filter(actor_movie.c.movie_id == record[0]).delete()
+            db.session.query(link_table).filter(link_table.c.movie_id == record[0]).delete()
 
         # Сохранить изменения в базе данных
         db.session.commit()

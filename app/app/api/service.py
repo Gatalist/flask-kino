@@ -11,7 +11,7 @@ from app.settings import Config
 from app import db
 from app.users.models import User
 from app.movies.models import (Movie, RatingKinopoisk, RatingCritic, RatingImdb, Release, TypeVideo, AgeLimit,
-                               Country, Genre, Director, Creator, Actor, Screenshot, Similar, FilmLength)
+                               Country, Genre, Person, Screenshot, Similar, FilmLength, Video)
 
 
 class JsonifyObject:
@@ -343,15 +343,15 @@ class MovieCRUD(CRUD, Authorization, File):
 
         countries = [self.get_or_create_object(Country, name=item) for item in request_data.form.get("countries", [])]
         genres = [self.get_or_create_object(Genre, name=item) for item in request_data.form.get("genres", [])]
-        director = [self.get_or_create_object(Director, name=item) for item in request_data.form.get("director", [])]
-        creator = [self.get_or_create_object(Creator, name=item) for item in request_data.form.get("creator", [])]
-        actor = [self.get_or_create_object(Actor, name=item) for item in request_data.form.get("actor", [])]
+        director = [self.get_or_create_object(Person, name=item) for item in request_data.form.get("director", [])]
+        creator = [self.get_or_create_object(Person, name=item) for item in request_data.form.get("creator", [])]
+        actor = [self.get_or_create_object(Person, name=item) for item in request_data.form.get("actor", [])]
         screen_img = [
             self.create_object(Screenshot, kinopoisk_id=kinopoisk_id, name="movie_id_{kinopoisk_id}_screen", url=item)
             for item in list_screen_img]
         similar = [self.get_or_create_object(Similar, kinopoisk_id=item.get('id'), name=item.get('name')) for item in
                    request_data.form.get("similar", [])]
-        trailer = [self.create_object(Trailer, kinopoisk_id=item.get("kinopoisk_id"), name=item.get("name"),
+        trailer = [self.create_object(Video, kinopoisk_id=item.get("kinopoisk_id"), name=item.get("name"),
                                       url=item.get("url")) for item in request_data.form.get("trailer", [])]
 
         self.related_table(obj=movie, attr='countries', list_data=countries)

@@ -4,8 +4,8 @@ from flask_restful import Resource
 from app.extensions import logger
 from flask import request, jsonify
 from flasgger import swag_from
-from app.movies.schemas import (MoviesSchema, GenreSchema, CountrySchema, DirectorSchema, ReleaseSchema)
-from app.movies.models import (Movie, Genre, Country, Director, Release)
+from app.movies.schemas import (MoviesSchema, GenreSchema, CountrySchema, PersonSchema, ReleaseSchema)
+from app.movies.models import (Movie, Genre, Country, Person, Release)
 from app.api.service import Authorization, JsonifyObject, MovieCRUD
 
 
@@ -148,16 +148,16 @@ class GenreList(JsonifyObject, MethodResource, Resource):
         return self.error_response(404, f"Not found")
 
 
-class DirectorList(JsonifyObject, MethodResource, Resource):
+class PersonList(JsonifyObject, MethodResource, Resource):
     @logger.catch
-    @marshal_with(DirectorSchema)  # marshalling
+    @marshal_with(PersonSchema)  # marshalling
     @swag_from('./docs/director_list.yaml')
     # @token_required
     def get(self):
-        get_obj = Director.query
+        get_obj = Person.query
         if get_obj:
             obj_page_count = get_obj.count()
-            serialize_obj = self.serialize_object(get_obj, DirectorSchema, many=True)
+            serialize_obj = self.serialize_object(get_obj, PersonSchema, many=True)
             return self.json_response_many(serialize_obj, obj_page_count, page=None)
         return self.error_response(404, f"Not found")
 

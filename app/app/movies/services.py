@@ -2,7 +2,7 @@ import requests
 from flask import session
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.util import _ORMJoin
-from .models import (Movie, RatingKinopoisk, Release, Genre, Director, Country, genre_movie, director_movie, country_movie)
+from .models import (Movie, RatingKinopoisk, Release, Genre, Person, Country, genre_movie, director_movie, country_movie)
 
 
 class ContextData:
@@ -25,8 +25,8 @@ class ContextData:
 
     @staticmethod
     def top_directors():
-        if len(Director.query.all()) > 0:
-            _directors = Director.query.join(director_movie).group_by(Director.id).order_by(Director.id.desc())[:15]
+        if len(Person.query.all()) > 0:
+            _directors = Person.query.join(director_movie).group_by(Person.id).order_by(Person.id.desc())[:15]
             return [{'id': elem.id, 'value': elem.name} for elem in _directors]
         else:
             return []
@@ -125,11 +125,11 @@ class FilterMovie(ContextData):
                 joined_table.append("Country")
             query = query.options(joinedload(Movie.countries)).filter(Country.id.in_(country))
 
-        if director:
-            if "Director" not in joined_table:
-                query = query.join(director_movie).join(Director)
-                joined_table.append("Director")
-            query = query.options(joinedload(Movie.genres)).filter(Director.id.in_(director))
+        # if director:
+        #     if "Director" not in joined_table:
+        #         query = query.join(director_movie).join(Director)
+        #         joined_table.append("Director")
+        #     query = query.options(joinedload(Movie.genres)).filter(Director.id.in_(director))
 
         if sorting:
             if sorting == "rating_asc" or sorting == "rating_desc":

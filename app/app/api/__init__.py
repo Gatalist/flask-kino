@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from .routes import (UserApiRegister, UserApiLogin, MoviesList, GenreList, CountryList, DirectorList, ReleaseList,
+from .routes import (UserApiRegister, UserApiLogin, MoviesList, GenreList, CountryList, PersonList, ReleaseList,
                      MoviesSearch, MovieChange, MovieCreate)
 
 
@@ -19,5 +19,5 @@ api.add_resource(MoviesList, 'movie/')
 #
 api.add_resource(ReleaseList, 'release/')
 api.add_resource(GenreList, 'genre/')
-api.add_resource(DirectorList, 'director/')
+api.add_resource(PersonList, 'person/')
 api.add_resource(CountryList, 'country/')
