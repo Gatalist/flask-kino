@@ -3,12 +3,6 @@ from datetime import datetime, timezone
 from app.users.models import User
 
 
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
 genre_movie = db.Table(
     'genre_movie',
     db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
