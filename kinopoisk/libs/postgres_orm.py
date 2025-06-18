@@ -1,8 +1,17 @@
 from datetime import datetime
 import psycopg2
-from psycopg2 import OperationalError
+from functools import wraps
 from slugify import slugify
 from libs.services import logger
+
+
+def with_cursor(method):
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        with self.connection as conn:
+            with conn.cursor() as cursor:
+                return method(self, conn, cursor, *args, **kwargs)
+    return wrapper
 
 
 class PostgresDB:
@@ -23,6 +32,7 @@ class PostgresDB:
             self.connection = self.create_connection()
 
     def create_connection(self):
+        """ Create connecting to DataBase"""
         try:
             connection = psycopg2.connect(
                 host=self.host,
@@ -30,69 +40,85 @@ class PostgresDB:
                 user=self.user,
                 password=self.password
             )
-            logger.info("[+] Подключение к базе PostgreSQL successful")
+            logger.success("[+] Connect to DataBase successful")
             return connection
 
-        except OperationalError as error:
-            logger.debug(f"[-] Ошибка подключения к базе PostgreSQL: {error}")
+        except psycopg2.OperationalError as error:
+            logger.error(f"[-] Error connecting to DataBase: {error}")
             return None
 
     @staticmethod
-    def current_datetime():
+    def get_current_datetime():
         return datetime.now()
 
     @staticmethod
-    def generate_url(name_ru: str, name_original: str, last_movie_id: int) -> str:
-        """Генерируем url к новому фильму"""
-        new_movie_id = str(last_movie_id + 1)
-        if name_ru:
-            return slugify(name_ru + ' ' + new_movie_id)
-        return slugify(name_original + ' ' + new_movie_id)
+    def generate_url_by_first_name(names: list, movie_id: int) -> str | None:
+        """ Генерируем url к новому фильму """
+        for name in names:
+            if name:
+                new_name = f"{name} {movie_id}"
+                return slugify(new_name)
 
     @staticmethod
-    def get_digit_age_limit(text) -> str:
+    def get_digit_age_limit(text) -> str | None:
+        """ Get digit age from string"""
         if isinstance(text, str):
             val = "".join(c for c in text if c.isdecimal())
             return val
 
-    # конвертируем дату
     @staticmethod
-    def converting_date_time(date_string) -> datetime:
+    def converting_date_time(date_string) -> datetime | None:
+        """ Converting string to datetime """
         if date_string:
-            # Формат строки даты и времени
-            date_format = "%Y-%m-%dT%H:%M:%S.%f"
-            # Преобразование строки в объект datetime
-            return datetime.strptime(date_string, date_format)
+            return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
 
-    # получаем запись с базы данных (id)
-    def select_data(self, table_name: str, select_keys: str, where_key_name: str, where_key_data) -> int:
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                # транзакция в базу
-                cursor.execute(
-                    f"SELECT {select_keys} FROM {table_name} WHERE {where_key_name} = %s;", (where_key_data,)
-                )
-                # получаем объект пример: (1, Админ)
-                result_select = cursor.fetchone()
-                if result_select:
-                    return result_select[0]
+    @with_cursor
+    def select_data(self, conn, cursor, table_name: str, select_keys: str, where_key_name: str, where_key_data) -> int | None:
+        """ Get record id from the database """
+        query = f"SELECT {select_keys} FROM {table_name} WHERE {where_key_name} = %s;"
+        cursor.execute(query, (where_key_data,))
+        result = cursor.fetchone()
+        if result:
+            idd = result[0] # (1, Админ)
+            logger.info(f"[+] GET----> [{idd}]")
+            return idd
+        else:
+            return None
 
-    # создаем запись в базе данных и получаем (id)
-    def insert_data(self, table_name: str, keys_name: tuple, values_data: tuple):
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                keys_ = ', '.join(keys_name)  # преобразовываем tuple в str
-                values_ = ', '.join(['%s' for _ in keys_name])  # # преобразовываем tuple в str и заменяем на %s
-                # транзакция в базу
-                cursor.execute(
-                    f"INSERT INTO {table_name} ({keys_}) VALUES ({values_});", values_data
-                )
-                conn.commit()
+    @with_cursor
+    def insert_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple) -> int | None:
+        """ Create a record in the database and get (id) """
+        _keys = ', '.join(keys_name)  # tuple to str
+        _values = ', '.join(['%s' for _ in keys_name])  # create %s
 
-    # записываем данные или получаем и возвращаем (id)
+        query = f"INSERT INTO {table_name} ({_keys}) VALUES ({_values}) RETURNING id;"
+        cursor.execute(query, values_data)
+        inserted_id = cursor.fetchone()
+        conn.commit()
+
+        if inserted_id:
+            idd = inserted_id[0]
+            logger.info(f"[+] INSERT----> [{idd}]")
+            return idd
+        else:
+            return None
+
+    @with_cursor
+    def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> bool:
+        """ Update a record in the database"""
+        _keys = ', '.join([f"{key} = %s" for key in keys_name])
+        query = f"UPDATE {table_name} SET {_keys} WHERE {where_key} = %s;"
+
+        values = values_data + (where_value,)  # добавляем значение для WHERE
+        cursor.execute(query, values)
+        conn.commit()
+
+        return cursor.rowcount > 0  # True если была обновлена хотя бы одна строка
+
     def get_or_create(
             self, table_name: str, select_key: str, where_key_name: str,
             where_key_data: any, insert_keys: tuple, insert_values: tuple) -> int | None:
+        """ Get or create record id from table """
 
         if where_key_data:
             get_val = self.select_data(
@@ -103,23 +129,83 @@ class PostgresDB:
             )
 
             if get_val:
-                logger.info(f"[+] GET----> [{get_val}]")
                 return get_val
             else:
-                logger.info(f"[+] INSERT----> [{get_val}]")
-                self.insert_data(
+                return self.insert_data(
                     table_name=table_name,
                     keys_name=insert_keys,
                     values_data=insert_values
                 )
 
-                return self.select_data(
-                    table_name=table_name,
-                    select_keys=select_key,
-                    where_key_name=where_key_name,
-                    where_key_data=where_key_data
+    @with_cursor
+    def get_last_id(self, conn, cursor, table_name: str) -> int:
+        """ Get last record id from table """
+        query = f"SELECT id FROM {table_name} ORDER BY id DESC LIMIT 1"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        return result[0] if result else 0
+
+    @with_cursor
+    def get_id_by_name(self, conn, cursor, table_name: str, where_key_name: str, where_key_data: str) -> int | None:
+        """ Get tag id by name """
+        query = f"SELECT id FROM {table_name} WHERE {where_key_name}='{where_key_data}' LIMIT 1"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+    @with_cursor
+    def get_all_ids(self, conn, cursor, table_name: str) -> list:
+        """ Get all record ids from table """
+        query = f"SELECT id FROM {table_name};"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        if result:
+            return [row[0] for row in result]
+        else:
+            return []
+
+    @with_cursor
+    def related_table(self, conn, cursor, table_name: str, movie_id: int, list_data: list) -> None:
+        """ Related record_id with movie_id (many to many)"""
+        logger.info('\n-------- Related table ------------')
+
+        if list_data:
+            logger.info(f"{table_name}, {list_data}")
+            for gen_id in list_data:
+                cursor.execute(
+                    f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id)
                 )
-        return None
+            conn.commit()
+        else:
+            logger.info(f"{table_name}: []")
+
+
+
+
+    def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, where_key_data_list: list,
+                                insert_keys: tuple, dict_key_name: str) -> list | None:
+        if where_key_data_list:
+            new_obj_list_id = []
+            for val in where_key_data_list:
+                if dict_key_name:
+                    val_key = val[dict_key_name]
+                    values = (val_key, self.get_current_datetime())
+                else:
+                    val_key = val
+                    values = (val, self.get_current_datetime())
+
+                idd = self.get_or_create(
+                    table_name=table_name,
+                    select_key=select_key,
+                    where_key_name=where_key_name,
+                    where_key_data=val_key,
+                    insert_keys=insert_keys,
+                    insert_values=values
+                )
+                new_obj_list_id.append(idd)
+
+            logger.info(new_obj_list_id)
+            return new_obj_list_id
 
     def create_screen_movie(self, kinopoisk_id: int, list_value: list) -> list:
         logger.info("\n---------- Screenshot add db ----------")
@@ -133,14 +219,12 @@ class PostgresDB:
                 keys = ('kinopoisk_id', 'name', 'url', 'created_on')
                 values = (kinopoisk_id, screen_name, src, datetime.now())
 
-                idd = self.get_or_create(
+                idd = self.insert_data(
                     table_name='screenshots',
-                    select_key='id, url',
-                    where_key_name='url',
-                    where_key_data=src,
-                    insert_keys=keys,
-                    insert_values=values
+                    keys_name=keys,
+                    values_data=values
                 )
+
                 screen.append(idd)
                 i += 1
         return screen
@@ -167,85 +251,18 @@ class PostgresDB:
             logger.info(lict_obj_id)
             return lict_obj_id
 
-    def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, where_key_data_list: list,
-                                insert_keys: tuple, dict_key_name: str) -> list | None:
-        if where_key_data_list:
-            new_obj_list_id = []
-            for val in where_key_data_list:
-                if dict_key_name:
-                    val_key = val[dict_key_name]
-                    values = (val_key, self.current_datetime())
-                else:
-                    val_key = val
-                    values = (val, self.current_datetime())
-
-                idd = self.get_or_create(
-                    table_name=table_name,
-                    select_key=select_key,
-                    where_key_name=where_key_name,
-                    where_key_data=val_key,
-                    insert_keys=insert_keys,
-                    insert_values=values
-                )
-                new_obj_list_id.append(idd)
-
-            logger.info(new_obj_list_id)
-            return new_obj_list_id
-
-    def get_last_movie_id(self):
-        """Получаем последний id фильма с базы"""
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """SELECT id FROM movies ORDER BY id DESC LIMIT 1"""
-                )
-                result_select = cursor.fetchone()
-                movie_id = 0
-                if result_select:
-                    movie_id = result_select[0]
-                return movie_id
-
-    def get_tag_id(self, name: str) -> int | None:
-        """Получаем последний id фильма с базы"""
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    f"SELECT id FROM tags WHERE name='{name}' LIMIT 1"
-                )
-                result_select = cursor.fetchone()
-                if result_select:
-                    return result_select[0]
-
-    # связываем таблицы
-    def related_table(self, table_name: str, movie_id: int, list_data: list) -> None:
-        logger.info('\n-------- Related table ------------')
-
-        if list_data:
-            logger.info(f"{table_name}, {list_data}")
-            with self.connection as conn:
-                with conn.cursor() as cursor:
-                    for gen_id in list_data:
-                        cursor.execute(
-                            f"INSERT INTO {table_name} VALUES (%s, %s);", (movie_id, gen_id)
-                        )
-                    conn.commit()
-        else:
-            logger.info(f"{table_name}: []")
-
-    # проверяем актеров, сортируем по популярности и возвращаем список
-    def popular_actor(self, list_actor: list, count_actor_save: None | int = None) -> list:
+    @with_cursor
+    def popular_actor(self, conn, cursor, list_actor: list, count_actor_save: None | int = None) -> list:
+        """ проверяем актеров, сортируем по популярности и возвращаем список """
         if list_actor:
             # получаем всех актеров с тегом - 'popular' c db
-            with self.connection as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """SELECT actors.name FROM actors 
-                           JOIN tag_actor ON actors.id = tag_actor.actor_id 
-                           JOIN tags ON tag_actor.tag_id = tags.id 
-                           WHERE tags.name = 'popular';"""
-                    )
-                    popular_actor = cursor.fetchall()
-                    popular_actor = [item[0] for item in popular_actor]
+            query = """SELECT persons.name_ru FROM persons 
+                   JOIN tag_person ON persons.id = tag_person.person_id 
+                   JOIN tags ON tag_person.tag_id = tags.id 
+                   WHERE tags.name = 'popular';"""
+            cursor.execute(query)
+            popular_actor = cursor.fetchall()
+            popular_actor = [item[0] for item in popular_actor]
 
             # выбираем с входящего списка популярных актеров и ставим на первое место
             new_list_actor = []
@@ -264,14 +281,8 @@ class PostgresDB:
             return all_actors
         return []
 
-    def get_all_ids(self, table_name: str):
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(f"SELECT id FROM {table_name};")
-                return [row[0] for row in cursor.fetchall()]
-
-    # добавляем фильм
-    def create_movie(self, *args, **kwargs) -> int:
+    @with_cursor
+    def create_movie(self, conn, cursor, *args, **kwargs) -> int:
         keys = ', '.join([f'{i}' for i in kwargs.keys()])
         values = (
             kwargs['kinopoisk_id'],
@@ -299,22 +310,16 @@ class PostgresDB:
             kwargs['publish']
         )
 
-        # генерируем '%s' для value по длине заполняемых полей
+        # generate '%s' for value
         split_value = keys.split(',')
         replace_value = ['%s, ' for _ in split_value]
         join_value = ' '.join(replace_value)
-        # add movie
-        insert = f"INSERT INTO movies ({keys}) VALUES ({join_value[:-2]});"
-        with self.connection as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(insert, values)
-                conn.commit()
 
-        # get added movie id
-        new_movie_id = self.select_data(
-            table_name='movies',
-            select_keys='id, kinopoisk_id',
-            where_key_name='kinopoisk_id',
-            where_key_data=kwargs['kinopoisk_id'])
+        # add movie
+        query = f"INSERT INTO movies ({keys}) VALUES ({join_value[:-2]}) RETURNING id;"
+        cursor.execute(query, values)
+        new_movie_id = cursor.fetchone()[0]
+        conn.commit()
+
         logger.info(f'--- Movie add [+] id = {new_movie_id} ---')
         return new_movie_id

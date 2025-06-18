@@ -149,8 +149,10 @@ class WebRequesterKinopoiskPeople(WebRequesterKinopoisk):
         writer = []
         actor = []
 
-        if request.get("data"):
-            for elem in request["data"].json():
+        res_data = request["data"]
+        print("res_data", res_data)
+        if res_data:
+            for elem in res_data.json():
                 if elem.get('professionKey') == 'DIRECTOR' and elem.get('nameRu') != '':
                     director.append(elem.get('nameRu'))
 

@@ -7,7 +7,6 @@ from parser.imdb import WebRequesterMovieScreenshotIMDB
 from libs.postgres_orm import PostgresDB
 from libs.services import get_popular_actor_from_file
 from processing import FileImage
-from time import sleep
 from settings import Settings
 
 
@@ -33,16 +32,16 @@ server_status, message = api_movie.check_resource_status()
 print(message)
 
 # добавляем популярных актеров и делаем из них сегмент
-tag_popular_actor = db.get_tag_id('popular')
+tag_popular_actor = db.get_id_by_name(table_name="tags", where_key_name='name', where_key_data='popular')
 if not tag_popular_actor:
     print("create tag popular actor")
     get_actors = get_popular_actor_from_file('./actor/actors.txt')
     actor = db.get_or_create_from_list(
-        table_name='actors',
-        select_key='id, name',
-        where_key_name='name',
+        table_name='persons',
+        select_key='id, name_ru',
+        where_key_name='name_ru',
         where_key_data_list=get_actors,
-        insert_keys=('name', 'created_on'),
+        insert_keys=('name_ru', 'created_on'),
         dict_key_name=''
     )
 
@@ -52,11 +51,11 @@ if not tag_popular_actor:
         where_key_name='name',
         where_key_data="popular",
         insert_keys=('name', 'created_on'),
-        insert_values=("popular", db.current_datetime())
+        insert_values=("popular", db.get_current_datetime())
     )
 
     #  сохраняем данные в связанные таблицы many-to-many
-    db.related_table(table_name='tag_actor', movie_id=tag_popular_actor, list_data=actor)
+    db.related_table(table_name='tag_person', movie_id=tag_popular_actor, list_data=actor)
 
 # получаем пользователя
 user = db.select_data(
@@ -82,14 +81,11 @@ if server_status == 200:
         print(f'\n\n----> kinopoisk id: {idd} <-----')
 
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
-        if not db.select_data(
-                table_name='movies',
-                select_keys='id, kinopoisk_id',
-                where_key_name='kinopoisk_id',
-                where_key_data=idd):
+        if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
 
             # получаем фильм
             movie = api_movie.get_ready_api_data(kinopoisk_id=idd)
+            # print(movie)
             if movie['status_code'] == 200 and movie['filter'] and movie['data']:
                 print(f"get_ready_api_data: {movie}")
 
@@ -97,7 +93,7 @@ if server_status == 200:
                 print('\n----------  Получение данных для фильма ----------\n')
                 kinopoisk_id = int(movie['data']['kinopoiskId'])
                 imdb_id = movie['data']['imdbId']
-                year = movie['data'].get('year')
+                _year = movie['data'].get('year')
 
                 # получаем актеров, режисеров, сценаристов
                 people = api_people.get_ready_api_data(kinopoisk_id=kinopoisk_id)
@@ -116,7 +112,7 @@ if server_status == 200:
                     web_url_image=movie['data'].get('posterUrl'),
                     name='postr',
                     kinopoisk_id=kinopoisk_id,
-                    year=year,
+                    year=_year,
                 )
                 print(poster_save)
 
@@ -125,7 +121,7 @@ if server_status == 200:
                     web_url_image=screenshots['data'],
                     name='screenshots',
                     kinopoisk_id=kinopoisk_id,
-                    year=year,
+                    year=_year,
                 )
                 print(screenshots_save)
 
@@ -134,35 +130,38 @@ if server_status == 200:
                 print(screenshots)
 
                 # Rating_kinopoisk add db
+                _rating_kinopoisk = movie['data'].get('ratingKinopoisk', None)
                 rating_kinopoisk = db.get_or_create(
                     table_name='rating_kinopoisk',
                     select_key='id, star',
                     where_key_name='star',
-                    where_key_data=movie['data'].get('ratingKinopoisk', None),
+                    where_key_data=_rating_kinopoisk,
                     insert_keys=('star', 'created_on'),
-                    insert_values=(movie['data'].get('ratingKinopoisk', None), db.current_datetime())
+                    insert_values=(_rating_kinopoisk, db.get_current_datetime())
                 )
                 print(rating_kinopoisk)
 
                 # rating_imdb add db
+                _rating_imdb = movie['data'].get('ratingImdb', None)
                 rating_imdb = db.get_or_create(
                     table_name='rating_imdb',
                     select_key='id, star',
                     where_key_name='star',
-                    where_key_data=movie['data'].get('ratingImdb', None),
+                    where_key_data=_rating_imdb,
                     insert_keys=('star', 'created_on'),
-                    insert_values=(movie['data'].get('ratingImdb', None), db.current_datetime())
+                    insert_values=(_rating_imdb, db.get_current_datetime())
                 )
                 print(rating_imdb)
 
                 # rating_imdb add db
+                _rating_critics = movie['data'].get('ratingFilmCritics', None)
                 rating_critics = db.get_or_create(
                     table_name='rating_critics',
                     select_key='id, star',
                     where_key_name='star',
-                    where_key_data=movie['data'].get('ratingFilmCritics', None),
+                    where_key_data=_rating_critics,
                     insert_keys=('star', 'created_on'),
-                    insert_values=(movie['data'].get('ratingFilmCritics', None), db.current_datetime())
+                    insert_values=(_rating_critics, db.get_current_datetime())
                 )
                 print(rating_critics)
 
@@ -171,52 +170,47 @@ if server_status == 200:
                     table_name='releases',
                     select_key='id, year',
                     where_key_name='year',
-                    where_key_data=movie['data'].get('year', None),
+                    where_key_data=_year,
                     insert_keys=('year', 'created_on'),
-                    insert_values=(movie['data'].get('year', None), db.current_datetime())
+                    insert_values=(_year, db.get_current_datetime())
                 )
                 print(release)
 
                 # Film length add db
+                _film_length = movie['data'].get('filmLength', None)
                 film_length = db.get_or_create(
                     table_name='film_length',
                     select_key='id, length',
                     where_key_name='length',
-                    where_key_data=movie['data'].get('filmLength', None),
+                    where_key_data=_film_length,
                     insert_keys=('length', 'created_on'),
-                    insert_values=(movie['data'].get('filmLength', None), db.current_datetime())
+                    insert_values=(_film_length, db.get_current_datetime())
                 )
                 print(film_length)
 
                 # Type video add db
+                _type_video = movie['data'].get('type', None)
                 type_video = db.get_or_create(
                     table_name='type_videos',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data=movie['data'].get('type', None),
+                    where_key_data=_type_video,
                     insert_keys=('name', 'created_on'),
-                    insert_values=(movie['data'].get('type', None), db.current_datetime())
+                    insert_values=(_type_video, db.get_current_datetime())
                 )
                 print(type_video)
 
                 # Age limit add db
+                _age_limit = db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None))
                 age_limit = db.get_or_create(
                     table_name='age_limits',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data=db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None)),
+                    where_key_data=_age_limit,
                     insert_keys=('name', 'created_on'),
-                    insert_values=(db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None)), db.current_datetime())
+                    insert_values=(_age_limit, db.get_current_datetime())
                 )
                 print(age_limit)
-
-                # Генерируем url к новому фильму
-                new_url = db.generate_url(
-                    movie['data'].get('nameRu', None),
-                    movie['data'].get('nameOriginal', None),
-                    db.get_last_movie_id()
-                )
-                print(new_url)
 
                 # Genre add db
                 genres = db.get_or_create_from_list(
@@ -242,22 +236,22 @@ if server_status == 200:
 
                 # Director add db
                 director = db.get_or_create_from_list(
-                    table_name='directors',
-                    select_key='id, name',
-                    where_key_name='name',
+                    table_name='persons',
+                    select_key='id, name_ru',
+                    where_key_name='name_ru',
                     where_key_data_list=people['data'].get('director', None),
-                    insert_keys=('name', 'created_on'),
+                    insert_keys=('name_ru', 'created_on'),
                     dict_key_name=''
                 )
                 print(director)
 
                 # Creator add db
                 creator = db.get_or_create_from_list(
-                    table_name='creators',
-                    select_key='id, name',
-                    where_key_name='name',
+                    table_name='persons',
+                    select_key='id, name_ru',
+                    where_key_name='name_ru',
                     where_key_data_list=people['data'].get('writer', None),
-                    insert_keys=('name', 'created_on'),
+                    insert_keys=('name_ru', 'created_on'),
                     dict_key_name=''
                 )
                 print(creator)
@@ -267,11 +261,11 @@ if server_status == 200:
 
                 # Actor add db
                 actor = db.get_or_create_from_list(
-                    table_name='actors',
-                    select_key='id, name',
-                    where_key_name='name',
+                    table_name='persons',
+                    select_key='id, name_ru',
+                    where_key_name='name_ru',
                     where_key_data_list=popular_actor,
-                    insert_keys=('name', 'created_on'),
+                    insert_keys=('name_ru', 'created_on'),
                     dict_key_name=''
                 )
                 print(actor)
@@ -285,6 +279,17 @@ if server_status == 200:
                     where_key_name='username',
                     where_key_data='admin'
                 )
+
+                # Генерируем url к новому фильму
+                new_url = db.generate_url_by_first_name(
+                    names=[
+                        movie['data'].get('nameRu', None),
+                        movie['data'].get('nameEn', None),
+                        movie['data'].get('nameOriginal', None),
+                    ],
+                    movie_id=db.get_last_id(table_name='movies')
+                )
+                print(new_url)
 
                 # создаем фильм
                 new_movie = db.create_movie(
@@ -306,7 +311,7 @@ if server_status == 200:
                     age_limits_id=age_limit,
                     last_syncs=db.converting_date_time(movie['data'].get('lastSync')),
                     user_id=user,
-                    created_on=db.current_datetime(),
+                    created_on=db.get_current_datetime(),
                     has_3d=movie['data'].get('has3D'),
                     has_imax=movie['data'].get('hasImax'),
                     short_film=movie['data'].get('shortFilm'),
