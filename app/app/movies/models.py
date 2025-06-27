@@ -71,7 +71,7 @@ video_movie = db.Table(
 
 
 class BaseModel(db.Model):
-    __abstract__ = True  # Важно! Эта таблица не будет создана в БД
+    __abstract__ = True
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     publish = db.Column(db.Boolean, default=True)
     sorting = db.Column(db.Integer, default=100)
@@ -106,7 +106,8 @@ class Movie(BaseModel):
 
     reviews_count = db.Column(db.Integer, nullable=True)
 
-    rating_mpaa = db.Column(db.String(4), nullable=True)
+    rating_mpaa_id = db.Column(db.Integer, db.ForeignKey('rating_mpaa.id', ondelete='SET NULL'))
+    rating_mpaa = db.relationship('RatingMPAA', backref=db.backref('movie'), passive_deletes=True)
 
     rating_good_review = db.Column(db.Float, nullable=True)
     rating_good_review_vote_count = db.Column(db.Integer, nullable=True)
@@ -129,6 +130,11 @@ class Movie(BaseModel):
     rating_critics = db.relationship('RatingCritic', backref=db.backref('movie'), passive_deletes=True)
 
     rating_critics_vote_count = db.Column(db.Integer, nullable=True)
+
+    rating_await_id = db.Column(db.Integer, db.ForeignKey('rating_await.id', ondelete='SET NULL'))
+    rating_await = db.relationship('RatingAwait', backref=db.backref('movie'), passive_deletes=True)
+
+    rating_await_count = db.Column(db.Integer, nullable=True)
 
     year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
     year = db.relationship(
@@ -207,6 +213,9 @@ class Movie(BaseModel):
     has_3d = db.Column(db.Boolean, default=False)
     has_imax = db.Column(db.Boolean, default=False)
     short_film = db.Column(db.Boolean, default=False)
+
+    serial = db.Column(db.Boolean, default=False)
+    completed = db.Column(db.Boolean, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'))
     user = db.relationship('User', backref=db.backref('movie'), passive_deletes=False)
@@ -314,6 +323,22 @@ class RatingImdb(BaseModel):
 class RatingCritic(BaseModel):
     __tablename__ = 'rating_critics'
     star = db.Column(db.Float)
+
+    def __repr__(self):
+        return f'{self.star}'
+
+
+class RatingAwait(BaseModel):
+    __tablename__ = 'rating_await'
+    star = db.Column(db.Float)
+
+    def __repr__(self):
+        return f'{self.star}'
+
+
+class RatingMPAA(BaseModel):
+    __tablename__ = 'rating_mpaa'
+    star = db.Column(db.String(64), index=True, unique=True)
 
     def __repr__(self):
         return f'{self.star}'

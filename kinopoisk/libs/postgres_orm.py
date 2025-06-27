@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import psycopg2
 from functools import wraps
 from slugify import slugify
@@ -57,7 +58,9 @@ class PostgresDB:
         for name in names:
             if name:
                 new_name = f"{name} {movie_id}"
-                return slugify(new_name)
+                new_url = slugify(new_name)
+                logger.info(f"new url: {new_url}")
+                return new_url
 
     @staticmethod
     def get_digit_age_limit(text) -> str | None:
@@ -73,51 +76,77 @@ class PostgresDB:
             return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S.%f")
 
     @with_cursor
-    def select_data(self, conn, cursor, table_name: str, select_keys: str, where_key_name: str, where_key_data) -> int | None:
+    def select_data(self, conn, cursor, table_name: str, select_keys: str, where_key_name: str, where_key_data) -> dict | None:
         """ Get record id from the database """
         query = f"SELECT {select_keys} FROM {table_name} WHERE {where_key_name} = %s;"
         cursor.execute(query, (where_key_data,))
-        result = cursor.fetchone()
-        if result:
-            idd = result[0] # (1, Админ)
-            logger.info(f"[+] GET----> [{idd}]")
-            return idd
-        else:
+        row = cursor.fetchone()
+        conn.commit()
+
+        if not row:
             return None
+        res = self.fetch_one_dict(cursor, row)
+        logger.info(f"[+] GET----> {res}")
+        return res
 
     @with_cursor
-    def insert_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple) -> int | None:
+    def insert_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple) -> dict | None:
         """ Create a record in the database and get (id) """
         _keys = ', '.join(keys_name)  # tuple to str
         _values = ', '.join(['%s' for _ in keys_name])  # create %s
 
         query = f"INSERT INTO {table_name} ({_keys}) VALUES ({_values}) RETURNING id;"
         cursor.execute(query, values_data)
-        inserted_id = cursor.fetchone()
+        row = cursor.fetchone()
+        # print("row", row)
         conn.commit()
 
-        if inserted_id:
-            idd = inserted_id[0]
-            logger.info(f"[+] INSERT----> [{idd}]")
-            return idd
-        else:
+        if not row:
             return None
+        res = self.fetch_one_dict(cursor, row)
+        logger.info(f"[+] INSERT----> {res}")
+        return res
+
+    # @with_cursor
+    # def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> int | None:
+    #     """ Update a record in the database"""
+    #
+    #     set_clause  = ', '.join([f"{key} = %s" for key in keys_name])
+    #     query = f"UPDATE { table_name } SET { set_clause } WHERE { where_key } = %s;"
+    #
+    #     values = values_data + (where_value,)  # добавляем значение для WHERE
+    #     cursor.execute(query, values)
+    #     conn.commit()
+    #     updated_row = cursor.rowcount
+    #     if updated_row > 0:
+    #         logger.info("updated row:", updated_row)
+    #         return updated_row
 
     @with_cursor
-    def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> bool:
-        """ Update a record in the database"""
-        _keys = ', '.join([f"{key} = %s" for key in keys_name])
-        query = f"UPDATE {table_name} SET {_keys} WHERE {where_key} = %s;"
+    def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> dict | None:
+        """ Update a record in the database and return the updated row as dict """
 
-        values = values_data + (where_value,)  # добавляем значение для WHERE
+        # Формируем строку SET field1 = %s, field2 = %s и т.д.
+        set_clause = ', '.join([f"{key} = %s" for key in keys_name])
+
+        query = f"UPDATE {table_name} SET {set_clause} WHERE {where_key} = %s RETURNING *;"
+
+        values = values_data + (where_value,)
+
         cursor.execute(query, values)
+        row = cursor.fetchone()
         conn.commit()
 
-        return cursor.rowcount > 0  # True если была обновлена хотя бы одна строка
+        if not row:
+            return None
+
+        res = self.fetch_one_dict(cursor, row)
+        logger.info(f"[+] UPDATE----> {res}")
+        return res
 
     def get_or_create(
             self, table_name: str, select_key: str, where_key_name: str,
-            where_key_data: any, insert_keys: tuple, insert_values: tuple) -> int | None:
+            where_key_data: any, insert_keys: tuple, insert_values: tuple) -> dict | None:
         """ Get or create record id from table """
 
         if where_key_data:
@@ -179,33 +208,58 @@ class PostgresDB:
         else:
             logger.info(f"{table_name}: []")
 
+    @staticmethod
+    def get_obj_ids(list_dict) -> list[int]:
+        return [obj['id'] for obj in list_dict]
 
+    def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, key_names: tuple, values_data: tuple) -> list[dict] | None:
 
+        count_elem_list = 0
+        new_obj_list = []
 
-    def get_or_create_from_list(self, table_name: str, select_key: str, where_key_name: str, where_key_data_list: list,
-                                insert_keys: tuple, dict_key_name: str) -> list | None:
-        if where_key_data_list:
-            new_obj_list_id = []
-            for val in where_key_data_list:
-                if dict_key_name:
-                    val_key = val[dict_key_name]
-                    values = (val_key, self.get_current_datetime())
-                else:
-                    val_key = val
-                    values = (val, self.get_current_datetime())
+        for key in values_data:
+            if type(key) is list:
+                count_elem_list = len(key)
+                break
 
-                idd = self.get_or_create(
-                    table_name=table_name,
-                    select_key=select_key,
-                    where_key_name=where_key_name,
-                    where_key_data=val_key,
-                    insert_keys=insert_keys,
-                    insert_values=values
-                )
-                new_obj_list_id.append(idd)
+        for _number in range(0, count_elem_list):
+            _insert_list_values = []
+            _where_key_data = ''
+            for _index, _key in enumerate(key_names):
+                if isinstance(values_data[_index], list):
+                    if isinstance(values_data[_index][_number], dict):
+                        _elem = next(iter(values_data[_index][_number].values())).capitalize()
+                        _insert_list_values.append(_elem)
+                        _where_key_data = _elem
+                    else:
+                        _elem = values_data[_index][_number]
+                        _insert_list_values.append(_elem)
+                        _where_key_data = _elem
 
-            logger.info(new_obj_list_id)
-            return new_obj_list_id
+                elif callable(values_data[_index]):
+                    _insert_list_values.append(values_data[_index]())
+
+                elif isinstance(values_data[_index], str):
+                    _insert_list_values.append(values_data[_index])
+
+                elif type(values_data[_index]) is int:
+                    _insert_list_values.append(values_data[_index])
+
+                elif type(values_data[_index]) is bool:
+                    _insert_list_values.append(values_data[_index])
+
+            obj = self.get_or_create(
+                table_name=table_name,
+                select_key=select_key,
+                where_key_name=where_key_name,
+                where_key_data=_where_key_data,
+                insert_keys=tuple(key_names),
+                insert_values=tuple(_insert_list_values)
+            )
+            if obj:
+                new_obj_list.append(obj)
+
+        return new_obj_list
 
     def create_screen_movie(self, kinopoisk_id: int, list_value: list) -> list:
         logger.info("\n---------- Screenshot add db ----------")
@@ -216,15 +270,15 @@ class PostgresDB:
             for src in list_value:
                 screen_name = f'{i}_screenshot'
 
-                keys = ('kinopoisk_id', 'name', 'url', 'created_on')
-                values = (kinopoisk_id, screen_name, src, datetime.now())
+                keys = ('publish', 'sorting', 'kinopoisk_id', 'name', 'url', 'created_on')
+                values = (True, 100, kinopoisk_id, screen_name, src, datetime.now())
 
-                idd = self.insert_data(
+                obj = self.insert_data(
                     table_name='screenshots',
                     keys_name=keys,
                     values_data=values
                 )
-
+                idd = obj.get('id')
                 screen.append(idd)
                 i += 1
         return screen
@@ -235,10 +289,10 @@ class PostgresDB:
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
-                keys = ('kinopoisk_id', 'name', 'created_on')
-                values = (key, val, datetime.now())
+                keys = ('publish', 'sorting', 'kinopoisk_id', 'name', 'created_on')
+                values = (True, 100, key, val, datetime.now())
 
-                idd = self.get_or_create(
+                obj = self.get_or_create(
                     table_name='similars',
                     select_key='id, kinopoisk_id',
                     where_key_name='kinopoisk_id',
@@ -246,9 +300,9 @@ class PostgresDB:
                     insert_keys=keys,
                     insert_values=values
                 )
+                idd = obj.get('id')
                 lict_obj_id.append(idd)
 
-            logger.info(lict_obj_id)
             return lict_obj_id
 
     @with_cursor
@@ -281,45 +335,24 @@ class PostgresDB:
             return all_actors
         return []
 
+    @staticmethod
+    def fetch_one_dict(cursor, row):
+        columns = [desc[0] for desc in cursor.description]
+        return dict(zip(columns, row))
+
     @with_cursor
     def create_movie(self, conn, cursor, *args, **kwargs) -> int:
-        keys = ', '.join([f'{i}' for i in kwargs.keys()])
-        values = (
-            kwargs['kinopoisk_id'],
-            kwargs['imdb_id'],
-            kwargs['name_ru'],
-            kwargs['name_original'],
-            kwargs['poster_url'],
-            kwargs['slug'],
-            kwargs['rating_kinopoisk_id'],
-            kwargs['rating_imdb_id'],
-            kwargs['rating_critics_id'],
-            kwargs['year_id'],
-            kwargs['film_length_id'],
-            kwargs['slogan'],
-            kwargs['description'],
-            kwargs['short_description'],
-            kwargs['type_video_id'],
-            kwargs['age_limits_id'],
-            kwargs['last_syncs'],
-            kwargs['user_id'],
-            kwargs['created_on'],
-            kwargs['has_3d'],
-            kwargs['has_imax'],
-            kwargs['short_film'],
-            kwargs['publish']
-        )
-
-        # generate '%s' for value
-        split_value = keys.split(',')
-        replace_value = ['%s, ' for _ in split_value]
-        join_value = ' '.join(replace_value)
-
-        # add movie
-        query = f"INSERT INTO movies ({keys}) VALUES ({join_value[:-2]}) RETURNING id;"
-        cursor.execute(query, values)
-        new_movie_id = cursor.fetchone()[0]
+        _keys = ', '.join(kwargs.keys())  # tuple to str
+        _values = ', '.join(['%s' for _ in kwargs.keys()])  # create %s
+        _data = tuple(kwargs.values())
+        print(f"{_keys=}, {_values=}, {_data=}")
+        query = f"INSERT INTO movies ({_keys}) VALUES ({_values}) RETURNING id;"
+        cursor.execute(query, _data)
+        row = cursor.fetchone()
         conn.commit()
 
-        logger.info(f'--- Movie add [+] id = {new_movie_id} ---')
-        return new_movie_id
+        res =  self.fetch_one_dict(cursor, row)
+        movie_id = res.get('id')
+        logger.info(f"--- Movie add [+] id = {movie_id} ---")
+        logger.info(f"[+] INSERT Movie ----> {res}")
+        return movie_id

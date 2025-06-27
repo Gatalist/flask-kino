@@ -5,7 +5,7 @@ from parser.kinopoisk import (
 )
 from parser.imdb import WebRequesterMovieScreenshotIMDB
 from libs.postgres_orm import PostgresDB
-from libs.services import get_popular_actor_from_file
+from libs.services import get_popular_actor_from_file, logger
 from processing import FileImage
 from settings import Settings
 
@@ -29,47 +29,48 @@ web_screenshot = WebRequesterMovieScreenshotIMDB()
 
 # проверяем статус подключения к серверу
 server_status, message = api_movie.check_resource_status()
-print(message)
+logger.info(message)
 
 # добавляем популярных актеров и делаем из них сегмент
-tag_popular_actor = db.get_id_by_name(table_name="tags", where_key_name='name', where_key_data='popular')
-if not tag_popular_actor:
-    print("create tag popular actor")
-    get_actors = get_popular_actor_from_file('./actor/actors.txt')
-    actor = db.get_or_create_from_list(
-        table_name='persons',
-        select_key='id, name_ru',
-        where_key_name='name_ru',
-        where_key_data_list=get_actors,
-        insert_keys=('name_ru', 'created_on'),
-        dict_key_name=''
-    )
-
-    tag_popular_actor = db.get_or_create(
-        table_name='tags',
-        select_key='id, name',
-        where_key_name='name',
-        where_key_data="popular",
-        insert_keys=('name', 'created_on'),
-        insert_values=("popular", db.get_current_datetime())
-    )
-
-    #  сохраняем данные в связанные таблицы many-to-many
-    db.related_table(table_name='tag_person', movie_id=tag_popular_actor, list_data=actor)
+# tag_popular_actor = db.get_id_by_name(table_name="tags", where_key_name='name', where_key_data='popular')
+# if not tag_popular_actor:
+#     print("create tag popular actor")
+#     get_actors = get_popular_actor_from_file('./actor/actors.txt')
+#     actor = db.get_or_create_from_list(
+#         table_name='persons',
+#         select_key='id, name_ru',
+#         where_key_name='name_ru',
+#         key_names=('publish', 'actor', 'sorting', 'name_ru', 'created_on'),
+#         values_data=(True, True, 100, get_actors, db.get_current_datetime)
+#     )
+#
+#     tag_popular_actor = db.get_or_create(
+#         table_name='tags',
+#         select_key='id, name',
+#         where_key_name='name',
+#         where_key_data="popular",
+#         insert_keys=('publish', 'sorting', 'name', 'created_on'),
+#         insert_values=(True, 100, "popular", db.get_current_datetime())
+#     )
+#
+#     #  сохраняем данные в связанные таблицы many-to-many
+#     db.related_table(table_name='tag_person', movie_id=tag_popular_actor, list_data=actor)
 
 # получаем пользователя
-user = db.select_data(
+user_id = db.select_data(
     table_name='users',
     select_keys='id, username',
     where_key_name='username',
     where_key_data='admin'
 )
 
-if not user:
+if user_id:
+    user_id = user_id.get("id")
+else:
     raise Exception("not user in db: create admin user")
 
 # min id = 298
-start_id = 130_042
+start_id = 298
 end_id = 140_000
 
 # sleep(1_000_000)
@@ -77,257 +78,362 @@ end_id = 140_000
 if server_status == 200:
     # получение данных с api
     for idd in range(start_id, end_id):
-    # for idd in image_put:
-        print(f'\n\n----> kinopoisk id: {idd} <-----')
-
+        logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
-
             # получаем фильм
             movie = api_movie.get_ready_api_data(kinopoisk_id=idd)
-            # print(movie)
             if movie['status_code'] == 200 and movie['filter'] and movie['data']:
-                print(f"get_ready_api_data: {movie}")
-
                 # получаем все данные для фильма
-                print('\n----------  Получение данных для фильма ----------\n')
-                kinopoisk_id = int(movie['data']['kinopoiskId'])
-                imdb_id = movie['data']['imdbId']
-                _year = movie['data'].get('year')
+                logger.info('\n----------  Получение данных для фильма ----------\n')
+                logger.info(f"movie:data: {movie['data']}")
 
-                # получаем актеров, режисеров, сценаристов
-                people = api_people.get_ready_api_data(kinopoisk_id=kinopoisk_id)
-                print(people)
+                _kinopoisk_id = int(movie['data'].get('kinopoiskId'))
+                _kinopoisk_hd_id = movie['data'].get('kinopoiskHDId')
+                _imdb_id = movie['data'].get('imdbId', None)
+                _reviews_count = movie['data'].get('reviewsCount', None)
+                _rating_good_review = movie['data'].get('ratingGoodReview', None)
+                _rating_good_review_vote_count = movie['data'].get('ratingGoodReviewVoteCount', None)
+                _rating_kinopoisk_vote_count = movie['data'].get('ratingKinopoiskVoteCount', None)
+                _rating_imdb_vote_count = movie['data'].get('ratingKinopoiskVoteCount', None)
+                _rating_critics = movie['data'].get('ratingFilmCritics', None)
+                _rating_critics_vote_count = movie['data'].get('ratingFilmCriticsVoteCount', None)
+                _rating_await = movie['data'].get('ratingAwait', None)
+                _rating_await_count = movie['data'].get('ratingAwaitCount', None)
+                _editor_annotation = movie['data'].get('editorAnnotation', None)
+                _is_tickets_available = movie['data'].get('isTicketsAvailable', None)
+                _production_status = movie['data'].get('productionStatus', None)
+                _rating_mpaa = movie['data'].get('ratingMpaa', None)
+                _year = movie['data'].get('year', None)
+                _start_year = movie['data'].get('startYear', None)
+                _end_year = movie['data'].get('endYear', None)
+                _serial = movie['data'].get('serial', False)
+                _completed = movie['data'].get('completed', False)
+                _poster = movie['data'].get('posterUrl', None)
+                _rating_kinopoisk = movie['data'].get('ratingKinopoisk', None)
+                _rating_imdb = movie['data'].get('ratingImdb', None)
+                _film_length = movie['data'].get('filmLength', None)
+                _type_video = movie['data'].get('type', None)
+                _genres = movie['data'].get('genres', [])
+                _countries = movie['data'].get('countries', [])
+                _name_ru = movie['data'].get('nameRu', None)
+                _name_en = movie['data'].get('nameEn', None)
+                _name_original = movie['data'].get('nameOriginal', None)
+                _slogan = movie['data'].get('slogan', None)
+                _description = movie['data'].get('description', None)
+                _short_description = movie['data'].get('shortDescription')
+                _age_limit = db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None))
+                _last_syncs = db.converting_date_time(movie['data'].get('lastSync'))
+                _has_3d = movie['data'].get('has3D', False)
+                _has_imax = movie['data'].get('hasImax', False)
+                _short_film = movie['data'].get('shortFilm', False)
 
-                # получаем похожие фильмы
-                similars = api_similar.get_ready_api_data(kinopoisk_id=kinopoisk_id)
-                print(similars)
+                # get actors, creators, writers
+                people = api_people.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
+                logger.info(f"people: {people}")
 
-                # получаем кадры к фильму
-                screenshots = web_screenshot.request_screenshot(imdb_id)
-                print(screenshots)
+                _directors = people['data'].get('director', [])
+                _writers = people['data'].get('writer', [])
+                _actors = people['data'].get('actor', [])
 
-                # сохраняем главное фото и возвращаем ссылку
-                poster_save = image.web_save_image(
-                    web_url_image=movie['data'].get('posterUrl'),
+                # get similars movie
+                _similars = api_similar.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
+                logger.info(f"similars: {_similars}")
+
+                similars = _similars.get('data', None)
+                similar_ids = db.get_or_create_similar(similars)
+
+                # get movie screen
+                screenshots = web_screenshot.request_screenshot(_imdb_id)
+                logger.info(f"screenshots: {screenshots}")
+
+                # save head movie mage and return lint
+                poster_url = image.web_save_image(
+                    web_url_image=_poster,
                     name='postr',
-                    kinopoisk_id=kinopoisk_id,
+                    kinopoisk_id=_kinopoisk_id,
                     year=_year,
                 )
-                print(poster_save)
+                logger.info(f"poster_url: {poster_url}")
 
-                # сохраняем кадры с фильма и возвращаем список ссылок
+                # save screen movie and return link list
                 screenshots_save = image.web_save_image(
                     web_url_image=screenshots['data'],
                     name='screenshots',
-                    kinopoisk_id=kinopoisk_id,
+                    kinopoisk_id=_kinopoisk_id,
                     year=_year,
                 )
-                print(screenshots_save)
 
-                # Screenshot add db
-                screenshots = db.create_screen_movie(kinopoisk_id=kinopoisk_id, list_value=screenshots_save)
-                print(screenshots)
+                screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
-                # Rating_kinopoisk add db
-                _rating_kinopoisk = movie['data'].get('ratingKinopoisk', None)
-                rating_kinopoisk = db.get_or_create(
+                rating_kinopoisk_id = db.get_or_create(
                     table_name='rating_kinopoisk',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_kinopoisk,
-                    insert_keys=('star', 'created_on'),
-                    insert_values=(_rating_kinopoisk, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'star', 'created_on'),
+                    insert_values=(True, 100, _rating_kinopoisk, db.get_current_datetime())
                 )
-                print(rating_kinopoisk)
+                if rating_kinopoisk_id:
+                    rating_kinopoisk_id = rating_kinopoisk_id.get('id')
 
-                # rating_imdb add db
-                _rating_imdb = movie['data'].get('ratingImdb', None)
-                rating_imdb = db.get_or_create(
+                rating_imdb_id = db.get_or_create(
                     table_name='rating_imdb',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_imdb,
-                    insert_keys=('star', 'created_on'),
-                    insert_values=(_rating_imdb, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'star', 'created_on'),
+                    insert_values=(True, 100, _rating_imdb, db.get_current_datetime())
                 )
-                print(rating_imdb)
+                if rating_imdb_id:
+                    rating_imdb_id = rating_imdb_id.get('id')
 
-                # rating_imdb add db
-                _rating_critics = movie['data'].get('ratingFilmCritics', None)
-                rating_critics = db.get_or_create(
+                rating_critics_id = db.get_or_create(
                     table_name='rating_critics',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_critics,
-                    insert_keys=('star', 'created_on'),
-                    insert_values=(_rating_critics, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'star', 'created_on'),
+                    insert_values=(True, 100, _rating_critics, db.get_current_datetime())
                 )
-                print(rating_critics)
+                if rating_critics_id:
+                    rating_critics_id = rating_critics_id.get('id')
 
-                # Release add db
-                release = db.get_or_create(
+                year_id = db.get_or_create(
                     table_name='releases',
                     select_key='id, year',
                     where_key_name='year',
                     where_key_data=_year,
-                    insert_keys=('year', 'created_on'),
-                    insert_values=(_year, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'year', 'created_on'),
+                    insert_values=(True, 100, _year, db.get_current_datetime())
                 )
-                print(release)
+                if year_id:
+                    year_id = year_id.get('id')
 
-                # Film length add db
-                _film_length = movie['data'].get('filmLength', None)
-                film_length = db.get_or_create(
+                start_year_id = db.get_or_create(
+                    table_name='releases',
+                    select_key='id, year',
+                    where_key_name='year',
+                    where_key_data=_start_year,
+                    insert_keys=('publish', 'sorting', 'year', 'created_on'),
+                    insert_values=(True, 100, _start_year, db.get_current_datetime())
+                )
+                if start_year_id:
+                    start_year_id = start_year_id.get('id')
+
+                end_year_id = db.get_or_create(
+                    table_name='releases',
+                    select_key='id, year',
+                    where_key_name='year',
+                    where_key_data=_end_year,
+                    insert_keys=('publish', 'sorting', 'year', 'created_on'),
+                    insert_values=(True, 100, _end_year, db.get_current_datetime())
+                )
+                if end_year_id:
+                    end_year_id = end_year_id.get('id')
+
+                film_length_id = db.get_or_create(
                     table_name='film_length',
                     select_key='id, length',
                     where_key_name='length',
                     where_key_data=_film_length,
-                    insert_keys=('length', 'created_on'),
-                    insert_values=(_film_length, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'length', 'created_on'),
+                    insert_values=(True, 100, _film_length, db.get_current_datetime())
                 )
-                print(film_length)
+                if film_length_id:
+                    film_length_id = film_length_id.get('id')
 
-                # Type video add db
-                _type_video = movie['data'].get('type', None)
-                type_video = db.get_or_create(
+                type_video_id = db.get_or_create(
                     table_name='type_videos',
                     select_key='id, name',
                     where_key_name='name',
                     where_key_data=_type_video,
-                    insert_keys=('name', 'created_on'),
-                    insert_values=(_type_video, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'name', 'created_on'),
+                    insert_values=(True, 100, _type_video, db.get_current_datetime())
                 )
-                print(type_video)
+                if type_video_id:
+                    type_video_id = type_video_id.get('id')
 
-                # Age limit add db
-                _age_limit = db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None))
-                age_limit = db.get_or_create(
+                age_limit_id = db.get_or_create(
                     table_name='age_limits',
                     select_key='id, name',
                     where_key_name='name',
                     where_key_data=_age_limit,
-                    insert_keys=('name', 'created_on'),
-                    insert_values=(_age_limit, db.get_current_datetime())
+                    insert_keys=('publish', 'sorting', 'name', 'created_on'),
+                    insert_values=(True, 100, _age_limit, db.get_current_datetime())
                 )
-                print(age_limit)
+                if age_limit_id:
+                    age_limit_id = age_limit_id.get('id')
 
-                # Genre add db
                 genres = db.get_or_create_from_list(
                     table_name='genres',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data_list=movie['data'].get('genres', None),
-                    insert_keys=('name', 'created_on'),
-                    dict_key_name='genre'
+                    key_names=('publish', 'sorting', 'name', 'created_on'),
+                    values_data=(True, 100, _genres, db.get_current_datetime),
                 )
-                print(genres)
+                genres_ids = db.get_obj_ids(genres)
 
-                # Country add db
                 country = db.get_or_create_from_list(
                     table_name='countries',
                     select_key='id, name',
                     where_key_name='name',
-                    where_key_data_list=movie['data'].get('countries', None),
-                    insert_keys=('name', 'created_on'),
-                    dict_key_name='country'
+                    key_names=('publish', 'sorting', 'name', 'created_on'),
+                    values_data=(True, 100, _countries, db.get_current_datetime),
                 )
-                print(country)
+                country_ids = db.get_obj_ids(country)
 
-                # Director add db
                 director = db.get_or_create_from_list(
                     table_name='persons',
                     select_key='id, name_ru',
                     where_key_name='name_ru',
-                    where_key_data_list=people['data'].get('director', None),
-                    insert_keys=('name_ru', 'created_on'),
-                    dict_key_name=''
+                    key_names=('publish', 'director', 'sorting', 'name_ru', 'created_on'),
+                    values_data=(True, True, 100, _directors, db.get_current_datetime),
                 )
-                print(director)
+                director_ids = db.get_obj_ids(director)
+                for _idd in director_ids:
+                    db.update_data(
+                        table_name='persons',
+                        keys_name=('director',),
+                        values_data=(True,),
+                        where_key='id',
+                        where_value=_idd
+                    )
 
-                # Creator add db
                 creator = db.get_or_create_from_list(
                     table_name='persons',
                     select_key='id, name_ru',
                     where_key_name='name_ru',
-                    where_key_data_list=people['data'].get('writer', None),
-                    insert_keys=('name_ru', 'created_on'),
-                    dict_key_name=''
+                    key_names=('publish', 'creator', 'sorting', 'name_ru', 'created_on'),
+                    values_data=(True, True, 100, _writers, db.get_current_datetime),
                 )
-                print(creator)
+                creator_ids = db.get_obj_ids(creator)
+                for _idd in creator_ids:
+                    db.update_data(
+                        table_name='persons',
+                        keys_name=('creator',),
+                        values_data=(True,),
+                        where_key='id',
+                        where_value=_idd
+                    )
 
                 # Popular actor add db
-                popular_actor = db.popular_actor(people['data'].get('actor'), count_actor_save=30)
+                popular_actor = db.popular_actor(_actors, count_actor_save=20)
 
-                # Actor add db
                 actor = db.get_or_create_from_list(
                     table_name='persons',
                     select_key='id, name_ru',
                     where_key_name='name_ru',
-                    where_key_data_list=popular_actor,
-                    insert_keys=('name_ru', 'created_on'),
-                    dict_key_name=''
+                    key_names=('publish', 'actor', 'sorting', 'name_ru', 'created_on'),
+                    values_data=(True, True, 100, popular_actor, db.get_current_datetime),
                 )
-                print(actor)
+                actor_ids = db.get_obj_ids(actor)
+                for _idd in actor_ids:
+                    db.update_data(
+                        table_name='persons',
+                        keys_name=('actor',),
+                        values_data=(True,),
+                        where_key='id',
+                        where_value=_idd
+                    )
 
-                similar = db.get_or_create_similar(similars['data'])
-
-                # получаем пользователя
-                user = db.select_data(
-                    table_name='users',
-                    select_keys='id, username',
-                    where_key_name='username',
-                    where_key_data='admin'
+                production_status_id = db.get_or_create(
+                    table_name='production_status',
+                    select_key='id, name',
+                    where_key_name='name',
+                    where_key_data=_production_status,
+                    insert_keys=('publish', 'sorting', 'name', 'created_on'),
+                    insert_values=(True, 100, _production_status, db.get_current_datetime())
                 )
+                if production_status_id:
+                    production_status_id = production_status_id.get('id')
 
-                # Генерируем url к новому фильму
+                rating_mpaa_id = db.get_or_create(
+                    table_name='rating_mpaa',
+                    select_key='id, star',
+                    where_key_name='star',
+                    where_key_data=_rating_mpaa,
+                    insert_keys=('publish', 'sorting', 'star', 'created_on'),
+                    insert_values=(True, 100, _rating_mpaa, db.get_current_datetime())
+                )
+                if rating_mpaa_id:
+                    rating_mpaa_id = rating_mpaa_id.get('id')
+
+                rating_await_id = db.get_or_create(
+                    table_name='rating_await',
+                    select_key='id, star',
+                    where_key_name='star',
+                    where_key_data=_rating_await,
+                    insert_keys=('publish', 'sorting', 'star', 'created_on'),
+                    insert_values=(True, 100, _rating_await, db.get_current_datetime())
+                )
+                if rating_await_id:
+                    rating_await_id = rating_await_id.get('id')
+
                 new_url = db.generate_url_by_first_name(
-                    names=[
-                        movie['data'].get('nameRu', None),
-                        movie['data'].get('nameEn', None),
-                        movie['data'].get('nameOriginal', None),
-                    ],
+                    names=[_name_ru, _name_en, _name_original],
                     movie_id=db.get_last_id(table_name='movies')
                 )
-                print(new_url)
 
-                # создаем фильм
                 new_movie = db.create_movie(
-                    kinopoisk_id=kinopoisk_id,
-                    imdb_id=imdb_id,
-                    name_ru=movie['data'].get('nameRu'),
-                    name_original=movie['data'].get('nameOriginal'),
-                    poster_url=poster_save,
+                    kinopoisk_id = _kinopoisk_id,
+                    kinopoisk_hd_id=_kinopoisk_hd_id,
+                    imdb_id=_imdb_id,
+                    editor_annotation=_editor_annotation,
+                    is_tickets_available=_is_tickets_available,
+                    production_status_id=production_status_id,
+                    name_ru=_name_ru,
+                    name_en=_name_en,
+                    name_uk=None,
+                    name_original=_name_original,
+                    poster_url=poster_url,
                     slug=new_url,
-                    rating_kinopoisk_id=rating_kinopoisk,
-                    rating_imdb_id=rating_imdb,
-                    rating_critics_id=rating_critics,
-                    year_id=release,
-                    film_length_id=film_length,
-                    slogan=movie['data'].get('slogan'),
-                    description=movie['data'].get('description'),
-                    short_description=movie['data'].get('shortDescription'),
-                    type_video_id=type_video,
-                    age_limits_id=age_limit,
-                    last_syncs=db.converting_date_time(movie['data'].get('lastSync')),
-                    user_id=user,
+                    reviews_count=_reviews_count,
+                    rating_mpaa_id=rating_mpaa_id,
+                    rating_good_review=_rating_good_review,
+                    rating_good_review_vote_count=_rating_good_review_vote_count,
+
+                    trailer_id=None, # comming soon
+
+                    rating_kinopoisk_id = rating_kinopoisk_id,
+                    rating_kinopoisk_vote_count=_rating_kinopoisk_vote_count,
+                    rating_imdb_id = rating_imdb_id,
+                    rating_imdb_vote_count=_rating_imdb_vote_count,
+                    rating_critics_id=rating_critics_id,
+                    rating_critics_vote_count=_rating_critics_vote_count,
+                    year_id=year_id,
+                    start_year_id=start_year_id,
+                    end_year_id=end_year_id,
+                    film_length_id=film_length_id,
+                    slogan=_slogan,
+                    description=_description,
+                    short_description=_short_description,
+                    type_video_id=type_video_id,
+                    age_limits_id=age_limit_id,
+                    last_syncs=_last_syncs,
+                    has_3d=_has_3d,
+                    has_imax=_has_imax,
+                    short_film=_short_film,
+                    user_id=user_id,
                     created_on=db.get_current_datetime(),
-                    has_3d=movie['data'].get('has3D'),
-                    has_imax=movie['data'].get('hasImax'),
-                    short_film=movie['data'].get('shortFilm'),
+                    serial=_serial,
+                    completed=_completed,
                     publish=True,
+                    rating_await_id = rating_await_id,
+                    rating_await_count = _rating_await_count,
+                    sorting = 100
                 )
 
-                #  сохраняем данные в связанные таблицы many-to-many
-                db.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genres)
-                db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country)
-                db.related_table(table_name='director_movie', movie_id=new_movie, list_data=director)
-                db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor)
-                db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator)
+                # many-to-many
+                db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country_ids)
+                db.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genres_ids)
+                db.related_table(table_name='director_movie', movie_id=new_movie, list_data=director_ids)
+                db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator_ids)
+                db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor_ids)
                 db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshots)
-                db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar)
+                db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar_ids)
             elif movie['status_code'] == 402:
                 break
         else:
-            print('\n Фильм уже существует\n')
-        print('\n--------- Finish ----------\n\n\n')
+            logger.info('\n Фильм уже существует\n')
+        logger.info('\n--------- Finish ----------\n\n\n')

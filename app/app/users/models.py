@@ -68,3 +68,11 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+    # @property
+    # def password(self):
+    #     return self._password
+    #
+    # @password.setter
+    # def password(self, value):
+    #     self._password = generate_password_hash(value)

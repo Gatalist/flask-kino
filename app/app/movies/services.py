@@ -27,7 +27,7 @@ class ContextData:
     def top_directors():
         if len(Person.query.all()) > 0:
             _directors = Person.query.join(director_movie).group_by(Person.id).order_by(Person.id.desc())[:15]
-            return [{'id': elem.id, 'value': elem.name} for elem in _directors]
+            return [{'id': elem.id, 'value': elem.name_ru} for elem in _directors]
         else:
             return []
 

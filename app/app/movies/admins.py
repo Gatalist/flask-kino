@@ -42,6 +42,16 @@ class RatingFilmCriticsView(ModelView):
     column_searchable_list = ('star',)
 
 
+class RatingAwaitView(ModelView):
+    column_list = ['id', 'star', 'created_on']
+    column_searchable_list = ('star',)
+
+
+class RatingMPAAView(ModelView):
+    column_list = ['id', 'star', 'created_on']
+    column_searchable_list = ('star',)
+
+
 class ReleaseView(ModelView):
     column_list = ['id', 'year', 'created_on']
     column_searchable_list = ('year',)
@@ -50,6 +60,11 @@ class ReleaseView(ModelView):
 class FilmLengthView(ModelView):
     column_list = ['id', 'length', 'created_on']
     column_searchable_list = ('length',)
+
+
+class ProductionStatusView(ModelView):
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
 
 
 class GenreView(ModelView):
@@ -94,3 +109,4 @@ class TagActorView(ModelView):
 class SegmentView(ModelView):
     column_list = ['id', 'name', 'created_on']
     column_searchable_list = ('name',)
+

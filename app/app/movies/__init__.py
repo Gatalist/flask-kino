@@ -2,12 +2,12 @@ from flask import Blueprint
 from app import db, admin
 from app.movies.routes import (HomeView, MovieDetailView, MovieSearchView)
 
-from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingCritic, Release, FilmLength,
-                               Genre, AgeLimit, TypeVideo, Person, Screenshot, Similar, Country,
+from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingCritic, RatingAwait, RatingMPAA, Release, FilmLength,
+                               Genre, AgeLimit, TypeVideo, Person, Screenshot, Similar, Country, ProductionStatus,
                                Tag, Segment)
 
-from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, ReleaseView,
-                     FilmLengthView, GenreView, AgeLimitView, TypeVideoView, TagActorView,
+from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, RatingAwaitView, RatingMPAAView,
+                     ReleaseView, FilmLengthView, GenreView, AgeLimitView, TypeVideoView, TagActorView, ProductionStatusView,
                      PersonView, ScreenshotView, SimilarView, CountryView, SegmentView)
 
 
@@ -22,9 +22,6 @@ movie_blueprint.add_url_rule('search/', view_func=MovieSearchView.as_view('movie
 
 # register admin model
 admin.add_view(MovieView(Movie, db.session, name='Фильмы', category="Каталог"))
-admin.add_view(RatingKinopoiskView(RatingKinopoisk, db.session, name='Кинопоиск', category="Рейтинг"))
-admin.add_view(RatingImdbView(RatingImdb, db.session, name='Imdb', category="Рейтинг"))
-admin.add_view(RatingFilmCriticsView(RatingCritic, db.session, name='Критики', category="Рейтинг"))
 admin.add_view(ReleaseView(Release, db.session, name='Год выпуска', category="Каталог"))
 admin.add_view(FilmLengthView(FilmLength, db.session, name='Продолжительность', category="Каталог"))
 admin.add_view(GenreView(Genre, db.session, name='Жанр', category="Каталог"))
@@ -34,5 +31,13 @@ admin.add_view(TypeVideoView(TypeVideo, db.session, name='Категория', c
 admin.add_view(PersonView(Person, db.session, name='Люди', category="Каталог"))
 admin.add_view(ScreenshotView(Screenshot, db.session, name='Кадры с фильма', category="Каталог"))
 admin.add_view(SimilarView(Similar, db.session, name='Похожие фильмы', category="Каталог"))
+admin.add_view(ProductionStatusView(ProductionStatus, db.session, name='Статус производства', category="Каталог"))
+
+admin.add_view(RatingKinopoiskView(RatingKinopoisk, db.session, name='Кинопоиск', category="Рейтинг"))
+admin.add_view(RatingImdbView(RatingImdb, db.session, name='Imdb', category="Рейтинг"))
+admin.add_view(RatingFilmCriticsView(RatingCritic, db.session, name='Критики', category="Рейтинг"))
+admin.add_view(RatingAwaitView(RatingAwait, db.session, name='Await', category="Рейтинг"))
+admin.add_view(RatingMPAAView(RatingMPAA, db.session, name='MPAA', category="Рейтинг"))
+
 admin.add_view(TagActorView(Tag, db.session, name='Теги-актеров'))
 admin.add_view(SegmentView(Segment, db.session, name='Сегменты'))
