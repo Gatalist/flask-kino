@@ -1,3 +1,5 @@
+from time import sleep
+
 from parser.kinopoisk import (
     WebRequesterKinopoiskMovie,
     WebRequesterKinopoiskPeople,
@@ -57,17 +59,25 @@ logger.info(message)
 #     db.related_table(table_name='tag_person', movie_id=tag_popular_actor, list_data=actor)
 
 # получаем пользователя
-user_id = db.select_data(
-    table_name='users',
-    select_keys='id, username',
-    where_key_name='username',
-    where_key_data='admin'
-)
+def get_user(name):
+    return db.select_data(
+        table_name='users',
+        select_keys='id, username',
+        where_key_name='username',
+        where_key_data=name
+    )
 
+user_id = get_user(name='admin')
 if user_id:
     user_id = user_id.get("id")
 else:
-    raise Exception("not user in db: create admin user")
+    while True:
+        logger.error("not user in db: create admin user")
+        sleep(5)
+        user_id = get_user(name='admin')
+        if user_id:
+            user_id = user_id.get("id")
+            break
 
 # min id = 298
 start_id = 298
@@ -159,7 +169,7 @@ if server_status == 200:
                 # save screen movie and return link list
                 screenshots_save = image.web_save_image(
                     web_url_image=screenshots['data'],
-                    name='screenshots',
+                    name='image',
                     kinopoisk_id=_kinopoisk_id,
                     year=_year,
                 )

@@ -1,6 +1,8 @@
+import time
 from datetime import datetime
 from pathlib import Path
 import os
+import random
 from typing import Union, List, Tuple
 import requests
 from io import BytesIO
@@ -46,16 +48,16 @@ class FileImage(WebRequester):
         return self.get_or_create_path(new_path)
 
     @staticmethod
-    def get_new_date_time() -> str:
+    def get_random_int() -> int:
         """Генерируем часть названия для картинки из даты и времени"""
-        current_date = str(datetime.now().date()) + '-'
-        current_time = str(datetime.now().time()).split('.')[0].replace(':', '-')
-        date_time = current_date + current_time
-        return date_time
+        # current_date = str(datetime.now().date()) + '-'
+        # current_time = str(datetime.now().time()).split('.')[0].replace(':', '-')
+        # date_time = current_date + current_time
+        return int(time.time()) + random.randint(1, 100)
 
     def generate_new_image_name(self, name, image_url: str, webp_image) -> str:
         """Генерируем полное название картинки"""
-        date_time = self.get_new_date_time()
+        date_time = self.get_random_int()
         if webp_image:
             type_img = ".webp"
         else:
@@ -89,15 +91,15 @@ class FileImage(WebRequester):
 
         elif isinstance(web_url_image, list):
             responses = self.fetch_all_images(web_url_image)
-            if not responses:
-                print("Не удалось загрузить все изображения — сохранение прервано.")
-                return []
 
             new_image_save_paths = []
+            i = 1
             for url, response_data in responses:
-                new_name = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
+                new_name = self.generate_new_image_name(name=f"{i}_{name}", image_url=url, webp_image=True)
                 new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
                 new_image_save_paths.append(new_path)
+                i += 1
+
             return new_image_save_paths
 
         return []

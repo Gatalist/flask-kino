@@ -107,21 +107,6 @@ class PostgresDB:
         logger.info(f"[+] INSERT----> {res}")
         return res
 
-    # @with_cursor
-    # def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> int | None:
-    #     """ Update a record in the database"""
-    #
-    #     set_clause  = ', '.join([f"{key} = %s" for key in keys_name])
-    #     query = f"UPDATE { table_name } SET { set_clause } WHERE { where_key } = %s;"
-    #
-    #     values = values_data + (where_value,)  # добавляем значение для WHERE
-    #     cursor.execute(query, values)
-    #     conn.commit()
-    #     updated_row = cursor.rowcount
-    #     if updated_row > 0:
-    #         logger.info("updated row:", updated_row)
-    #         return updated_row
-
     @with_cursor
     def update_data(self, conn, cursor, table_name: str, keys_name: tuple, values_data: tuple, where_key: str, where_value) -> dict | None:
         """ Update a record in the database and return the updated row as dict """
@@ -266,10 +251,8 @@ class PostgresDB:
         logger.info(list_value)
         screen = []
         if list_value:
-            i = 1
             for src in list_value:
-                screen_name = f'{i}_screenshot'
-
+                screen_name = src.split('/')[-1] or src.split('\\')[-1]
                 keys = ('publish', 'sorting', 'kinopoisk_id', 'name', 'url', 'created_on')
                 values = (True, 100, kinopoisk_id, screen_name, src, datetime.now())
 
@@ -280,7 +263,7 @@ class PostgresDB:
                 )
                 idd = obj.get('id')
                 screen.append(idd)
-                i += 1
+
         return screen
 
     def get_or_create_similar(self, list_value) -> list | None:

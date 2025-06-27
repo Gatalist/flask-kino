@@ -125,11 +125,11 @@ class FilterMovie(ContextData):
                 joined_table.append("Country")
             query = query.options(joinedload(Movie.countries)).filter(Country.id.in_(country))
 
-        # if director:
-        #     if "Director" not in joined_table:
-        #         query = query.join(director_movie).join(Director)
-        #         joined_table.append("Director")
-        #     query = query.options(joinedload(Movie.genres)).filter(Director.id.in_(director))
+        if director:
+            if "Director" not in joined_table:
+                query = query.join(director_movie).join(Person)
+                joined_table.append("Director")
+            query = query.options(joinedload(Movie.genres)).filter(Person.id.in_(director))
 
         if sorting:
             if sorting == "rating_asc" or sorting == "rating_desc":
