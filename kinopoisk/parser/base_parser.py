@@ -2,7 +2,7 @@ import random
 import requests
 from fake_useragent import UserAgent
 from settings import Settings
-from libs.services import logger
+from tools.loguru_logger import logger
 
 
 class WebRequester:

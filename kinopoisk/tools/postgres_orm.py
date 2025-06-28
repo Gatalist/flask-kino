@@ -3,7 +3,7 @@ from datetime import datetime
 import psycopg2
 from functools import wraps
 from slugify import slugify
-from libs.services import logger
+from tools.loguru_logger import logger
 
 
 def with_cursor(method):

@@ -1,5 +1,4 @@
 import time
-from datetime import datetime
 from pathlib import Path
 import os
 import random
@@ -7,7 +6,7 @@ from typing import Union, List, Tuple
 import requests
 from io import BytesIO
 from PIL import Image
-
+from tools.loguru_logger import logger
 from parser.base_parser import WebRequester
 
 
@@ -19,7 +18,6 @@ class FileImage(WebRequester):
     def save_file(name, image_path, request_data, webp=False) -> str | None:
         """Сохраняем файл и возвращаем путь"""
         new_name = str(os.path.join(image_path, name))
-        print(new_name)
         try:
             if webp:
                 image = Image.open(BytesIO(request_data.content))
@@ -28,11 +26,10 @@ class FileImage(WebRequester):
                 with open(new_name, 'wb') as file:
                     file.write(request_data.content)
 
-            print("save")
             new_path = new_name.split('static')
             return '/static' + new_path[1]
         except Exception as error:
-            print(error)
+            logger.error(error)
 
     @staticmethod
     def get_or_create_path(my_path) -> str:
@@ -50,9 +47,6 @@ class FileImage(WebRequester):
     @staticmethod
     def get_random_int() -> int:
         """Генерируем часть названия для картинки из даты и времени"""
-        # current_date = str(datetime.now().date()) + '-'
-        # current_time = str(datetime.now().time()).split('.')[0].replace(':', '-')
-        # date_time = current_date + current_time
         return int(time.time()) + random.randint(1, 100)
 
     def generate_new_image_name(self, name, image_url: str, webp_image) -> str:
@@ -65,33 +59,33 @@ class FileImage(WebRequester):
         new_name_image = f"{name}-{date_time}{type_img}"
         return new_name_image
 
-    def get_image(self, web_url_image, save_path, name, webp_image=True) -> str:
-        new_name = self.generate_new_image_name(name=name, image_url=web_url_image, webp_image=webp_image)
-        response_image = self.request_data(url=web_url_image, headers=self.get_user_agent())
-        new_save = self.save_file(name=new_name, image_path=save_path, request_data=response_image['data'], webp=webp_image)
-        return new_save
-
-    def fetch_all_images(self, urls: List[str]) -> List[Tuple[str, requests.Response]]:
+    def fetch_images(self, urls: List[str] | str) -> List[Tuple[str, requests.Response]] | Tuple[str, requests.Response] | None:
         """Скачиваем все изображения и возвращаем список кортежей (url, response)"""
-        responses = []
-        for url in urls:
-            try:
-                response = self.request_data(url=url, headers=self.get_user_agent())
-                responses.append((url, response['data']))
-            except Exception as e:
-                raise ConnectionError(f"[-] HTTP ошибка: Ошибка при загрузке {url}: {e}")
-        return responses
+        if isinstance(urls, str):
+            response = self.request_data(url=urls, headers=self.get_user_agent())
+            return urls, response['data']
+        elif isinstance(urls, list):
+            responses = []
+            for url in urls:
+                try:
+                    response = self.request_data(url=url, headers=self.get_user_agent())
+                    responses.append((url, response['data']))
+                except Exception as e:
+                    raise ConnectionError(f"[-] HTTP ошибка: Ошибка при загрузке {url}: {e}")
+            return responses
 
     def web_save_image(self, web_url_image: Union[str, List[str]], name: str, kinopoisk_id: int, year: int) -> Union[str, List[str]]:
-        """Сохраняем изображения только после полной загрузки всех"""
+        """Сохраняем изображения только после полной загрузки"""
         path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
 
         if isinstance(web_url_image, str):
-            return self.get_image(web_url_image=web_url_image, save_path=path, name=name)
+            url, response_data = self.fetch_images(web_url_image)
+            new_name = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
+            new_save = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
+            return new_save
 
         elif isinstance(web_url_image, list):
-            responses = self.fetch_all_images(web_url_image)
-
+            responses = self.fetch_images(web_url_image)
             new_image_save_paths = []
             i = 1
             for url, response_data in responses:
@@ -101,5 +95,9 @@ class FileImage(WebRequester):
                 i += 1
 
             return new_image_save_paths
-
         return []
+
+
+def read_line_file(actor_file):
+    with open(actor_file, 'r', encoding='utf-8') as f:
+        return [line.strip() for line in f if line.strip()]

@@ -3,7 +3,7 @@ import hashlib
 
 from settings import Settings
 from .base_parser import WebRequester
-from libs.services import logger
+from tools.loguru_logger import logger
 
 
 class WebRequesterKinopoisk(WebRequester):

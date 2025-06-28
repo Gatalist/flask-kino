@@ -6,9 +6,9 @@ from parser.kinopoisk import (
     WebRequesterKinopoiskSimilar
 )
 from parser.imdb import WebRequesterMovieScreenshotIMDB
-from libs.postgres_orm import PostgresDB
-from libs.services import get_popular_actor_from_file, logger
-from processing import FileImage
+from tools.postgres_orm import PostgresDB
+from tools.loguru_logger import logger
+from tools.file_manager import FileImage, read_line_file
 from settings import Settings
 
 
@@ -37,7 +37,7 @@ logger.info(message)
 # tag_popular_actor = db.get_id_by_name(table_name="tags", where_key_name='name', where_key_data='popular')
 # if not tag_popular_actor:
 #     print("create tag popular actor")
-#     get_actors = get_popular_actor_from_file('./actor/actors.txt')
+#     get_actors = read_line_file('./actor/actors.txt')
 #     actor = db.get_or_create_from_list(
 #         table_name='persons',
 #         select_key='id, name_ru',
@@ -80,7 +80,7 @@ else:
             break
 
 # min id = 298
-start_id = 298
+start_id = 440
 end_id = 140_000
 
 # sleep(1_000_000)

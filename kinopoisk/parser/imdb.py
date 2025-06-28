@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import re
 from settings import Settings
 from .base_parser import WebRequester
-from libs.services import logger
+from tools.loguru_logger import logger
 
 class WebRequesterMovieScreenshotIMDB(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""

@@ -424,7 +424,7 @@ class Screenshot(BaseModel):
     url = db.Column(db.String(256), index=True)
 
     def __repr__(self):
-        return f'{self.url}'
+        return f'{self.name}'
 
 
 class Similar(BaseModel):
