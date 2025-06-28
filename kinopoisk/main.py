@@ -1,11 +1,13 @@
 from time import sleep
 
 from parser.kinopoisk import (
-    WebRequesterKinopoiskMovie,
-    WebRequesterKinopoiskPeople,
-    WebRequesterKinopoiskSimilar
+    KinopoiskMovie,
+    KinopoiskPeople,
+    KinopoiskSimilar,
+    KinopoiskTopMovie,
+    KinopoiskVideoMovie
 )
-from parser.imdb import WebRequesterMovieScreenshotIMDB
+from parser.imdb import IMDBScreenshotMovie
 from tools.postgres_orm import PostgresDB
 from tools.loguru_logger import logger
 from tools.file_manager import FileImage, read_line_file
@@ -24,10 +26,13 @@ db = PostgresDB(
 
 image = FileImage(Settings.static_path)
 
-api_movie = WebRequesterKinopoiskMovie(list_api_key=keys, start_from_year=1965)
-api_people = WebRequesterKinopoiskPeople(keys)
-api_similar = WebRequesterKinopoiskSimilar(keys)
-web_screenshot = WebRequesterMovieScreenshotIMDB()
+api_movie = KinopoiskMovie(list_api_key=keys, start_from_year=1965)
+api_people = KinopoiskPeople(list_api_key=keys)
+api_similar = KinopoiskSimilar(list_api_key=keys)
+api_video = KinopoiskVideoMovie(list_api_key=keys)
+# api_top_movie = KinopoiskTopMovie(list_api_key=keys)
+
+web_screenshot = IMDBScreenshotMovie()
 
 # проверяем статус подключения к серверу
 server_status, message = api_movie.check_resource_status()
@@ -80,7 +85,7 @@ else:
             break
 
 # min id = 298
-start_id = 440
+start_id = 470
 end_id = 140_000
 
 # sleep(1_000_000)
@@ -150,6 +155,10 @@ if server_status == 200:
                 _similars = api_similar.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
                 logger.info(f"similars: {_similars}")
 
+                # get videos
+                _videos = api_video.request_video_movie(kinopoisk_id=_kinopoisk_id)
+                logger.info(f"videos: {_videos}")
+
                 similars = _similars.get('data', None)
                 similar_ids = db.get_or_create_similar(similars)
 
@@ -173,6 +182,10 @@ if server_status == 200:
                     kinopoisk_id=_kinopoisk_id,
                     year=_year,
                 )
+
+                videos = db.create_video(list_video=_videos)
+                print("created videos:", videos)
+                videos_ids = db.get_obj_ids(videos)
 
                 screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
@@ -442,6 +455,8 @@ if server_status == 200:
                 db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor_ids)
                 db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshots)
                 db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar_ids)
+                db.related_table(table_name='video_movie', movie_id=new_movie, list_data=videos_ids)
+
             elif movie['status_code'] == 402:
                 break
         else:

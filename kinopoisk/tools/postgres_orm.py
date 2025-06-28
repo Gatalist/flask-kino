@@ -318,6 +318,36 @@ class PostgresDB:
             return all_actors
         return []
 
+    def create_video(self, list_video: list) -> list:
+        if list_video:
+            scip_source = ["KINOPOISK_WIDGET", "UNKNOWN"]
+            videos = []
+            for video in list_video:
+                site = video.get('site')
+                if site in scip_source:
+                    continue
+                name = video.get('name')
+                url = video.get('url')
+
+                source = self.get_or_create(
+                    table_name='video_sources',
+                    select_key='id, name',
+                    where_key_name='name',
+                    where_key_data=site,
+                    insert_keys=('publish', 'sorting', 'name', 'created_on'),
+                    insert_values=(True, 100, site, self.get_current_datetime())
+                )
+
+                obj = self.insert_data(
+                    table_name='videos',
+                    keys_name=('publish', 'sorting', 'name', 'url', 'source_id', 'created_on'),
+                    values_data=(True, 100, name, str(url), source.get('id'), self.get_current_datetime())
+                )
+                videos.append(obj)
+
+            return videos
+        return []
+
     @staticmethod
     def fetch_one_dict(cursor, row):
         columns = [desc[0] for desc in cursor.description]

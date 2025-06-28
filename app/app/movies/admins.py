@@ -110,3 +110,12 @@ class SegmentView(ModelView):
     column_list = ['id', 'name', 'created_on']
     column_searchable_list = ('name',)
 
+
+class VideoView(ModelView):
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)
+
+
+class VideoSourceView(ModelView):
+    column_list = ['id', 'name', 'created_on']
+    column_searchable_list = ('name',)

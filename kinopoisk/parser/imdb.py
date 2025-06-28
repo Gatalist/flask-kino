@@ -4,7 +4,8 @@ from settings import Settings
 from .base_parser import WebRequester
 from tools.loguru_logger import logger
 
-class WebRequesterMovieScreenshotIMDB(WebRequester):
+
+class IMDBScreenshotMovie(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
 
     def __init__(self):

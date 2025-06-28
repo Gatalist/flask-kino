@@ -4,11 +4,11 @@ from app.movies.routes import (HomeView, MovieDetailView, MovieSearchView)
 
 from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingCritic, RatingAwait, RatingMPAA, Release, FilmLength,
                                Genre, AgeLimit, TypeVideo, Person, Screenshot, Similar, Country, ProductionStatus,
-                               Tag, Segment)
+                               Tag, Segment, Video, VideoSource)
 
 from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, RatingAwaitView, RatingMPAAView,
                      ReleaseView, FilmLengthView, GenreView, AgeLimitView, TypeVideoView, TagActorView, ProductionStatusView,
-                     PersonView, ScreenshotView, SimilarView, CountryView, SegmentView)
+                     PersonView, ScreenshotView, SimilarView, CountryView, SegmentView, VideoView, VideoSourceView)
 
 
 movie_blueprint = Blueprint('app_movies', __name__, template_folder='templates', static_folder='static')
@@ -28,6 +28,8 @@ admin.add_view(GenreView(Genre, db.session, name='Жанр', category="Ката�
 admin.add_view(CountryView(Country, db.session, name='Страна', category="Каталог"))
 admin.add_view(AgeLimitView(AgeLimit, db.session, name='Возрастное ограничение', category="Каталог"))
 admin.add_view(TypeVideoView(TypeVideo, db.session, name='Категория', category="Каталог"))
+admin.add_view(VideoView(Video, db.session, name='Видео', category="Каталог"))
+admin.add_view(VideoSourceView(VideoSource, db.session, name='Источник видео', category="Каталог"))
 admin.add_view(PersonView(Person, db.session, name='Люди', category="Каталог"))
 admin.add_view(ScreenshotView(Screenshot, db.session, name='Кадры с фильма', category="Каталог"))
 admin.add_view(SimilarView(Similar, db.session, name='Похожие фильмы', category="Каталог"))

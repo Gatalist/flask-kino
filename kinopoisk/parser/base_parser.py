@@ -1,4 +1,3 @@
-import random
 import requests
 from fake_useragent import UserAgent
 from settings import Settings

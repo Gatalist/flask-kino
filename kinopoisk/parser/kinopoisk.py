@@ -6,7 +6,7 @@ from .base_parser import WebRequester
 from tools.loguru_logger import logger
 
 
-class WebRequesterKinopoisk(WebRequester):
+class KinopoiskBase(WebRequester):
     """Получаем по API данные сервера Kinopoisk"""
 
     def __init__(self, list_api_key):
@@ -65,7 +65,7 @@ class WebRequesterKinopoisk(WebRequester):
         return request_data
 
 
-class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
+class KinopoiskMovie(KinopoiskBase):
     """Получаем данные о фильм по API с сервера Kinopoisk"""
 
     def __init__(self, list_api_key, start_from_year):
@@ -130,7 +130,7 @@ class WebRequesterKinopoiskMovie(WebRequesterKinopoisk):
         return dict_data
 
 
-class WebRequesterKinopoiskPeople(WebRequesterKinopoisk):
+class KinopoiskPeople(KinopoiskBase):
     """Получаем фильма по API Kinopoisk: режиссеров, актеров, сценаристов"""
 
     def __init__(self, list_api_key):
@@ -150,7 +150,6 @@ class WebRequesterKinopoiskPeople(WebRequesterKinopoisk):
         actor = []
 
         res_data = request["data"]
-        print("res_data", res_data)
         if res_data:
             for elem in res_data.json():
                 if elem.get('professionKey') == 'DIRECTOR' and elem.get('nameRu') != '':
@@ -175,7 +174,7 @@ class WebRequesterKinopoiskPeople(WebRequesterKinopoisk):
         return dict_data
 
 
-class WebRequesterKinopoiskSimilar(WebRequesterKinopoisk):
+class KinopoiskSimilar(KinopoiskBase):
     """Получаем похожие фильмы по API Kinopoisk"""
 
     def __init__(self, list_api_key):
@@ -211,7 +210,7 @@ class WebRequesterKinopoiskSimilar(WebRequesterKinopoisk):
         return dict_data
 
 
-class WebRequesterKinopoiskTopMovie(WebRequesterKinopoisk):
+class KinopoiskTopMovie(KinopoiskBase):
     """Получаем топ фильмов по API Kinopoisk"""
 
     def __init__(self, list_api_key):
@@ -235,3 +234,21 @@ class WebRequesterKinopoiskTopMovie(WebRequesterKinopoisk):
 
         last_response["data"] = top_movie_id
         return last_response
+
+
+class KinopoiskVideoMovie(KinopoiskBase):
+    """Получаем трейлеры,тизеры,видео для фильма по API Kinopoisk"""
+
+    def __init__(self, list_api_key):
+        super().__init__(list_api_key)
+        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/"
+
+    def request_video_movie(self, kinopoisk_id) -> list:
+        parse_url = f"{self.film_kinopoisk_api_url}{kinopoisk_id}/videos"
+        video_movie_data = self.request_data_from_api(parse_url, "VIDEO MOVIES parsing")
+
+        if video_movie_data.get("data"):
+            data = video_movie_data.get("data").json()
+            return data['items']
+
+        return []
