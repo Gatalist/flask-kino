@@ -85,7 +85,7 @@ else:
             break
 
 # min id = 298
-start_id = 470
+start_id = 298
 end_id = 140_000
 
 # sleep(1_000_000)
@@ -100,56 +100,60 @@ if server_status == 200:
             movie = api_movie.get_ready_api_data(kinopoisk_id=idd)
             if movie['status_code'] == 200 and movie['filter'] and movie['data']:
                 # получаем все данные для фильма
-                logger.info('\n----------  Получение данных для фильма ----------\n')
-                logger.info(f"movie:data: {movie['data']}")
+                movie_data = movie['data']
 
-                _kinopoisk_id = int(movie['data'].get('kinopoiskId'))
-                _kinopoisk_hd_id = movie['data'].get('kinopoiskHDId')
-                _imdb_id = movie['data'].get('imdbId', None)
-                _reviews_count = movie['data'].get('reviewsCount', None)
-                _rating_good_review = movie['data'].get('ratingGoodReview', None)
-                _rating_good_review_vote_count = movie['data'].get('ratingGoodReviewVoteCount', None)
-                _rating_kinopoisk_vote_count = movie['data'].get('ratingKinopoiskVoteCount', None)
-                _rating_imdb_vote_count = movie['data'].get('ratingKinopoiskVoteCount', None)
-                _rating_critics = movie['data'].get('ratingFilmCritics', None)
-                _rating_critics_vote_count = movie['data'].get('ratingFilmCriticsVoteCount', None)
-                _rating_await = movie['data'].get('ratingAwait', None)
-                _rating_await_count = movie['data'].get('ratingAwaitCount', None)
-                _editor_annotation = movie['data'].get('editorAnnotation', None)
-                _is_tickets_available = movie['data'].get('isTicketsAvailable', None)
-                _production_status = movie['data'].get('productionStatus', None)
-                _rating_mpaa = movie['data'].get('ratingMpaa', None)
-                _year = movie['data'].get('year', None)
-                _start_year = movie['data'].get('startYear', None)
-                _end_year = movie['data'].get('endYear', None)
-                _serial = movie['data'].get('serial', False)
-                _completed = movie['data'].get('completed', False)
-                _poster = movie['data'].get('posterUrl', None)
-                _rating_kinopoisk = movie['data'].get('ratingKinopoisk', None)
-                _rating_imdb = movie['data'].get('ratingImdb', None)
-                _film_length = movie['data'].get('filmLength', None)
-                _type_video = movie['data'].get('type', None)
-                _genres = movie['data'].get('genres', [])
-                _countries = movie['data'].get('countries', [])
-                _name_ru = movie['data'].get('nameRu', None)
-                _name_en = movie['data'].get('nameEn', None)
-                _name_original = movie['data'].get('nameOriginal', None)
-                _slogan = movie['data'].get('slogan', None)
-                _description = movie['data'].get('description', None)
-                _short_description = movie['data'].get('shortDescription')
-                _age_limit = db.get_digit_age_limit(movie['data'].get('ratingAgeLimits', None))
-                _last_syncs = db.converting_date_time(movie['data'].get('lastSync'))
-                _has_3d = movie['data'].get('has3D', False)
-                _has_imax = movie['data'].get('hasImax', False)
-                _short_film = movie['data'].get('shortFilm', False)
+                logger.info('\n----------  Получение данных для фильма ----------\n')
+                logger.info(f"movie:data: {movie_data}")
+
+                _kinopoisk_id = int(movie_data.get('kinopoiskId'))
+                _kinopoisk_hd_id = movie_data.get('kinopoiskHDId')
+                _imdb_id = movie_data.get('imdbId', None)
+                _reviews_count = movie_data.get('reviewsCount', None)
+                _rating_good_review = movie_data.get('ratingGoodReview', None)
+                _rating_good_review_vote_count = movie_data.get('ratingGoodReviewVoteCount', None)
+                _rating_kinopoisk_vote_count = movie_data.get('ratingKinopoiskVoteCount', None)
+                _rating_imdb_vote_count = movie_data.get('ratingKinopoiskVoteCount', None)
+                _rating_critics = movie_data.get('ratingFilmCritics', None)
+                _rating_critics_vote_count = movie_data.get('ratingFilmCriticsVoteCount', None)
+                _rating_await = movie_data.get('ratingAwait', None)
+                _rating_await_count = movie_data.get('ratingAwaitCount', None)
+                _editor_annotation = movie_data.get('editorAnnotation', None)
+                _is_tickets_available = movie_data.get('isTicketsAvailable', None)
+                _production_status = movie_data.get('productionStatus', None)
+                _rating_mpaa = movie_data.get('ratingMpaa', None)
+                _year = movie_data.get('year', None)
+                _start_year = movie_data.get('startYear', None)
+                _end_year = movie_data.get('endYear', None)
+                _serial = movie_data.get('serial', False)
+                _completed = movie_data.get('completed', False)
+                _poster = movie_data.get('posterUrl', None)
+                _rating_kinopoisk = movie_data.get('ratingKinopoisk', None)
+                _rating_imdb = movie_data.get('ratingImdb', None)
+                _film_length = movie_data.get('filmLength', None)
+                _type_video = movie_data.get('type', None)
+                _genres = movie_data.get('genres', [])
+                _countries = movie_data.get('countries', [])
+                _name_ru = movie_data.get('nameRu', None)
+                _name_en = movie_data.get('nameEn', None)
+                _name_original = movie_data.get('nameOriginal', None)
+                _slogan = movie_data.get('slogan', None)
+                _description = movie_data.get('description', None)
+                _short_description = movie_data.get('shortDescription')
+                _age_limit = db.get_digit_age_limit(movie_data.get('ratingAgeLimits', None))
+                _last_syncs = db.converting_date_time(movie_data.get('lastSync'))
+                _has_3d = movie_data.get('has3D', False)
+                _has_imax = movie_data.get('hasImax', False)
+                _short_film = movie_data.get('shortFilm', False)
 
                 # get actors, creators, writers
                 people = api_people.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
-                logger.info(f"people: {people}")
-
                 _directors = people['data'].get('director', [])
                 _writers = people['data'].get('writer', [])
                 _actors = people['data'].get('actor', [])
+
+                logger.info(f"director: {_directors}")
+                logger.info(f"writer: {_writers}")
+                logger.info(f"actor: {_actors}")
 
                 # get similars movie
                 _similars = api_similar.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
@@ -170,8 +174,7 @@ if server_status == 200:
                 poster_url = image.web_save_image(
                     web_url_image=_poster,
                     name='postr',
-                    kinopoisk_id=_kinopoisk_id,
-                    year=_year,
+                    path_names=['movie', str(_year), str(_kinopoisk_id)]
                 )
                 logger.info(f"poster_url: {poster_url}")
 
@@ -179,8 +182,7 @@ if server_status == 200:
                 screenshots_save = image.web_save_image(
                     web_url_image=screenshots['data'],
                     name='image',
-                    kinopoisk_id=_kinopoisk_id,
-                    year=_year,
+                    path_names=['movie', str(_year), str(_kinopoisk_id)]
                 )
 
                 videos = db.create_video(list_video=_videos)
@@ -306,59 +308,16 @@ if server_status == 200:
                 )
                 country_ids = db.get_obj_ids(country)
 
-                director = db.get_or_create_from_list(
-                    table_name='persons',
-                    select_key='id, name_ru',
-                    where_key_name='name_ru',
-                    key_names=('publish', 'director', 'sorting', 'name_ru', 'created_on'),
-                    values_data=(True, True, 100, _directors, db.get_current_datetime),
-                )
-                director_ids = db.get_obj_ids(director)
-                for _idd in director_ids:
-                    db.update_data(
-                        table_name='persons',
-                        keys_name=('director',),
-                        values_data=(True,),
-                        where_key='id',
-                        where_value=_idd
-                    )
+                director_ids = db.create_person(list_obj=_directors, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                print("director_ids:", director_ids)
 
-                creator = db.get_or_create_from_list(
-                    table_name='persons',
-                    select_key='id, name_ru',
-                    where_key_name='name_ru',
-                    key_names=('publish', 'creator', 'sorting', 'name_ru', 'created_on'),
-                    values_data=(True, True, 100, _writers, db.get_current_datetime),
-                )
-                creator_ids = db.get_obj_ids(creator)
-                for _idd in creator_ids:
-                    db.update_data(
-                        table_name='persons',
-                        keys_name=('creator',),
-                        values_data=(True,),
-                        where_key='id',
-                        where_value=_idd
-                    )
+                creator_ids = db.create_person(list_obj=_writers, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                print("creator_ids:", creator_ids)
 
                 # Popular actor add db
-                popular_actor = db.popular_actor(_actors, count_actor_save=20)
-
-                actor = db.get_or_create_from_list(
-                    table_name='persons',
-                    select_key='id, name_ru',
-                    where_key_name='name_ru',
-                    key_names=('publish', 'actor', 'sorting', 'name_ru', 'created_on'),
-                    values_data=(True, True, 100, popular_actor, db.get_current_datetime),
-                )
-                actor_ids = db.get_obj_ids(actor)
-                for _idd in actor_ids:
-                    db.update_data(
-                        table_name='persons',
-                        keys_name=('actor',),
-                        values_data=(True,),
-                        where_key='id',
-                        where_value=_idd
-                    )
+                # popular_actor = db.popular_actor(_actors, count_actor_save=20)
+                actor_ids = db.create_person(list_obj=_actors, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                print("actor_ids:", actor_ids)
 
                 production_status_id = db.get_or_create(
                     table_name='production_status',

@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup as bs
 import re
-from settings import Settings
 from .base_parser import WebRequester
 from tools.loguru_logger import logger
 
@@ -9,7 +8,8 @@ class IMDBScreenshotMovie(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
 
     def __init__(self):
-        self.film_imdb_url = f"{Settings.base_imdb_url}title/"
+        self.base_imdb_url = "https://m.imdb.com/"
+        self.film_imdb_url = f"{self.base_imdb_url}title/"
         self.pattern = re.compile(r'https://.*?\.jpg')
 
     def request_screenshot(self, imdb_id) -> dict:

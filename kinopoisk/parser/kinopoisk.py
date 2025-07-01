@@ -10,6 +10,7 @@ class KinopoiskBase(WebRequester):
     """Получаем по API данные сервера Kinopoisk"""
 
     def __init__(self, list_api_key):
+        self.base_kinopoisk_api_url = "https://kinopoiskapiunofficial.tech"
         self.list_api_key = list_api_key
         self.iter_key = iter(self.list_api_key)
         self.current_key = None
@@ -70,7 +71,7 @@ class KinopoiskMovie(KinopoiskBase):
 
     def __init__(self, list_api_key, start_from_year):
         super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/"
+        self.film_kinopoisk_api_url = f"{self.base_kinopoisk_api_url}/api/v2.2/films/"
         self.start_from_year = start_from_year
         self.placeholder_hashes = [
             'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
@@ -146,22 +147,33 @@ class KinopoiskPeople(KinopoiskBase):
     def checking_data(request) -> dict:
         """Проверяем наличие данных"""
         director = []
-        writer = []
+        creator = []
         actor = []
 
         res_data = request["data"]
         if res_data:
             for elem in res_data.json():
-                if elem.get('professionKey') == 'DIRECTOR' and elem.get('nameRu') != '':
-                    director.append(elem.get('nameRu'))
+                _person = {
+                    "person_id": elem.get('staffId', None),
+                    "name_ru": elem.get('nameRu', None),
+                    "name_en": elem.get('nameEn', None),
+                    "description": elem.get('description', None),
+                    "image_url": elem.get('posterUrl', None),
+                }
+                if elem.get('nameRu') != '' or elem.get('nameEn') != '':
+                    if elem.get('professionKey') == 'DIRECTOR':
+                        _person['director'] = True
+                        director.append(_person)
 
-                if elem.get('professionKey') == 'ACTOR' and elem.get('nameRu') != '':
-                    actor.append(elem.get('nameRu'))
+                    if elem.get('professionKey') == 'ACTOR':
+                        _person['actor'] = True
+                        actor.append(_person)
 
-                if elem.get('professionKey') == 'WRITER' and elem.get('nameRu') != '':
-                    writer.append(elem.get('nameRu'))
+                    if elem.get('professionKey') == 'WRITER':
+                        _person['creator'] = True
+                        creator.append(_person)
 
-            request["data"] = {'director': director, 'writer': writer, 'actor': actor}
+            request["data"] = {'director': director, 'creator': creator, 'actor': actor}
             return request
 
         request["data"] = {}

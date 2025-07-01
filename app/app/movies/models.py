@@ -129,7 +129,7 @@ class Movie(BaseModel):
     rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating_critics.id', ondelete='SET NULL'))
     rating_critics = db.relationship('RatingCritic', backref=db.backref('movie'), passive_deletes=True)
 
-    rating_critics_vote_count = db.Column(db.Integer, nullable=True)
+    rating_critics_vote_count = db.Column(db.Integer, nullable=True, default=None)
 
     rating_await_id = db.Column(db.Integer, db.ForeignKey('rating_await.id', ondelete='SET NULL'))
     rating_await = db.relationship('RatingAwait', backref=db.backref('movie'), passive_deletes=True)
@@ -396,9 +396,9 @@ class Person(BaseModel):
     __tablename__ = 'persons'
 
     person_id = db.Column(db.Integer, nullable=True)
-    name_ru = db.Column(db.String(64), index=True, unique=True)
-    name_en = db.Column(db.String(64), index=True, unique=True)
-    name_uk = db.Column(db.String(64), index=True, unique=True)
+    name_ru = db.Column(db.String(64), index=True, nullable=True)
+    name_en = db.Column(db.String(64), index=True, nullable=True)
+    name_uk = db.Column(db.String(64), index=True, nullable=True)
 
     actor = db.Column(db.Boolean, default=False)
     director = db.Column(db.Boolean, default=False)

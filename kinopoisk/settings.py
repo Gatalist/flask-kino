@@ -17,7 +17,7 @@ class Settings:
     base_imdb_url = "https://m.imdb.com/"
 
     # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
-    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static', 'movie')
+    static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static')
 
     status_codes = {
         # status 2хх

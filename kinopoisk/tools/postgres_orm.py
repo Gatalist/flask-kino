@@ -354,6 +354,71 @@ class PostgresDB:
         return dict(zip(columns, row))
 
     @with_cursor
+    def create_person(self, conn, cursor, list_obj: list[dict], instance: object, path_names: list) -> list:
+        _persons = []
+        if list_obj:
+            for obj in list_obj:
+                query = f"SELECT id, person_id FROM persons WHERE person_id = %s;"
+                cursor.execute(query, (obj.get('person_id'),))
+                row = cursor.fetchone()
+
+                if row:  # update person
+                    obj["image_url"] = None
+                    person = self.fetch_one_dict(cursor, row)
+                    obj.update({
+                        "updated_on": self.get_current_datetime(),
+                    })
+                    print("obj:", obj)
+                    cleaned_data = {k: v for k, v in obj.items() if v not in (None, '', [], {}, ())}
+                    print("cleaned_data:", cleaned_data)
+                    _keys = ', '.join(cleaned_data.keys())  # tuple to str
+                    _data = tuple(cleaned_data.values())
+
+                    set_clause = ', '.join([f"{key} = %s" for key in cleaned_data.keys()])
+                    query = f"UPDATE persons SET {set_clause} WHERE id = %s RETURNING *;"
+                    print("---- Q U E R Y :", query)
+                    values = _data + (person.get('id'),)
+                    cursor.execute(query, values)
+                    row = cursor.fetchone()
+                    conn.commit()
+
+                    res = self.fetch_one_dict(cursor, row)
+                    person_id = res.get('id')
+                    logger.info(f"--- Person update [+] = {res} ---")
+                    _persons.append(person_id)
+                else:  # create person
+                    person_photo = obj.get("image_url", None)
+                    if person_photo:
+                        img = instance.web_save_image(
+                            web_url_image=person_photo,
+                            name='photo',
+                            path_names=path_names
+                        )
+                        obj["image_url"] = img
+                    else:
+                        obj["image_url"] = None
+                    obj.update({
+                        "publish": True,
+                        "sorting": 100,
+                        "created_on": self.get_current_datetime(),
+                    })
+                    _keys = ', '.join(obj.keys())  # tuple to str
+                    _values = ', '.join(['%s' for _ in obj.keys()])  # create %s
+                    _data = tuple(obj.values())
+                    query = f"INSERT INTO persons ({_keys}) VALUES ({_values}) RETURNING id;"
+                    print("---- Q U E R Y :", query)
+                    cursor.execute(query, _data)
+                    row = cursor.fetchone()
+                    conn.commit()
+
+                    res = self.fetch_one_dict(cursor, row)
+                    person_id = res.get('id')
+                    logger.info(f"--- Person INSERT [+] = {res} ---")
+                    _persons.append(person_id)
+
+        return _persons
+
+    @with_cursor
     def create_movie(self, conn, cursor, *args, **kwargs) -> int:
         _keys = ', '.join(kwargs.keys())  # tuple to str
         _values = ', '.join(['%s' for _ in kwargs.keys()])  # create %s
