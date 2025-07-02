@@ -8,6 +8,7 @@ class IMDBScreenshotMovie(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
 
     def __init__(self):
+        super().__init__()
         self.base_imdb_url = "https://m.imdb.com/"
         self.film_imdb_url = f"{self.base_imdb_url}title/"
         self.pattern = re.compile(r'https://.*?\.jpg')

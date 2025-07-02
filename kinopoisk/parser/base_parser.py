@@ -11,13 +11,12 @@ class WebRequester:
     @staticmethod
     def new_base_response_dict():
         """Создаем новый словарь с которого будем формировать ответ сервера"""
-        base_response = {
+        return {
             "status_code": 0,
             "status": False,
             "status_message": '',
             "data": None,
         }
-        return base_response
 
     @staticmethod
     def get_user_agent() -> dict:

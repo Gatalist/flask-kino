@@ -44,11 +44,6 @@ class FileImage(WebRequester):
         new_path = os.path.join(self.static_path, *path_names)
         return self.get_or_create_path(new_path)
 
-    # def generate_movie_path(self, kinopoisk_id, year) -> str:
-    #     """Генерируем путь к папке фильма"""
-    #     new_path = os.path.join(self.static_path, 'images', str(year), str(kinopoisk_id))
-    #     return self.get_or_create_path(new_path)
-
     @staticmethod
     def get_random_int() -> int:
         """Генерируем часть названия для картинки из даты и времени"""
@@ -82,7 +77,6 @@ class FileImage(WebRequester):
     def web_save_image(self, web_url_image: Union[str, List[str]], name: str, path_names: list) -> Union[str, List[str]]:
         """Сохраняем изображения только после полной загрузки"""
         path = self.generate_movie_path(path_names=path_names)
-        # path = self.generate_movie_path(kinopoisk_id=kinopoisk_id, year=year)
 
         if isinstance(web_url_image, str):
             url, response_data = self.fetch_images(web_url_image)
