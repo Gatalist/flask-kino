@@ -4,7 +4,7 @@ from .base_parser import WebRequester
 from tools.loguru_logger import logger
 
 
-class IMDBScreenshotMovie(WebRequester):
+class IMDBMovie(WebRequester):
     """Получаем кадры с фильма на сайте IMDB"""
 
     def __init__(self):
@@ -13,7 +13,7 @@ class IMDBScreenshotMovie(WebRequester):
         self.film_imdb_url = f"{self.base_imdb_url}title/"
         self.pattern = re.compile(r'https://.*?\.jpg')
 
-    def request_screenshot(self, imdb_id) -> dict:
+    def get_movie_photos(self, imdb_id) -> dict:
         logger.info(f'\n----------- IMDB parsing ----------')
         header = self.get_user_agent()
 

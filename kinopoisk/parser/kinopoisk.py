@@ -6,15 +6,23 @@ from .base_parser import WebRequester
 from tools.loguru_logger import logger
 
 
-class KinopoiskBase(WebRequester):
+class KinopoiskApi(WebRequester):
     """Получаем по API данные сервера Kinopoisk"""
 
     def __init__(self, list_api_key):
-        self.base_kinopoisk_api_url = "https://kinopoiskapiunofficial.tech"
+        self.base_api_url = "https://kinopoiskapiunofficial.tech"
+        self.film_api_url = f"{self.base_api_url}/api/v2.2/films/"
+        self.staff_api_url = f"{self.base_api_url}/api/v1/staff?filmId="
+        self.similar_api_url = f"{self.base_api_url}/api/v2.2/films/"
+        self.video_api_url = f"{self.base_api_url}/api/v2.2/films/"
+        self.top_movie_api_url = f"{self.base_api_url}/api/v2.2/films/collections?type="
         self.list_api_key = list_api_key
         self.iter_key = iter(self.list_api_key)
         self.current_key = None
         self.get_next_api_key()
+        self.placeholder_hashes = [
+            'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
+        ]  # SHA256 хеш изображения-заглушки
 
     def get_next_api_key(self):
         """Получаем следующий api ключ из списка"""
@@ -42,7 +50,6 @@ class KinopoiskBase(WebRequester):
         return header
 
     def request_data_from_api(self, parse_url, message) -> dict:
-        """Получаем по API kinopoisk"""
         logger.info(f'----------- {message} ----------\napi_key: {self.current_key}\n')
 
         status = self.check_current_key()
@@ -65,20 +72,9 @@ class KinopoiskBase(WebRequester):
             return self.request_data_from_api(parse_url, message)
         return request_data
 
-
-class KinopoiskMovie(KinopoiskBase):
-    """Получаем данные о фильм по API с сервера Kinopoisk"""
-
-    def __init__(self, list_api_key, start_from_year):
-        super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{self.base_kinopoisk_api_url}/api/v2.2/films/"
-        self.start_from_year = start_from_year
-        self.placeholder_hashes = [
-            'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
-        ] # SHA256 хеш изображения-заглушки
-
     def is_placeholder_image(self, image_url) -> bool:
-        # Проверка по хешу
+        """Проверка изображение по хешу, если это заглушка то возвращаем True"""
+
         response = requests.get(image_url, timeout=10)
         if response.status_code == 200:
             image_hash = hashlib.sha256(response.content).hexdigest()
@@ -87,70 +83,50 @@ class KinopoiskMovie(KinopoiskBase):
                 return True
         return False
 
-    def request_data_api(self, kinopoisk_id: int) -> dict:
-        """Получаем данные по API kinopoisk"""
-        parse_url = f"{self.film_kinopoisk_api_url}{kinopoisk_id}"
-        return self.request_data_from_api(parse_url, "Movie parsing")
+    def get_data_movie(self, kinopoisk_id: int, start_from_year: int) -> dict:
+        """
+        Получаем данные о фильме, фильтруем по названию, изображению и год выпуска.
+        Год выпуска должен быть больше или равно 'start_from_year'.
+        """
 
-    def checking_data(self, request_data) -> dict:
-        """Проверяем наличие названия, постера и год выпуска.
-         Год выпуска должен быть больше или равно 'from_year'.
-         Если фильм соответствует всем параметрам, добавляем в ответ 'filter' """
-
-        request_data['filter'] = False
+        parse_url = f"{self.film_api_url}{kinopoisk_id}"
+        request_data = self.request_data_from_api(parse_url, "Movie parsing")
+        request_data["filter"] = False
 
         if request_data.get("data"):
-            movie_data = request_data["data"].json()
+            movie_data = request_data.get("data").json()
 
-            name = movie_data.get('nameRu', '')
-            poster = movie_data.get('posterUrl', '')
+            name_ru = movie_data.get('nameRu', None)
+            name_orig = movie_data.get('nameOriginal', None)
+            poster = movie_data.get('posterUrl', None)
             year = movie_data.get('year', 0)
-            request_data['filter'] = True if year and year >= self.start_from_year else False
 
-            logger.info(f'nameRu | {"True  |" if name else "False |"} {name}')
-            logger.info(f'year   | {"True  |" if request_data["filter"] else "False |"} {year}')
-            logger.info(f'poster | {"True  |" if poster else "False |"} {poster}')
-            
-            if name and poster and request_data["filter"]:
+            request_data['filter'] = True if year and year >= start_from_year else False
+
+            logger.info(f'nameRu       | {"True  |" if name_ru else "False |"} {name_ru}')
+            logger.info(f'nameOriginal | {"True  |" if name_orig else "False |"} {name_orig}')
+            logger.info(f'year         | {"True  |" if request_data["filter"] else "False |"} {year}')
+            logger.info(f'poster       | {"True  |" if poster else "False |"} {poster}')
+
+            if name_ru and poster and request_data["filter"] and (name_ru or name_orig):
                 if self.is_placeholder_image(poster):
                     request_data['filter'] = False
                     logger.info("poster (plug)\n")
-                    request_data["data"] = {}
-                    return request_data
+                else:
+                    request_data["data"] = movie_data
 
-                request_data["data"] = request_data["data"].json()
-                return request_data
-
-        request_data["data"] = {}
         return request_data
 
-    def get_ready_api_data(self, kinopoisk_id: int) -> dict:
-        """Получаем готовые данные со статусами и фильтрами"""
-        response = self.request_data_api(kinopoisk_id)
-        dict_data = self.checking_data(response)
-        return dict_data
+    def get_data_people(self, kinopoisk_id: int) -> dict:
+        """Получаем режиссеров, актеров, сценаристов"""
+        parse_url = f"{self.staff_api_url}{kinopoisk_id}"
+        request_data = self.request_data_from_api(parse_url, "People parsing")
 
-
-class KinopoiskPeople(KinopoiskBase):
-    """Получаем фильма по API Kinopoisk: режиссеров, актеров, сценаристов"""
-
-    def __init__(self, list_api_key):
-        super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v1/staff?filmId="
-
-    def request_data_api(self, kinopoisk_id: int) -> dict:
-        """Получаем данные по API kinopoisk"""
-        parse_url = f"{self.film_kinopoisk_api_url}{kinopoisk_id}"
-        return self.request_data_from_api(parse_url, "People parsing")
-
-    @staticmethod
-    def checking_data(request) -> dict:
-        """Проверяем наличие данных"""
         director = []
         creator = []
         actor = []
 
-        res_data = request["data"]
+        res_data = request_data.get("data")
         if res_data:
             for elem in res_data.json():
                 _person = {
@@ -173,35 +149,17 @@ class KinopoiskPeople(KinopoiskBase):
                         _person['creator'] = True
                         creator.append(_person)
 
-            request["data"] = {'director': director, 'creator': creator, 'actor': actor}
-            return request
+            request_data["data"] = {'director': director, 'creator': creator, 'actor': actor}
 
-        request["data"] = {}
-        return request
+        return request_data
 
-    def get_ready_api_data(self, kinopoisk_id: int) -> dict:
-        """Получаем готовые данные"""
-        response = self.request_data_api(kinopoisk_id)
-        dict_data = self.checking_data(response)
-        return dict_data
+    def get_data_similar(self, kinopoisk_id: int) -> dict:
+        """Получаем похожие фильмы"""
+        parse_url = f"{self.similar_api_url}{kinopoisk_id}/similars"
+        response = self.request_data_from_api(parse_url, "Similar parsing")
 
-
-class KinopoiskSimilar(KinopoiskBase):
-    """Получаем похожие фильмы по API Kinopoisk"""
-
-    def __init__(self, list_api_key):
-        super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/"
-
-    def request_data_api(self, kinopoisk_id: int) -> dict:
-        """Получаем данные по API kinopoisk"""
-        parse_url = f"{self.film_kinopoisk_api_url}{kinopoisk_id}/similars"
-        return self.request_data_from_api(parse_url, "Similar parsing")
-
-    @staticmethod
-    def checking_data(request) -> dict:
-        if request.get("data"):
-            similar_data = request["data"].json()
+        if response.get("data"):
+            similar_data = response["data"].json()
             similar = {}
 
             for elem in similar_data.get('items', {}):
@@ -209,32 +167,35 @@ class KinopoiskSimilar(KinopoiskBase):
                 if film_id and film_id != '':
                     similar[film_id] = elem.get('nameRu')
 
-            request["data"] = similar
-            return request
+            response["data"] = similar
 
-        request["data"] = {}
-        return request
+        return response
 
-    def get_ready_api_data(self, kinopoisk_id: int) -> dict:
-        """Получаем готовые данные"""
-        response = self.request_data_api(kinopoisk_id)
-        dict_data = self.checking_data(response)
-        return dict_data
+    def get_data_video(self, kinopoisk_id) -> list:
+        """Получаем трейлеры, тизеры, видео для фильма"""
+        parse_url = f"{self.video_api_url}{kinopoisk_id}/videos"
+        video_movie_data = self.request_data_from_api(parse_url, "VIDEO MOVIES parsing")
 
+        scip_source = ["KINOPOISK_WIDGET", "UNKNOWN"]
+        videos = []
+        if video_movie_data.get("data"):
+            data = video_movie_data.get("data").json()
+            for elem in data['items']:
+                site = elem.get('site')
+                if site in scip_source:
+                    continue
+                videos.append(elem)
 
-class KinopoiskTopMovie(KinopoiskBase):
-    """Получаем топ фильмов по API Kinopoisk"""
+        return videos
 
-    def __init__(self, list_api_key):
-        super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/collections?type="
+    def get_data_top_movie(self, type_top, pages) -> dict:
+        """Получаем топ фильмов"""
 
-    def request_top_movie(self, type_top, pages) -> dict:
         top_movie_id = []
         last_response = None
 
         for page in range(1, pages):
-            parse_url = f"{self.film_kinopoisk_api_url}{type_top}&page={page}"
+            parse_url = f"{self.top_movie_api_url}{type_top}&page={page}"
             top_movie_data = self.request_data_from_api(parse_url, "TOP MOVIES parsing")
 
             if top_movie_data.get("data"):
@@ -246,21 +207,3 @@ class KinopoiskTopMovie(KinopoiskBase):
 
         last_response["data"] = top_movie_id
         return last_response
-
-
-class KinopoiskVideoMovie(KinopoiskBase):
-    """Получаем трейлеры,тизеры,видео для фильма по API Kinopoisk"""
-
-    def __init__(self, list_api_key):
-        super().__init__(list_api_key)
-        self.film_kinopoisk_api_url = f"{Settings.base_kinopoisk_api_url}/api/v2.2/films/"
-
-    def request_video_movie(self, kinopoisk_id) -> list:
-        parse_url = f"{self.film_kinopoisk_api_url}{kinopoisk_id}/videos"
-        video_movie_data = self.request_data_from_api(parse_url, "VIDEO MOVIES parsing")
-
-        if video_movie_data.get("data"):
-            data = video_movie_data.get("data").json()
-            return data['items']
-
-        return []

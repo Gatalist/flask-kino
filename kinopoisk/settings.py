@@ -13,9 +13,6 @@ class Settings:
     user = os.getenv('DB_USER')
     password = os.getenv('DB_PASS')
 
-    base_kinopoisk_api_url = "https://kinopoiskapiunofficial.tech"
-    base_imdb_url = "https://m.imdb.com/"
-
     # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
     static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static')
 

@@ -320,12 +320,9 @@ class PostgresDB:
 
     def create_video(self, list_video: list) -> list:
         if list_video:
-            scip_source = ["KINOPOISK_WIDGET", "UNKNOWN"]
             videos = []
             for video in list_video:
                 site = video.get('site')
-                if site in scip_source:
-                    continue
                 name = video.get('name')
                 url = video.get('url')
 
@@ -368,15 +365,15 @@ class PostgresDB:
                     obj.update({
                         "updated_on": self.get_current_datetime(),
                     })
-                    print("obj:", obj)
+                    # print("obj:", obj)
                     cleaned_data = {k: v for k, v in obj.items() if v not in (None, '', [], {}, ())}
-                    print("cleaned_data:", cleaned_data)
+                    # print("cleaned_data:", cleaned_data)
                     _keys = ', '.join(cleaned_data.keys())  # tuple to str
                     _data = tuple(cleaned_data.values())
 
                     set_clause = ', '.join([f"{key} = %s" for key in cleaned_data.keys()])
                     query = f"UPDATE persons SET {set_clause} WHERE id = %s RETURNING *;"
-                    print("---- Q U E R Y :", query)
+                    # print("---- Q U E R Y :", query)
                     values = _data + (person.get('id'),)
                     cursor.execute(query, values)
                     row = cursor.fetchone()
@@ -406,7 +403,7 @@ class PostgresDB:
                     _values = ', '.join(['%s' for _ in obj.keys()])  # create %s
                     _data = tuple(obj.values())
                     query = f"INSERT INTO persons ({_keys}) VALUES ({_values}) RETURNING id;"
-                    print("---- Q U E R Y :", query)
+                    # print("---- Q U E R Y :", query)
                     cursor.execute(query, _data)
                     row = cursor.fetchone()
                     conn.commit()
@@ -423,7 +420,7 @@ class PostgresDB:
         _keys = ', '.join(kwargs.keys())  # tuple to str
         _values = ', '.join(['%s' for _ in kwargs.keys()])  # create %s
         _data = tuple(kwargs.values())
-        print(f"{_keys=}, {_values=}, {_data=}")
+        # print(f"{_keys=}, {_values=}, {_data=}")
         query = f"INSERT INTO movies ({_keys}) VALUES ({_values}) RETURNING id;"
         cursor.execute(query, _data)
         row = cursor.fetchone()

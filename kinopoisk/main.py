@@ -1,13 +1,7 @@
 from time import sleep
 
-from parser.kinopoisk import (
-    KinopoiskMovie,
-    KinopoiskPeople,
-    KinopoiskSimilar,
-    KinopoiskTopMovie,
-    KinopoiskVideoMovie
-)
-from parser.imdb import IMDBScreenshotMovie
+from parser.kinopoisk import KinopoiskApi
+from parser.imdb import IMDBMovie
 from tools.postgres_orm import PostgresDB
 from tools.loguru_logger import logger
 from tools.file_manager import FileImage, read_line_file
@@ -26,16 +20,11 @@ db = PostgresDB(
 
 image = FileImage(Settings.static_path)
 
-api_movie = KinopoiskMovie(list_api_key=keys, start_from_year=1965)
-api_people = KinopoiskPeople(list_api_key=keys)
-api_similar = KinopoiskSimilar(list_api_key=keys)
-api_video = KinopoiskVideoMovie(list_api_key=keys)
-# api_top_movie = KinopoiskTopMovie(list_api_key=keys)
-
-web_screenshot = IMDBScreenshotMovie()
+api_kinopoisk = KinopoiskApi(list_api_key=keys)
+imdb_movie = IMDBMovie()
 
 # проверяем статус подключения к серверу
-server_status, message = api_movie.check_resource_status()
+server_status, message = api_kinopoisk.check_resource_status(api_kinopoisk.base_api_url)
 logger.info(message)
 
 # добавляем популярных актеров и делаем из них сегмент
@@ -85,7 +74,7 @@ else:
             break
 
 # min id = 298
-start_id = 298
+start_id = 304
 end_id = 140_000
 
 # sleep(1_000_000)
@@ -97,7 +86,7 @@ if server_status == 200:
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
             # получаем фильм
-            movie = api_movie.get_ready_api_data(kinopoisk_id=idd)
+            movie = api_kinopoisk.get_data_movie(kinopoisk_id=idd, start_from_year=1965)
             if movie['status_code'] == 200 and movie['filter'] and movie['data']:
                 # получаем все данные для фильма
                 movie_data = movie['data']
@@ -146,7 +135,7 @@ if server_status == 200:
                 _short_film = movie_data.get('shortFilm', False)
 
                 # get actors, creators, writers
-                people = api_people.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
+                people = api_kinopoisk.get_data_people(kinopoisk_id=_kinopoisk_id)
                 _directors = people['data'].get('director', [])
                 _writers = people['data'].get('writer', [])
                 _actors = people['data'].get('actor', [])
@@ -156,18 +145,18 @@ if server_status == 200:
                 logger.info(f"actor: {_actors}")
 
                 # get similars movie
-                _similars = api_similar.get_ready_api_data(kinopoisk_id=_kinopoisk_id)
+                _similars = api_kinopoisk.get_data_similar(kinopoisk_id=_kinopoisk_id)
                 logger.info(f"similars: {_similars}")
 
                 # get videos
-                _videos = api_video.request_video_movie(kinopoisk_id=_kinopoisk_id)
+                _videos = api_kinopoisk.get_data_video(kinopoisk_id=_kinopoisk_id)
                 logger.info(f"videos: {_videos}")
 
                 similars = _similars.get('data', None)
                 similar_ids = db.get_or_create_similar(similars)
 
                 # get movie screen
-                screenshots = web_screenshot.request_screenshot(_imdb_id)
+                screenshots = imdb_movie.get_movie_photos(_imdb_id)
                 logger.info(f"screenshots: {screenshots}")
 
                 # save head movie mage and return lint

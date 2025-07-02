@@ -35,10 +35,10 @@ class WebRequester:
         response["status_message"] = Settings.status_codes.get(code, "Error not info")
         return response
 
-    def check_resource_status(self):
+    def check_resource_status(self, source: str):
         """Проверка доступа к ресурсу kinopoisk api"""
         try:
-            requests.head(Settings.base_kinopoisk_api_url, timeout=self.timeout)
+            requests.head(source, timeout=self.timeout)
             return 200, "[+] The server is ready to connect [ 200 ]"
         except requests.ConnectionError:
             return 400, "[-] Connection error to server [ 400 ]\nUse the VPN..."
