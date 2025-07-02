@@ -174,7 +174,7 @@ if server_status == 200:
                 poster_url = image.web_save_image(
                     web_url_image=_poster,
                     name='postr',
-                    path_names=['movie', str(_year), str(_kinopoisk_id)]
+                    path_names=['movie', 'images', str(_year), str(_kinopoisk_id)]
                 )
                 logger.info(f"poster_url: {poster_url}")
 
@@ -182,7 +182,7 @@ if server_status == 200:
                 screenshots_save = image.web_save_image(
                     web_url_image=screenshots['data'],
                     name='image',
-                    path_names=['movie', str(_year), str(_kinopoisk_id)]
+                    path_names=['movie', 'images', str(_year), str(_kinopoisk_id)]
                 )
 
                 videos = db.create_video(list_video=_videos)
@@ -308,15 +308,15 @@ if server_status == 200:
                 )
                 country_ids = db.get_obj_ids(country)
 
-                director_ids = db.create_person(list_obj=_directors, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                director_ids = db.create_person(list_obj=_directors, instance=image, path_names=['movie', 'people', str(_year), str(_kinopoisk_id)])
                 print("director_ids:", director_ids)
 
-                creator_ids = db.create_person(list_obj=_writers, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                creator_ids = db.create_person(list_obj=_writers, instance=image, path_names=['movie', 'people', str(_year), str(_kinopoisk_id)])
                 print("creator_ids:", creator_ids)
 
                 # Popular actor add db
                 # popular_actor = db.popular_actor(_actors, count_actor_save=20)
-                actor_ids = db.create_person(list_obj=_actors, instance=image, path_names=['person', str(_year), str(_kinopoisk_id)])
+                actor_ids = db.create_person(list_obj=_actors, instance=image, path_names=['movie', 'people', str(_year), str(_kinopoisk_id)])
                 print("actor_ids:", actor_ids)
 
                 production_status_id = db.get_or_create(
