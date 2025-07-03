@@ -258,6 +258,15 @@ body {
         0 0 20px 6px rgba(0, 204, 0, 0.3);
 }
 
+.vertical-centre-block {
+    height: calc(100vh - var(--footer-height) - var(--footer-height) - var(--header-height) - 4rem);
+}
+
+.login-form {
+    max-width: 400px;
+    width: 100%;
+}
+
 /*.dark-theme {*/
 /*    --background: var(--background-dark);*/
 /*    --card-bg: var(--card-bg-dark);*/

@@ -49,10 +49,10 @@ else:
             break
 
 # min id = 298
-start_id = 360
-end_id = 140_000
+start_id = 298
+end_id = 1_000
 
-sleep(1_000_000)
+# sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api

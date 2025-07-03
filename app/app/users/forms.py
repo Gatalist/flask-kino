@@ -8,26 +8,25 @@ import re
 class RegisterForm(FlaskForm):
     username = StringField(
         label='Username',
-       validators=[InputRequired(), Length(min=3, max=50)],
-       render_kw={"placeholder": "Username"}
+        validators=[InputRequired(), Length(min=3, max=50)],
+        render_kw = {"placeholder": "Username", "id": "floatingInputValue", "type": "text"}
     )
 
     email = StringField(
         label='Email',
         validators=[DataRequired(), Email()],
-        render_kw={"placeholder": "Email"}
+        render_kw={"placeholder": "Email", "id": "floatingInput", "type": "email"}
     )
 
     password = PasswordField(
         label='Password',
-        # validators=[InputRequired(), Length(min=8, max=20)],
-        render_kw={"placeholder": "Password"}
+        render_kw={"placeholder": "Password", "id": "floatingPassword", "type": "password"}
     )
 
     password2 = PasswordField(
         label='Repeat Password',
         validators=[DataRequired(), EqualTo('password')],
-        render_kw={"placeholder": "Repeat Password"}
+        render_kw = {"placeholder": "Repeat Password", "id": "floatingPassword", "type": "password"}
     )
 
     def validate_username(self, username):
@@ -44,31 +43,31 @@ class RegisterForm(FlaskForm):
         pwd = password.data
         errors = []
 
-        if len(pwd) < 8 or len(pwd) > 20:
-            errors.append('Field must be between 8 and 20 characters long')
-
-        # Проверка наличия буквы
-        if not re.findall(r"\w", pwd):
-            errors.append('Password must contain at least one letter')
-
-        # проверка наличия большой буквы
-        if not re.findall(r'[A-Z]', pwd):
-            errors.append('Password must contain at big letter')
-
-        if not re.findall(r'[a-z]', pwd):
-            errors.append('Password must contain at little letter')
-
-        # Проверка наличия цифры
-        if not re.findall(r"[^\d]", pwd):
-            errors.append('Password must contain at least one digit')
-
-        # Проверка наличия специальных символов
-        if not re.findall(r"[^\w\d]", pwd):
-            errors.append('Password must contain at least one special character')
-
-        # Проверка отсутствия пробелов
-        if re.search(r'\s', pwd):
-            errors.append('Password must not contain spaces')
+        # if len(pwd) < 8 or len(pwd) > 20:
+        #     errors.append('Field must be between 8 and 20 characters long')
+        #
+        # # Проверка наличия буквы
+        # if not re.findall(r"\w", pwd):
+        #     errors.append('Password must contain at least one letter')
+        #
+        # # проверка наличия большой буквы
+        # if not re.findall(r'[A-Z]', pwd):
+        #     errors.append('Password must contain at big letter')
+        #
+        # if not re.findall(r'[a-z]', pwd):
+        #     errors.append('Password must contain at little letter')
+        #
+        # # Проверка наличия цифры
+        # if not re.findall(r"[^\d]", pwd):
+        #     errors.append('Password must contain at least one digit')
+        #
+        # # Проверка наличия специальных символов
+        # if not re.findall(r"[^\w\d]", pwd):
+        #     errors.append('Password must contain at least one special character')
+        #
+        # # Проверка отсутствия пробелов
+        # if re.search(r'\s', pwd):
+        #     errors.append('Password must not contain spaces')
 
         if errors:
             print(errors)
@@ -77,14 +76,13 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField(
-        label='Email',
         validators=[DataRequired()],
-        render_kw={"placeholder": "Email"}
+        render_kw={"placeholder": "Email", "id": "floatingInput", "type": "email"}
     )
 
     password = PasswordField(
         validators=[InputRequired()],
-        render_kw={"placeholder": "Password"}
+        render_kw={"placeholder": "Password", "id": "floatingPassword", "type": "password"}
     )
 
     def validate_email(self, email):
