@@ -1,5 +1,7 @@
 #!/bin/bash
 
+chmod -R 777 ./static
+
 # Check if FLASK_PORT is set, otherwise show an error and exit
 : "${FLASK_PORT:?error missing FLASK_PORT env}"
 

@@ -100,7 +100,6 @@ services:
         environment:
             - FLASK_PORT=5000
         volumes:
-#            - ./app/app/static:/home/app/static
             - ./volume_media:/app/static/media
 #        network_mode: "service:wireguard-vpn"
         networks:
