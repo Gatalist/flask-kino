@@ -62,7 +62,7 @@ class IMDBMovie(WebRequester):
                         height = int(a.get('height'))
                         width = int(a.get('width'))
                         _coef = height / width
-                        if 0.5 < _coef < 1.5:
+                        if 0.4 < _coef < 1.2:
                             screenshot.append(img.get('src'))
 
             _images = list(set(screenshot))
