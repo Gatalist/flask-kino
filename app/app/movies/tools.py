@@ -2,8 +2,16 @@ from app import db, settings
 import shutil
 import os
 from .models import (
-    segment_movie, actor_movie, country_movie, creator_movie,
-    director_movie, genre_movie, screenshot_movie, similar_movie, user_movie
+    actor_movie,
+    country_movie,
+    creator_movie,
+    director_movie,
+    genre_movie,
+    screenshot_movie,
+    similar_movie,
+    user_movie,
+    segment_movie,
+    video_movie
 )
 
 
@@ -14,7 +22,7 @@ class MovieTools:
         print(f'Deleting object: {movie}')
 
         media = settings.Config.MEDIA_PATH
-        media_path = os.path.join(media, 'images', str(movie.year), str(movie.kinopoisk_id))
+        media_path = os.path.join(media, 'movie', str(movie.year), str(movie.kinopoisk_id))
         print(media_path)
 
         try:
@@ -35,6 +43,7 @@ class MovieTools:
         self.link_many_to_many(movie, similar_movie)
         self.link_many_to_many(movie, user_movie)
         self.link_many_to_many(movie, segment_movie)
+        self.link_many_to_many(movie, video_movie)
 
     @staticmethod
     def link_many_to_many(movie, link_table):

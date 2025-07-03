@@ -13,7 +13,6 @@ class Settings:
     user = os.getenv('DB_USER')
     password = os.getenv('DB_PASS')
 
-    # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
     static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static')
 
     placeholder_hashes = [

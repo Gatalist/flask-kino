@@ -33,7 +33,7 @@ services:
             - flask-postgres
         volumes:
             - ./app:/home/app
-            - ./volume_movie:/home/app/app/static/movie
+            - ./volume_media:/home/app/app/static/media
             - ./postgres/backup:/home/backup
         networks:
             - flask_app_network
@@ -47,7 +47,7 @@ services:
         command: "/bin/bash nginx-autoreload.sh"
         volumes:
             - ./app/app/static:/app/staticfiles
-            - ./volume_movie:/app/staticfiles/movie
+            - ./volume_media:/app/staticfiles/media
             - ./nginx/nginx-autoreload.sh:/nginx-autoreload.sh
             # - ./nginx/conf_dev/:/etc/nginx/conf.d/:ro
             # - ./nginx/conf_prod/:/etc/nginx/conf.d/:ro
@@ -101,7 +101,7 @@ services:
             - FLASK_PORT=5000
         volumes:
 #            - ./app/app/static:/home/app/static
-            - ./volume_movie:/app/static/movie
+            - ./volume_media:/app/static/media
 #        network_mode: "service:wireguard-vpn"
         networks:
             - flask_app_network
