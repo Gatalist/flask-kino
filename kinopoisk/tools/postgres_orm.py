@@ -288,36 +288,6 @@ class PostgresDB:
 
             return lict_obj_id
 
-    @with_cursor
-    def popular_actor(self, conn, cursor, list_actor: list, count_actor_save: None | int = None) -> list:
-        """ проверяем актеров, сортируем по популярности и возвращаем список """
-        if list_actor:
-            # получаем всех актеров с тегом - 'popular' c db
-            query = """SELECT persons.name_ru FROM persons 
-                   JOIN tag_person ON persons.id = tag_person.person_id 
-                   JOIN tags ON tag_person.tag_id = tags.id 
-                   WHERE tags.name = 'popular';"""
-            cursor.execute(query)
-            popular_actor = cursor.fetchall()
-            popular_actor = [item[0] for item in popular_actor]
-
-            # выбираем с входящего списка популярных актеров и ставим на первое место
-            new_list_actor = []
-            for actor in list_actor:
-                if actor in popular_actor:
-                    new_list_actor.append(actor)
-
-            # получаем простых актеров с входящего списка
-            other_list_actor = [item for item in list_actor if item not in new_list_actor]
-            # до заполняем список актеров если нужно
-            all_actors = new_list_actor + other_list_actor
-            if count_actor_save:
-                len_list = len(all_actors)
-                if len_list > count_actor_save:
-                    return all_actors[:count_actor_save]
-            return all_actors
-        return []
-
     def create_video(self, list_video: list) -> list:
         if list_video:
             videos = []

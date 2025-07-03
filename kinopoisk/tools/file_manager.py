@@ -1,3 +1,4 @@
+import hashlib
 import time
 from pathlib import Path
 import os
@@ -8,11 +9,13 @@ from io import BytesIO
 from PIL import Image
 from tools.loguru_logger import logger
 from parser.base_parser import WebRequester
+from settings import Settings
 
 
 class FileImage(WebRequester):
     def __init__(self, static_path):
         self.static_path = static_path
+        self.placeholder_hashes = Settings.placeholder_hashes
 
     @staticmethod
     def save_file(name, image_path, request_data, webp=False) -> str | None:
@@ -74,12 +77,15 @@ class FileImage(WebRequester):
                     raise ConnectionError(f"[-] HTTP ошибка: Ошибка при загрузке {url}: {e}")
             return responses
 
-    def web_save_image(self, web_url_image: Union[str, List[str]], name: str, path_names: list) -> Union[str, List[str]]:
+    def web_save_image(self, web_url_image: Union[str, List[str]], name: str, path_names: list) -> Union[str, List[str], None]:
         """Сохраняем изображения только после полной загрузки"""
         path = self.generate_movie_path(path_names=path_names)
 
         if isinstance(web_url_image, str):
             url, response_data = self.fetch_images(web_url_image)
+            image_hash = hashlib.sha256(response_data.content).hexdigest()
+            if image_hash in self.placeholder_hashes:
+                return None
             new_name = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
             new_save = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
             return new_save
@@ -89,10 +95,14 @@ class FileImage(WebRequester):
             new_image_save_paths = []
             i = 1
             for url, response_data in responses:
-                new_name = self.generate_new_image_name(name=f"{i}_{name}", image_url=url, webp_image=True)
-                new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
-                new_image_save_paths.append(new_path)
-                i += 1
+                if response_data:
+                    image_hash = hashlib.sha256(response_data.content).hexdigest()
+                    if image_hash in self.placeholder_hashes:
+                        continue
+                    new_name = self.generate_new_image_name(name=f"{i}_{name}", image_url=url, webp_image=True)
+                    new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
+                    new_image_save_paths.append(new_path)
+                    i += 1
 
             return new_image_save_paths
         return []

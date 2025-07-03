@@ -4,6 +4,7 @@ import hashlib
 from settings import Settings
 from .base_parser import WebRequester
 from tools.loguru_logger import logger
+from tools.file_manager import read_line_file
 
 
 class KinopoiskApi(WebRequester):
@@ -20,9 +21,7 @@ class KinopoiskApi(WebRequester):
         self.iter_key = iter(self.list_api_key)
         self.current_key = None
         self.get_next_api_key()
-        self.placeholder_hashes = [
-            'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
-        ]  # SHA256 хеш изображения-заглушки
+        self.placeholder_hashes = Settings.placeholder_hashes
 
     def get_next_api_key(self):
         """Получаем следующий api ключ из списка"""
@@ -75,13 +74,33 @@ class KinopoiskApi(WebRequester):
     def is_placeholder_image(self, image_url) -> bool:
         """Проверка изображение по хешу, если это заглушка то возвращаем True"""
 
-        response = requests.get(image_url, timeout=10)
-        if response.status_code == 200:
-            image_hash = hashlib.sha256(response.content).hexdigest()
+        # response = requests.get(image_url, timeout=10)
+        response = self.request_data(image_url, self.new_headers())
+        if response.get('data') == 200:
+            image_hash = hashlib.sha256(response.get('data').content).hexdigest()
             logger.info(f"poster_hash: {image_hash}\n")
             if image_hash in self.placeholder_hashes:
                 return True
         return False
+
+    @staticmethod
+    def sorting_actors(list_actors: list[dict], count_actor_save) -> list:
+        popular_actors = read_line_file('./actor/actors.txt')
+
+        if list_actors:
+            popular = []
+            other = []
+            for actor in list_actors:
+                if actor.get('nameRu') in popular_actors:
+                    popular.append(actor)
+                else:
+                    other.append(actor)
+            popular = popular + other
+            len_list = len(popular)
+            if len_list > count_actor_save:
+                return popular[:count_actor_save]
+            return popular
+        return list_actors
 
     def get_data_movie(self, kinopoisk_id: int, start_from_year: int) -> dict:
         """
@@ -114,10 +133,9 @@ class KinopoiskApi(WebRequester):
                     logger.info("poster (plug)\n")
                 else:
                     request_data["data"] = movie_data
-
         return request_data
 
-    def get_data_people(self, kinopoisk_id: int) -> dict:
+    def get_data_people(self, kinopoisk_id: int, count_actor_save) -> dict:
         """Получаем режиссеров, актеров, сценаристов"""
         parse_url = f"{self.staff_api_url}{kinopoisk_id}"
         request_data = self.request_data_from_api(parse_url, "People parsing")
@@ -149,8 +167,8 @@ class KinopoiskApi(WebRequester):
                         _person['creator'] = True
                         creator.append(_person)
 
-            request_data["data"] = {'director': director, 'creator': creator, 'actor': actor}
-
+            slice_actor = self.sorting_actors(list_actors=actor, count_actor_save=count_actor_save)
+            request_data["data"] = {'director': director, 'creator': creator, 'actor': slice_actor}
         return request_data
 
     def get_data_similar(self, kinopoisk_id: int) -> dict:

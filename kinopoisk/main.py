@@ -27,31 +27,6 @@ imdb_movie = IMDBMovie()
 server_status, message = api_kinopoisk.check_resource_status(api_kinopoisk.base_api_url)
 logger.info(message)
 
-# добавляем популярных актеров и делаем из них сегмент
-# tag_popular_actor = db.get_id_by_name(table_name="tags", where_key_name='name', where_key_data='popular')
-# if not tag_popular_actor:
-#     print("create tag popular actor")
-#     get_actors = read_line_file('./actor/actors.txt')
-#     actor = db.get_or_create_from_list(
-#         table_name='persons',
-#         select_key='id, name_ru',
-#         where_key_name='name_ru',
-#         key_names=('publish', 'actor', 'sorting', 'name_ru', 'created_on'),
-#         values_data=(True, True, 100, get_actors, db.get_current_datetime)
-#     )
-#
-#     tag_popular_actor = db.get_or_create(
-#         table_name='tags',
-#         select_key='id, name',
-#         where_key_name='name',
-#         where_key_data="popular",
-#         insert_keys=('publish', 'sorting', 'name', 'created_on'),
-#         insert_values=(True, 100, "popular", db.get_current_datetime())
-#     )
-#
-#     #  сохраняем данные в связанные таблицы many-to-many
-#     db.related_table(table_name='tag_person', movie_id=tag_popular_actor, list_data=actor)
-
 # получаем пользователя
 def get_user(name):
     return db.select_data(
@@ -74,7 +49,7 @@ else:
             break
 
 # min id = 298
-start_id = 304
+start_id = 340
 end_id = 140_000
 
 # sleep(1_000_000)
@@ -135,7 +110,7 @@ if server_status == 200:
                 _short_film = movie_data.get('shortFilm', False)
 
                 # get actors, creators, writers
-                people = api_kinopoisk.get_data_people(kinopoisk_id=_kinopoisk_id)
+                people = api_kinopoisk.get_data_people(kinopoisk_id=_kinopoisk_id, count_actor_save=15)
                 _directors = people['data'].get('director', [])
                 _writers = people['data'].get('writer', [])
                 _actors = people['data'].get('actor', [])

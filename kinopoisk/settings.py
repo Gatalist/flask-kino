@@ -16,6 +16,10 @@ class Settings:
     # static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'app', 'static', 'movie')
     static_path = os.path.join(os.path.split(os.getcwd())[0], 'app', 'static')
 
+    placeholder_hashes = [
+        'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
+    ]  # SHA256 хеш изображения-заглушки
+
     status_codes = {
         # status 2хх
         200: "OK: Запрос успешно выполнен",
