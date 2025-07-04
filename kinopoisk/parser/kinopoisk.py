@@ -194,7 +194,7 @@ class KinopoiskApi(WebRequester):
         parse_url = f"{self.video_api_url}{kinopoisk_id}/videos"
         video_movie_data = self.request_data_from_api(parse_url, "VIDEO MOVIES parsing")
 
-        scip_source = ["KINOPOISK_WIDGET", "UNKNOWN"]
+        scip_source = ["KINOPOISK_WIDGET", "UNKNOWN", "YANDEX_DISK"]
         videos = []
         if video_movie_data.get("data"):
             data = video_movie_data.get("data").json()
