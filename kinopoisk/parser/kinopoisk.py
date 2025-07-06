@@ -120,7 +120,7 @@ class KinopoiskApi(WebRequester):
             poster = movie_data.get('posterUrl', None)
             year = movie_data.get('year', 0)
 
-            request_data['filter'] = True if year and year >= start_from_year else False
+            request_data['filter'] = True if year >= start_from_year else False
 
             logger.info(f'nameRu       | {"True  |" if name_ru else "False |"} {name_ru}')
             logger.info(f'nameOriginal | {"True  |" if name_orig else "False |"} {name_orig}')
@@ -131,8 +131,13 @@ class KinopoiskApi(WebRequester):
                 if self.is_placeholder_image(poster):
                     request_data['filter'] = False
                     logger.info("poster (plug)\n")
-                else:
-                    request_data["data"] = movie_data
+                    request_data["data"] = {}
+                    return request_data
+
+                request_data["data"] = movie_data
+                return request_data
+
+        request_data["data"] = {}
         return request_data
 
     def get_data_people(self, kinopoisk_id: int, count_actor_save) -> dict:
