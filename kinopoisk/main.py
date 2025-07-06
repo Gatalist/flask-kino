@@ -49,8 +49,8 @@ else:
             break
 
 # min id = 298
-start_id = 1_050
-end_id = 3_000
+start_id = 298
+end_id = 2_000
 
 # sleep(1_000_000)
 
