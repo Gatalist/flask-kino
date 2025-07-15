@@ -114,11 +114,11 @@ class KinopoiskApi(WebRequester):
 
         if request_data.get("data"):
             movie_data = request_data.get("data").json()
-
+            print("movie_data: ", movie_data)
             name_ru = movie_data.get('nameRu', None)
             name_orig = movie_data.get('nameOriginal', None)
             poster = movie_data.get('posterUrl', None)
-            year = movie_data.get('year', 0)
+            year = movie_data.get('year') if movie_data.get('year') and type(movie_data.get('year')) == int else 0
 
             request_data['filter'] = True if year >= start_from_year else False
 
