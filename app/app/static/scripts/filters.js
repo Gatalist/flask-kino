@@ -1,5 +1,3 @@
-import {createModal} from "./utils.js";
-
 const formFiltersID = "form_args";
 const formFilterYearsID = "#select-years";
 const formFilterGenresID = "#select-genres";
@@ -8,7 +6,6 @@ const formFilterDirectorsID = "#select-directors";
 const formFilterSortingID = "#select-sorting";
 const formClearFilterID = "#clear-filter";
 const formApplyFilterID = "#apply-filter";
-const navbarSearchID = "#navbar-search";
 
 const formFilters = document.getElementById(formFiltersID);
 const formFilterYears = formFilters.querySelector(formFilterYearsID);
@@ -18,7 +15,6 @@ const formFilterDirectors = formFilters.querySelector(formFilterDirectorsID);
 const formFilterSorting = formFilters.querySelector(formFilterSortingID);
 const formClearFilter = formFilters.querySelector(formClearFilterID);
 const formApplyFilter = formFilters.querySelector(formApplyFilterID);
-const navbarSearch = document.querySelector(navbarSearchID);
 
 const dataYears = parseData(formFilterYears.dataset.filteryears);
 const dataGenres = parseData(formFilterGenres.dataset.filtergenres);
@@ -170,12 +166,4 @@ btnFilterVisible.addEventListener('click', function () {
         filterVisible.classList.remove('filters-hidden');
         btnFilterVisible.innerHTML = `<i class="bi bi-dash-circle fs-4"></i>`;
     }
-});
-
-navbarSearch.addEventListener('click', async function () {
-    console.log("click")
-    const result = await createModal({
-        modalId: 'modalId-1',
-        callback: async (confirmed) => confirmed
-    });
 });

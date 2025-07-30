@@ -241,5 +241,6 @@
 {% endblock content %}
 
 {% block other_scripts_body %}
-   <script src="{{ url_for('static', filename='scripts/detail_movie.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/player.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='scripts/search.js') }}"></script>
 {% endblock other_scripts_body %}
