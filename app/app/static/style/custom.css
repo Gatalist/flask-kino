@@ -47,11 +47,16 @@ body {
     margin-bottom: var(--footer-height);
 }
 
-.card {
+.card-background {
     background-color: var(--card-bg);
     color: var(--text-color);
     text-decoration: none;
     border-color: var(--border-color);
+}
+
+.screenshot-background {
+    background-color: #000000;
+    height: 150px;
 }
 
 .card-poster {
@@ -265,6 +270,14 @@ body {
 .login-form {
     max-width: 400px;
     width: 100%;
+}
+
+.card-rating {
+    margin-top: 25px;
+    margin-left: -35px;
+    font-size: 14px;
+    color: var(--accent-color);
+    background-color: var(--card-bg-dark)
 }
 
 /*.dark-theme {*/

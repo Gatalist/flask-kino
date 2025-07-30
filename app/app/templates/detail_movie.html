@@ -6,10 +6,10 @@
 
 {% block content %}
     <div class="container">
-        <div class="row g-0 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+        <div class="row g-2 rounded p-2 mt-5 flex-md-row mb-4 shadow-sm h-md-250 position-relative card-background">
             <div class="col-xs-12 col-ms-6 col-md-4 col-lg-4 col-xxl-4">
                 <figure class="figure">
-                    <img src="{{ movie.poster_url }}" class="figure-img img-fluid rounded" alt="{{movie.name_ru}}">
+                    <img src="{{ movie.poster_url }}" class="figure-img img-fluid rounded mt-4" alt="{{movie.name_ru}}">
                 </figure>
             </div>
             <div class="col-xs-12 col-ms-6 col-md-8 col-lg-8 col-xxl-8 p-4 d-flex flex-column position-static">
@@ -47,99 +47,114 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
-                        <div class="row justify-content-between mt-2">
-                            <div class="col">
-                                {% if movie.rating_kinopoisk %}
-                                    <img src="{{ url_for('static', filename='images/kp.svg') }}" alt="rating kinopoisk">
-                                    {{ movie.rating_kinopoisk }}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </div>
-                            <div class="col">
-                                {% if movie.rating_imdb %}
-                                    <img src="{{ url_for('static', filename='images/imdb.svg') }}" alt="rating imdb">
-                                    {{movie.rating_imdb}}
-                                {% else %}
-                                    0
-                                {% endif %}
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <p class="card-text mb-auto p-2">
-                        <i class="bi bi-calendar3"></i>
-                        {% if movie.year %}
-                            {{movie.year}}
+                        {% if movie.rating_kinopoisk %}
+                            <img class="me-2" src="{{ url_for('static', filename='images/kp.svg') }}" alt="rating kinopoisk"> {{ movie.rating_kinopoisk }} / {{ movie.rating_kinopoisk_vote_count_format }}
                         {% else %}
-                            Не указано
+                            0
                         {% endif %}
                     </p>
                     <p class="card-text mb-auto p-2">
-                        <i class="bi bi-clock-history"></i>
-                        {% if movie.film_length %}
-                            {{movie.film_length}} мин
+                        {% if movie.rating_imdb %}
+                            <img class="me-2" src="{{ url_for('static', filename='images/imdb.svg') }}" alt="rating imdb"> {{movie.rating_imdb}} / {{ movie.rating_imdb_vote_count_format }}
                         {% else %}
-                            Не указано
+                            0
                         {% endif %}
                     </p>
+
+                    {% if movie.year %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-calendar3 fs-5 me-2"></i> {{movie.year}}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.film_length %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-clock-history fs-5 me-2"></i> {{movie.film_length}} мин
+                        </p>
+                    {% endif %}
+
+                    {% if movie.age_limits %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-people-fill fs-5 me-2"></i> {{movie.age_limits}}+
+                        </p>
+                    {% endif %}
+
+                    {% if movie.mod_genres %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-x-diamond fs-5 me-2"></i>
+                            {% for genre in movie.mod_genres %}
+                                {{genre}}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.mod_countries %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-flag fs-5 me-2"></i>
+                            {% for country in movie.mod_countries %}
+                                {{country}}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.mod_creators %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-person fs-5 me-2"></i> Сценарист:
+                            {% for man in movie.mod_creators %}
+                                {{man}}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.mod_directors %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-person fs-5 me-2"></i> Директор:
+                            {% for man in movie.mod_directors %}
+                                {{man}}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    {% if movie.mod_actors %}
+                        <p class="card-text mb-auto p-2">
+                            <i class="bi bi-person fs-5 me-2"></i> Актеры:
+                            {% for man in movie.mod_actors %}
+                                {{man}}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+
+                    <br>
                     <p class="card-text mb-auto p-2">
-                        <i class="bi bi-people-fill"></i>
-                        {% if movie.age_limits %}
-                            {{movie.age_limits}}+
-                        {% else %}
-                            Не указано
-                        {% endif %}
+                        <i class="bi bi-arrow-repeat fs-5 me-2"></i> {{movie.last_syncs_format}}
                     </p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-x-diamond"></i>
-                        {% for genre in movie.mod_genres %}
-                            {{genre}}
-                        {% endfor %}
-                    </p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-flag"></i>
-                        {% for country in movie.mod_countries %}
-                            {{country}}
-                        {% endfor %}
-                    </p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-arrow-repeat"></i> {{movie.last_syncs_format}}</p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-person"></i> Сценарист:
-                        {% for man in movie.mod_creators %}
-                            {{man}}
-                        {% endfor %}
-                    </p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-person"></i> Директор:
-                        {% for man in movie.mod_directors %}
-                            {{man}}
-                        {% endfor %}
-                    </p>
-                    <p class="card-text mb-auto p-2">
-                        <i class="bi bi-person"></i> Актеры:
-                        {% for man in movie.mod_actors %}
-                            {{man}}
-                        {% endfor %}
-                    </p>
+
                 </div>
             </div>
         </div>
-        <div class="row g-0 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative card-background">
             <p class="card-text mb-auto p-2">{{movie.description}}</p>
         </div>
-        <div class="row g-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6">
+        <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6 card-background">
             {% for screen in movie.screen_img %}
                 <div class="col">
-                    <div class="card h-100 card-shadow">
-                        <img src="{{ screen.url }}" class="card-img-top" alt="screen.name">
+{#                    <div class="card h-100 card-shadow card-background">#}
+{#                        <img src="{{ screen.url }}" class="card-img-top" alt="screen.name">#}
+{#                    </div>#}
+                    <div class="card h-100 card-shadow screenshot-background">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 140px;">
+                            <img src="{{ screen.url }}" class="img-fluid rounded" style="max-height: 100%; object-fit: contain;" alt="{{ screen.name }}">
+                        </div>
                     </div>
+
                 </div>
             {% endfor %}
         </div>
-        <div class="row g-0 rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4">
+        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4 card-background">
             <div class="justify-content-center">
                 <div class="col-md-8" id="player-tabs">
                     <!-- Nav tabs -->
@@ -176,18 +191,45 @@
                 </div>
             </div>
         </div>
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6">
+        <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6">
             {% for mov_similar in movie.get_similar_movie %}
                 {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
                     <div class="col">
-                        <div class="card h-100 card-shadow">
+                        <div class="card h-100 card-shadow card-background">
                             <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
                                 <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
                             </a>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill card-rating">
+                            {% if movie.rating_imdb %}
+                                <i class="bi bi-star-fill icon-color"></i> {{ mov_similar.rating_imdb }}
+                            {% else %}
+                                <i class="bi bi-star icon-color"></i>  -
+                            {% endif %}
+                            </span>
                             <div class="card-body">
                                 <a class="card-link-custom" href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
                                     <h6 class="card-title">{{ mov_similar.name_ru }}</h6>
                                 </a>
+                                <div class="card-text">
+                                    <i class="bi bi-calendar3 icon-color"></i>
+                                    {% if movie.year %}
+                                        {{movie.year}}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-start">
+                                    <small class="text-muted">
+                                        <i class="bi bi-film icon-color"></i>
+                                        {% if movie.mod_genres %}
+                                            {% for genre in movie.mod_genres %}
+                                                <a class="card-link-genre" href="#">{{genre}}</a>
+                                            {% endfor %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>

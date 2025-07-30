@@ -295,6 +295,27 @@ class Movie(BaseModel):
         print('movie', filtered_movies)
         return filtered_movies
 
+    @staticmethod
+    def split_count_reviews(count_reviews: float | int):
+        stringify = str(count_reviews)
+        result = ''
+        counter = 0
+        if len(stringify) > 3:
+            for char in stringify[::-1]:
+                if counter % 3 == 0:
+                    result += ' '
+                result += char
+                counter += 1
+            return result[::-1]
+        return stringify
+
+    @property
+    def rating_imdb_vote_count_format(self):
+        return self.split_count_reviews(self.rating_imdb_vote_count)
+
+    @property
+    def rating_kinopoisk_vote_count_format(self):
+        return self.split_count_reviews(self.rating_kinopoisk_vote_count)
 
 class ProductionStatus(BaseModel):
     __tablename__ = 'production_status'
