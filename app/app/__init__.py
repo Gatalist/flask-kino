@@ -25,7 +25,7 @@ def create_app(config_class):
 
     init_bp(new_app)
 
-    # from flask_cors import CORS
+    from flask_cors import CORS
 
     @new_app.shell_context_processor
     def make_shell_context():

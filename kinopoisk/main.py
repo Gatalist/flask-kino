@@ -76,7 +76,7 @@ if server_status == 200:
                 _rating_good_review = movie_data.get('ratingGoodReview', None)
                 _rating_good_review_vote_count = movie_data.get('ratingGoodReviewVoteCount', None)
                 _rating_kinopoisk_vote_count = movie_data.get('ratingKinopoiskVoteCount', None)
-                _rating_imdb_vote_count = movie_data.get('ratingKinopoiskVoteCount', None)
+                _rating_imdb_vote_count = movie_data.get('ratingImdbVoteCount', None)
                 _rating_critics = movie_data.get('ratingFilmCritics', None)
                 _rating_critics_vote_count = movie_data.get('ratingFilmCriticsVoteCount', None)
                 _rating_await = movie_data.get('ratingAwait', None)
