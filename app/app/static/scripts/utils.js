@@ -100,6 +100,21 @@ export function createModal({modalId, callback = () => {}}) {
     if (typeof callback === 'function') {
         callback();
     }
+
+    modalElement.addEventListener('hide.bs.modal', () => {
+        // Принудительно снимаем фокус
+        setTimeout(() => {
+            if (modalElement.contains(document.activeElement)) {
+                document.activeElement.blur();
+                document.body.focus(); // Только после blur
+            }
+        }, 10); // Небольшая задержка помогает предотвратить предупреждение
+    });
+
+    // После закрытия — удаляем DOM
+    modalElement.addEventListener('hidden.bs.modal', () => {
+        modalElement.remove();
+    });
 }
 
 
