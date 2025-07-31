@@ -52,15 +52,19 @@ class FileImage(WebRequester):
         """Генерируем часть названия для картинки из даты и времени"""
         return int(time.time()) + random.randint(1, 100)
 
-    def generate_new_image_name(self, name, image_url: str, webp_image) -> str:
+    def generate_new_image_name(self, name, image_url: str, webp_image) -> tuple[str, bool]:
         """Генерируем полное название картинки"""
+        convert = True
         date_time = self.get_random_int()
         if webp_image:
             type_img = ".webp"
         else:
             type_img = '.' + image_url.split('.')[-1]
+
+        if image_url.split('.')[-1] == 'webp':
+            convert = False
         new_name_image = f"{name}-{date_time}{type_img}"
-        return new_name_image
+        return new_name_image, convert
 
     def fetch_images(self, urls: List[str] | str) -> List[Tuple[str, requests.Response]] | Tuple[str, requests.Response] | None:
         """Скачиваем все изображения и возвращаем список кортежей (url, response)"""
@@ -86,8 +90,8 @@ class FileImage(WebRequester):
             image_hash = hashlib.sha256(response_data.content).hexdigest()
             if image_hash in self.placeholder_hashes:
                 return None
-            new_name = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
-            new_save = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
+            new_name, convert_webp = self.generate_new_image_name(name=name, image_url=url, webp_image=True)
+            new_save = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=convert_webp)
             return new_save
 
         elif isinstance(web_url_image, list):
@@ -99,8 +103,8 @@ class FileImage(WebRequester):
                     image_hash = hashlib.sha256(response_data.content).hexdigest()
                     if image_hash in self.placeholder_hashes:
                         continue
-                    new_name = self.generate_new_image_name(name=f"{i}_{name}", image_url=url, webp_image=True)
-                    new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=True)
+                    new_name, convert_webp = self.generate_new_image_name(name=f"{i}_{name}", image_url=url, webp_image=True)
+                    new_path = self.save_file(name=new_name, image_path=path, request_data=response_data, webp=convert_webp)
                     new_image_save_paths.append(new_path)
                     i += 1
 
