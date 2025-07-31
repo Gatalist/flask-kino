@@ -4,7 +4,7 @@ from parser.kinopoisk import KinopoiskApi
 from parser.imdb import IMDBMovie
 from tools.postgres_orm import PostgresDB
 from tools.loguru_logger import logger
-from tools.file_manager import FileImage, read_line_file
+from tools.file_manager import FileImage
 from settings import Settings
 
 
@@ -18,7 +18,11 @@ db = PostgresDB(
     password=Settings.password
 )
 
+save_kinopoist_ids = db.get_all_kinopoisk_ids()
+
 image = FileImage(Settings.static_path)
+
+sleep(500)
 
 api_kinopoisk = KinopoiskApi(list_api_key=keys)
 imdb_movie = IMDBMovie()
@@ -49,8 +53,8 @@ else:
             break
 
 # min id = 298
-start_id = 24_491
-end_id = 25_000
+start_id = 83100
+end_id = 85_000
 
 # sleep(1_000_000)
 
@@ -111,9 +115,9 @@ if server_status == 200:
 
                 # get actors, creators, writers
                 people = api_kinopoisk.get_data_people(kinopoisk_id=_kinopoisk_id, count_actor_save=15)
-                _directors = people['data'].get('director', [])
-                _writers = people['data'].get('writer', [])
-                _actors = people['data'].get('actor', [])
+                _directors = people.get('director', [])
+                _writers = people.get('writer', [])
+                _actors = people.get('actor', [])
 
                 logger.info(f"director: {_directors}")
                 logger.info(f"writer: {_writers}")

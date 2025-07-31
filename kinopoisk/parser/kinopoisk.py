@@ -73,12 +73,11 @@ class KinopoiskApi(WebRequester):
 
     def is_placeholder_image(self, image_url) -> bool:
         """Проверка изображение по хешу, если это заглушка то возвращаем True"""
-
-        # response = requests.get(image_url, timeout=10)
         response = self.request_data(image_url, self.new_headers())
-        if response.get('data') == 200:
+        logger.info(f"image_data: {response.get('data')}\n")
+        if response.get('status_code') == 200:
             image_hash = hashlib.sha256(response.get('data').content).hexdigest()
-            logger.info(f"poster_hash: {image_hash}\n")
+            logger.info(f"image_hash: {image_hash}\n")
             if image_hash in self.placeholder_hashes:
                 return True
         return False

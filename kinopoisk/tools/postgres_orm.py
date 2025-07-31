@@ -1,9 +1,11 @@
+import os
 from datetime import datetime
 
 import psycopg2
 from functools import wraps
 from slugify import slugify
 from tools.loguru_logger import logger
+from settings import Settings
 
 
 def with_cursor(method):
@@ -319,6 +321,24 @@ class PostgresDB:
     def fetch_one_dict(cursor, row):
         columns = [desc[0] for desc in cursor.description]
         return dict(zip(columns, row))
+
+    @with_cursor
+    def get_all_kinopoisk_ids(self, conn, cursor) -> None:
+        """ Get record id from the database """
+
+        # Выполняем запрос
+        cursor.execute("SELECT kinopoisk_id FROM movies")
+
+        # Получаем все id
+        id_list = [str(row[0]) for row in cursor.fetchall()]
+
+        new_path = os.path.join(Settings.static_path, 'media', 'files', 'saved_ids.txt')
+        # Сохраняем в файл
+        with open(new_path, 'w') as f:
+            f.write('\n'.join(id_list))
+
+        print(f"Сохранено {len(id_list)} ID в файл {new_path}")
+
 
     @with_cursor
     def create_person(self, conn, cursor, list_obj: list[dict], instance: object, path_names: list) -> list:
