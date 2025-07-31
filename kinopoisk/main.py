@@ -18,9 +18,10 @@ db = PostgresDB(
     password=Settings.password
 )
 
-save_kinopoist_ids = db.get_all_kinopoisk_ids()
-
 image = FileImage(Settings.static_path)
+
+path_save_file = image.generate_movie_path(path_names=['media', 'files'])
+save_kinopoist_ids = db.get_all_kinopoisk_ids(path_file=path_save_file, file_name='saved_ids.txt')
 
 sleep(500)
 

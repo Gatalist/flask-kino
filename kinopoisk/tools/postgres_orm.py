@@ -323,7 +323,7 @@ class PostgresDB:
         return dict(zip(columns, row))
 
     @with_cursor
-    def get_all_kinopoisk_ids(self, conn, cursor) -> None:
+    def get_all_kinopoisk_ids(self, conn, cursor, path_file, file_name) -> None:
         """ Get record id from the database """
 
         # Выполняем запрос
@@ -332,12 +332,13 @@ class PostgresDB:
         # Получаем все id
         id_list = [str(row[0]) for row in cursor.fetchall()]
 
-        new_path = os.path.join(Settings.static_path, 'media', 'files', 'saved_ids.txt')
+        _file = os.path.join(path_file, file_name)
+        print("_file:", _file)
         # Сохраняем в файл
-        with open(new_path, 'w') as f:
+        with open(_file, 'w') as f:
             f.write('\n'.join(id_list))
 
-        print(f"Сохранено {len(id_list)} ID в файл {new_path}")
+        print(f"Сохранено {len(id_list)} ID в файл {_file}")
 
 
     @with_cursor
