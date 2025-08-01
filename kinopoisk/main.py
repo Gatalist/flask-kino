@@ -20,10 +20,10 @@ db = PostgresDB(
 
 image = FileImage(Settings.static_path)
 
-path_save_file = image.generate_movie_path(path_names=['media', 'files'])
-save_kinopoist_ids = db.get_all_kinopoisk_ids(path_file=path_save_file, file_name='saved_ids.txt')
-
-sleep(500)
+# path_save_file = image.generate_movie_path(path_names=['media', 'files'])
+# save_kinopoist_ids = db.get_all_kinopoisk_ids(path_file=path_save_file, file_name='saved_ids.txt')
+read_ids_from_file = image.get_list_line_file(file_path=['media', 'files', 'saved_ids.txt'])
+# sleep(500)
 
 api_kinopoisk = KinopoiskApi(list_api_key=keys)
 imdb_movie = IMDBMovie()
@@ -32,36 +32,29 @@ imdb_movie = IMDBMovie()
 server_status, message = api_kinopoisk.check_resource_status(api_kinopoisk.base_api_url)
 logger.info(message)
 
-# получаем пользователя
-def get_user(name):
-    return db.select_data(
-        table_name='users',
-        select_keys='id, username',
-        where_key_name='username',
-        where_key_data=name
-    )
-
-user_id = get_user(name='admin')
+user_id = db.get_user(name='admin')
 if user_id:
     user_id = user_id.get("id")
 else:
     while True:
         logger.error("not user in db: create admin user")
         sleep(5)
-        user_id = get_user(name='admin')
+        user_id = db.get_user(name='admin')
         if user_id:
             user_id = user_id.get("id")
             break
 
 # min id = 298
-start_id = 83100
-end_id = 85_000
+# start_id = 84320
+# end_id = 85_000
 
 # sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api
-    for idd in range(start_id, end_id):
+    # for idd in range(start_id, end_id):
+    for _idd in read_ids_from_file:
+        idd = int(_idd)
         logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):

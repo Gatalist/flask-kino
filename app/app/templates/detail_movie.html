@@ -2,7 +2,7 @@
 
 {% block other_scripts_head %}
 {#    <script src="{{ url_for('static', filename='kinobox/kinobox.min.js') }}"></script>#}
-    <script src="https://kinobox.tv/kinobox.min.js"></script>
+{#    <script src="https://kinobox.tv/kinobox.min.js"></script>?#}
 {% endblock other_scripts_head %}
 
 
@@ -53,15 +53,17 @@
                 </div>
                 <div class="row">
                     <p class="card-text mb-auto p-2">
+                        <img class="me-2" src="{{ url_for('static', filename='images/kp.svg') }}" alt="rating kinopoisk">
                         {% if movie.rating_kinopoisk %}
-                            <img class="me-2" src="{{ url_for('static', filename='images/kp.svg') }}" alt="rating kinopoisk"> {{ movie.rating_kinopoisk }} / {{ movie.rating_kinopoisk_vote_count_format }}
+                            {{ movie.rating_kinopoisk }} / {{ movie.rating_kinopoisk_vote_count_format }}
                         {% else %}
                             0
                         {% endif %}
                     </p>
                     <p class="card-text mb-auto p-2">
+                        <img class="me-2" src="{{ url_for('static', filename='images/imdb.svg') }}" alt="rating imdb">
                         {% if movie.rating_imdb %}
-                            <img class="me-2" src="{{ url_for('static', filename='images/imdb.svg') }}" alt="rating imdb"> {{movie.rating_imdb}} / {{ movie.rating_imdb_vote_count_format }}
+                            {{movie.rating_imdb}} / {{ movie.rating_imdb_vote_count_format }}
                         {% else %}
                             0
                         {% endif %}
@@ -138,81 +140,91 @@
                 </div>
             </div>
         </div>
-        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative card-background">
-            <p class="card-text mb-auto p-2">{{movie.description}}</p>
-        </div>
-        <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6 card-background">
-            {% for screen in movie.screen_img %}
-                <div class="col">
-                    <div class="card h-100 card-shadow screenshot-background">
-                        <div class="d-flex align-items-center justify-content-center" style="height: 140px;">
-                            <img src="{{ screen.url }}" class="img-fluid rounded" style="max-height: 100%; object-fit: contain;" alt="{{ screen.name }}">
-                        </div>
-                    </div>
 
-                </div>
-            {% endfor %}
-        </div>
-        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4 card-background">
-            <div class="kinobox_player"></div>
-        </div>
-        <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6">
-            {% for mov_similar in movie.get_similar_movie %}
-                {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
+        {% if movie.description %}
+            <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative card-background">
+                <p class="card-text mb-auto p-2">{{movie.description}}</p>
+            </div>
+        {% endif %}
+
+        {% if movie.screen_img %}
+            <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6 card-background">
+                {% for screen in movie.screen_img %}
                     <div class="col">
-                        <div class="card h-100 card-shadow card-background">
-                            <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
-                                <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
-                            </a>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill card-rating">
-                            {% if movie.rating_imdb %}
-                                <i class="bi bi-star-fill icon-color"></i> {{ mov_similar.rating_imdb }}
-                            {% else %}
-                                <i class="bi bi-star icon-color"></i>  -
-                            {% endif %}
-                            </span>
-                            <div class="card-body">
-                                <a class="card-link-custom" href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
-                                    <h6 class="card-title">{{ mov_similar.name_ru }}</h6>
+                        <div class="card h-100 card-shadow screenshot-background">
+                            <div class="d-flex align-items-center justify-content-center" style="height: 140px;">
+                                <img src="{{ screen.url }}" class="img-fluid rounded" style="max-height: 100%; object-fit: contain;" alt="{{ screen.name }}">
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4 card-background">
+            <div class="kinobox_player" style="width: 400px">Player</div>
+        </div>
+
+        {% if movie.get_similar_movie %}
+            <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6">
+                {% for mov_similar in movie.get_similar_movie %}
+                    {% if mov_similar.kinopoisk_id != movie.kinopoisk_id %}
+                        <div class="col">
+                            <div class="card h-100 card-shadow card-background">
+                                <a href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
+                                    <img src="{{ mov_similar.poster_url }}" class="card-img-top" alt="...">
                                 </a>
-                                <div class="card-text">
-                                    <i class="bi bi-calendar3 icon-color"></i>
-                                    {% if movie.year %}
-                                        {{movie.year}}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </div>
-                                <div class="d-flex justify-content-start">
-                                    <small class="text-muted">
-                                        <i class="bi bi-film icon-color"></i>
-                                        {% if movie.mod_genres %}
-                                            {% for genre in movie.mod_genres %}
-                                                <a class="card-link-genre" href="#">{{genre}}</a>
-                                            {% endfor %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill card-rating">
+                                {% if movie.rating_imdb %}
+                                    <i class="bi bi-star-fill icon-color"></i> {{ mov_similar.rating_imdb }}
+                                {% else %}
+                                    <i class="bi bi-star icon-color"></i>  -
+                                {% endif %}
+                                </span>
+                                <div class="card-body">
+                                    <a class="card-link-custom" href="{{ url_for('app_movies.movie_detail', slug=mov_similar.slug)}}">
+                                        <h6 class="card-title">{{ mov_similar.name_ru }}</h6>
+                                    </a>
+                                    <div class="card-text">
+                                        <i class="bi bi-calendar3 icon-color"></i>
+                                        {% if movie.year %}
+                                            {{movie.year}}
                                         {% else %}
                                             -
                                         {% endif %}
-                                    </small>
+                                    </div>
+                                    <div class="d-flex justify-content-start">
+                                        <small class="text-muted">
+                                            <i class="bi bi-film icon-color"></i>
+                                            {% if movie.mod_genres %}
+                                                {% for genre in movie.mod_genres %}
+                                                    <a class="card-link-genre" href="#">{{genre}}</a>
+                                                {% endfor %}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
 
     </div>
 
 {% endblock content %}
 
 {% block other_scripts_body %}
-    <script>
-        new Kinobox('.kinobox_player', {
-            search: {
-                kinopoisk: '{{movie.kinopoisk_id}}',
-            },
-        }).init();
-    </script>
+{#    <script>#}
+{#        new Kinobox('.kinobox_player', {#}
+{#            search: {#}
+{#                kinopoisk: '{{movie.kinopoisk_id}}',#}
+{#            },#}
+{#        }).init();#}
+{#    </script>#}
     <script type="module" src="{{ url_for('static', filename='scripts/search.js') }}"></script>
 {% endblock other_scripts_body %}
