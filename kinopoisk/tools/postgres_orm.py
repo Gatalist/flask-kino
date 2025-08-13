@@ -317,6 +317,14 @@ class PostgresDB:
             return videos
         return []
 
+    def get_user(self, name):
+        return self.select_data(
+            table_name='users',
+            select_keys='id, username',
+            where_key_name='username',
+            where_key_data=name
+        )
+
     @staticmethod
     def fetch_one_dict(cursor, row):
         columns = [desc[0] for desc in cursor.description]
