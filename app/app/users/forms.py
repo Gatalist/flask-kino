@@ -1,8 +1,51 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FileField, SelectMultipleField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, InputRequired, Length
+from flask_admin.form.widgets import Select2Widget
 from .models import User
-import re
+
+
+class RegisterAdminForm(FlaskForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import Role
+        self.roles.choices = [(role.id, role.name) for role in Role.query.all()]
+
+    roles = SelectMultipleField(
+        'Roles',
+        coerce=int,
+        widget=Select2Widget(multiple=True),
+        render_kw={"class": "select2"}
+    )
+
+    username = StringField(
+        label='Username',
+        validators=[InputRequired(), Length(min=3, max=50)],
+        render_kw = {"placeholder": "Username", "id": "floatingInputValue", "type": "text"}
+    )
+
+    email = StringField(
+        label='Email',
+        validators=[DataRequired(), Email()],
+        render_kw={"placeholder": "Email", "id": "floatingInput", "type": "email"}
+    )
+
+    password = PasswordField(
+        label='Password',
+        validators=[
+            DataRequired(),
+        ],
+        render_kw={"placeholder": "Password", "id": "floatingPassword", "type": "password"}
+    )
+
+    confirm_password = PasswordField(
+        label='confirm Password',
+        validators=[
+            DataRequired(),
+            EqualTo('password', message='Passwords must match')
+        ],
+        render_kw = {"placeholder": "Confirm Password", "id": "floatingPassword", "type": "password"}
+    )
 
 
 class RegisterForm(FlaskForm):

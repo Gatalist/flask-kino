@@ -3,7 +3,7 @@ from app import db, admin
 from .models import Role, User
 from .admins import RoleView, UserView  # , MyAdminIndexView
 from .routes import login, logout, register, profile
-from flask_admin import AdminIndexView
+# from flask_admin import AdminIndexView
 
 user_blueprint = Blueprint('app_user', __name__, template_folder='templates', static_folder='static')
 

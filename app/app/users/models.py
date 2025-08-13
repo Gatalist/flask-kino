@@ -18,6 +18,11 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+    can_create = db.Column(db.Boolean())
+    can_read = db.Column(db.Boolean())
+    can_edit = db.Column(db.Boolean())
+    can_delete = db.Column(db.Boolean())
+
     created_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc))
     updated_on = db.Column(db.DateTime(), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -52,15 +57,65 @@ class User(db.Model, UserMixin):
 
     # Flask-Security
     def has_role(self, *args):
-        return set(args).issubset({role.name for role in self.roles})
+        """
+        params:
+        - *args (str): name of role
+        """
+
+        if self.roles:
+            __all_user_roles = [role.name for role in self.roles]
+            print(f"all_user_roles = {__all_user_roles}")
+            __roles = set(args).issubset({role.name for role in self.roles})
+            print(f"has_roles = {__roles}")
+            return __roles
+        print(f"user_roles = None")
+        return False
+
+    def has_accesses(self):
+        can_create = can_read = can_edit = can_delete = False
+        if self.roles:
+            for role in self.roles:
+                if role.can_create:
+                    can_create = True
+                if role.can_read:
+                    can_read = True
+                if role.can_edit:
+                    can_edit = True
+                if role.can_delete:
+                    can_delete = True
+
+        return {
+            "can_create": can_create,
+            "can_read": can_read,
+            "can_edit": can_edit,
+            "can_delete": can_delete
+        }
+
+    def has_create(self):
+        for role in self.roles:
+            if role.can_create:
+                return True
+
+    def has_edit(self):
+        for role in self.roles:
+            if role.can_edit:
+                return True
+
+    def has_delete(self):
+        for role in self.roles:
+            if role.can_delete:
+                return True
+
+    def has_read(self):
+        for role in self.roles:
+            if role.can_read:
+                return True
 
     def get_id(self):
         return self.id
 
-    def is_anonymous(self):
-        return False
-
-    def is_authenticated(self):
+    @staticmethod
+    def is_authenticated():
         return True
 
     def set_password(self, password):
@@ -68,11 +123,3 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
-
-    # @property
-    # def password(self):
-    #     return self._password
-    #
-    # @password.setter
-    # def password(self, value):
-    #     self._password = generate_password_hash(value)

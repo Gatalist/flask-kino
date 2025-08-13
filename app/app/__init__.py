@@ -1,9 +1,14 @@
 import sys
+from time import sleep
+
 from flask import Flask
+from flask_cors import CORS
+from flask.signals import request_started, request_finished, appcontext_pushed
+from sqlalchemy import inspect
 from .settings import ProdConfig, DevConfig
 from .extensions import db, admin, login_manager, swagger, migrate
+from .users.default_objects import DefaultObjectsDB
 from .routes import init_bp
-
 
 
 def create_app(config_class):
@@ -25,8 +30,6 @@ def create_app(config_class):
 
     init_bp(new_app)
 
-    from flask_cors import CORS
-
     @new_app.shell_context_processor
     def make_shell_context():
         return {"app": new_app, "db": db}
@@ -37,3 +40,12 @@ def create_app(config_class):
 app = create_app(config_class=DevConfig)
 
 
+def create_objects():
+    print("✅ Request finished!")
+    inspector = inspect(db.engine)
+    if inspector.has_table("users"):
+        default_objects = DefaultObjectsDB(app, db)
+        default_objects.has_tables_db()
+
+with app.app_context():
+    create_objects()

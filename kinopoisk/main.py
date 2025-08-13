@@ -41,17 +41,17 @@ def get_user(name):
         where_key_data=name
     )
 
-user_id = get_user(name='admin')
+user_id = get_user(name='super-admin')
 if user_id:
     user_id = user_id.get("id")
-else:
-    while True:
-        logger.error("not user in db: create admin user")
-        sleep(5)
-        user_id = get_user(name='admin')
-        if user_id:
-            user_id = user_id.get("id")
-            break
+# else:
+#     while True:
+#         logger.error("not user in db: create admin user")
+#         sleep(5)
+#         user_id = get_user(name='admin')
+#         if user_id:
+#             user_id = user_id.get("id")
+#             break
 
 # min id = 298
 start_id = 83100

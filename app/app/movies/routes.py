@@ -14,6 +14,7 @@ class HomeView(FilterMovie, MethodView):
         movies = self.filter_movie()
         # movies = self.sort_movie(movie)
         # print(movie.all())
+        # movies.filter(publish=True).all()
 
         page = request.args.get('page', 1, type=int)
         print('page', page, type(page))
@@ -26,6 +27,7 @@ class HomeView(FilterMovie, MethodView):
     def post(self):
         movies = self.filter_movie(request.form)
         # movies = self.sort_movie(movie)
+        # movies.filter_by(publish=True).all()
         page = request.args.get('page', 1, type=int)
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
         return render_template('index.html', pages=pages, **self.context)
