@@ -2,29 +2,27 @@ from app.users.models import User, Role
 from app.settings import Config
 
 
-
 class DefaultObjectsDB:
     def __init__(self, app, db):
         self.app = app
         self.db = db
 
-    def create_user(self, **kwargs):
-        """
-        params:
-        - username (str): обязательный
-        - email (str): обязательный
-        - password (str): обязательный
-        - roles_id (int): обязательный
-        """
-
-        if not User.query.filter_by(username=kwargs.get("username")).first():
-            user = User(**kwargs)
+    def create_user(self, active: bool, username: str, email: str, password: str, role: object):
+        if not User.query.filter_by(username=username).first():
+            user = User(
+                active=active,
+                username=username,
+                email=email,
+            )
+            user.set_password(password)
+            user.roles.append(role)
             self.db.session.add(user)  # Adds new User record to database
             self.db.session.commit()  # Comment
-            # print("create user", user)
+
+            print("create user", user)
         else:
-            user = User.query.filter_by(username=kwargs.get('username')).first()
-            # print("get user", user)
+            user = User.query.filter_by(username=username).first()
+            print("get user", user)
 
         return user
 
@@ -35,13 +33,13 @@ class DefaultObjectsDB:
         - description (str): обязательный
         """
         if role := Role.query.filter_by(name=kwargs.get('name')).first():
-            # print("get role", role)
+            print("get role", role)
             return role
 
         role = Role(**kwargs)
         self.db.session.add(role)  # Adds new User record to database
         self.db.session.commit()  # Comment
-        # print("create role", role)
+        print("create role", role)
         return role
 
     def has_tables_db(self):
@@ -61,7 +59,7 @@ class DefaultObjectsDB:
                     username=Config.USER_SUPPER_ADMIN_NAME,
                     email=Config.USER_SUPPER_ADMIN_EMAIL,
                     password=Config.USER_SUPPER_ADMIN_PASSWORD,
-                    roles_id=role.id
+                    role=role
                 )
                 print("✅ Добавлен дефолтный пользователь")
             else:

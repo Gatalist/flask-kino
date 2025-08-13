@@ -36,15 +36,6 @@ user_id = db.get_user(name='super-admin')
 if user_id:
     user_id = user_id.get("id")
 
-# else:
-#     while True:
-#         logger.error("not user in db: create admin user")
-#         sleep(5)
-#         user_id = get_user(name='admin')
-#         if user_id:
-#             user_id = user_id.get("id")
-#             break
-
 # min id = 298
 # start_id = 84320
 # end_id = 85_000

@@ -108,6 +108,7 @@ class Movie(BaseModel):
 
     rating_mpaa_id = db.Column(db.Integer, db.ForeignKey('rating_mpaa.id', ondelete='SET NULL'))
     rating_mpaa = db.relationship('RatingMPAA', backref=db.backref('movie'), passive_deletes=True)
+    # roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
 
     rating_good_review = db.Column(db.Float, nullable=True)
     rating_good_review_vote_count = db.Column(db.Integer, nullable=True)
