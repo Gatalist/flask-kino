@@ -22,7 +22,7 @@ image = FileImage(Settings.static_path)
 
 # path_save_file = image.generate_movie_path(path_names=['media', 'files'])
 # save_kinopoist_ids = db.get_all_kinopoisk_ids(path_file=path_save_file, file_name='saved_ids.txt')
-read_ids_from_file = image.get_list_line_file(file_path=['media', 'files', 'saved_ids.txt'])
+# read_ids_from_file = image.get_list_line_file(file_path=['media', 'files', 'saved_ids.txt'])
 # sleep(500)
 
 api_kinopoisk = KinopoiskApi(list_api_key=keys)
@@ -37,16 +37,16 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-# start_id = 84320
-# end_id = 85_000
+start_id = 298
+end_id = 85_000
 
 # sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api
-    # for idd in range(start_id, end_id):
-    for _idd in read_ids_from_file:
-        idd = int(_idd)
+    for idd in range(start_id, end_id):
+    # for _idd in read_ids_from_file:
+    #     idd = int(_idd)
         logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
@@ -146,7 +146,7 @@ if server_status == 200:
                 screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
                 rating_kinopoisk_id = db.get_or_create(
-                    table_name='rating_kinopoisk',
+                    table_name='rating',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_kinopoisk,
@@ -157,7 +157,7 @@ if server_status == 200:
                     rating_kinopoisk_id = rating_kinopoisk_id.get('id')
 
                 rating_imdb_id = db.get_or_create(
-                    table_name='rating_imdb',
+                    table_name='rating',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_imdb,
@@ -168,7 +168,7 @@ if server_status == 200:
                     rating_imdb_id = rating_imdb_id.get('id')
 
                 rating_critics_id = db.get_or_create(
-                    table_name='rating_critics',
+                    table_name='rating',
                     select_key='id, star',
                     where_key_name='star',
                     where_key_data=_rating_critics,

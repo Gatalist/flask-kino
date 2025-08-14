@@ -1,4 +1,3 @@
-
 import os
 from datetime import datetime
 from dotenv import dotenv_values
@@ -6,7 +5,7 @@ from pathlib import Path
 import csv
 from app import db
 from app.movies.models import (
-    RatingKinopoisk, RatingImdb, RatingCritic, Release, FilmLength, Genre, AgeLimit, TypeVideo, Person,
+    Rating, Release, FilmLength, Genre, AgeLimit, TypeVideo, Person,
     Screenshot, Similar, Country, Tag, Segment, Movie, genre_movie, country_movie, director_movie, creator_movie,
     actor_movie, screenshot_movie, similar_movie, user_movie, segment_movie, tag_person
 )
@@ -17,7 +16,7 @@ env_file = dotenv_values(os.path.join(os.getcwd(), '.env'))
 
 class Backup:
     model_list = [
-        RatingKinopoisk, RatingImdb, RatingCritic, Release, FilmLength, Genre, AgeLimit, TypeVideo, Person,
+        Rating, Release, FilmLength, Genre, AgeLimit, TypeVideo, Person,
         Screenshot, Similar, Country, Tag, Segment, Movie,
     ]
 

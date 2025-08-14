@@ -156,19 +156,24 @@ class MovieView(MixinUserAccessible):
         print("\ndelete link", '[', link_table, ']')
 
 
-class RatingKinopoiskView(ModelView):
+class RatingView(ModelView):
     column_list = ['id', 'star', 'created_on']
     column_searchable_list = ('star',)
 
 
-class RatingImdbView(ModelView):
-    column_list = ['id', 'star', 'created_on']
-    column_searchable_list = ('star',)
-
-
-class RatingFilmCriticsView(ModelView):
-    column_list = ['id', 'star', 'created_on']
-    column_searchable_list = ('star',)
+# class RatingKinopoiskView(ModelView):
+#     column_list = ['id', 'star', 'created_on']
+#     column_searchable_list = ('star',)
+#
+#
+# class RatingImdbView(ModelView):
+#     column_list = ['id', 'star', 'created_on']
+#     column_searchable_list = ('star',)
+#
+#
+# class RatingFilmCriticsView(ModelView):
+#     column_list = ['id', 'star', 'created_on']
+#     column_searchable_list = ('star',)
 
 
 class RatingAwaitView(ModelView):

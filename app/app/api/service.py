@@ -10,7 +10,7 @@ from slugify import slugify
 from app.settings import Config
 from app import db
 from app.users.models import User
-from app.movies.models import (Movie, RatingKinopoisk, RatingCritic, RatingImdb, Release, TypeVideo, AgeLimit,
+from app.movies.models import (Movie, Rating, Release, TypeVideo, AgeLimit,
                                Country, Genre, Person, Screenshot, Similar, FilmLength, Video)
 
 
@@ -283,10 +283,10 @@ class MovieCRUD(CRUD, Authorization, File):
         arg_list['imdb_id'] = request_data.form.get('imdb_id', None)
         arg_list['name_ru'] = request_data.form.get('name_ru', None)
         arg_list['name_original'] = request_data.form.get("name_original", None)
-        arg_list['rating_kinopoisk'] = self.get_or_create_object(RatingKinopoisk,
+        arg_list['rating_kinopoisk'] = self.get_or_create_object(Rating,
                                                                  star=request_data.form.get("rating_kinopoisk", None))
-        arg_list['rating_imdb'] = self.get_or_create_object(RatingImdb, star=request_data.form.get("rating_imdb", None))
-        arg_list['rating_critics'] = self.get_or_create_object(RatingCritic,
+        arg_list['rating_imdb'] = self.get_or_create_object(Rating, star=request_data.form.get("rating_imdb", None))
+        arg_list['rating_critics'] = self.get_or_create_object(Rating,
                                                                star=request_data.form.get("rating_critics", None))
         arg_list['year'] = self.get_or_create_object(Release, year=request_data.form.get("year", None))
         arg_list['film_length'] = self.get_or_create_object(FilmLength,

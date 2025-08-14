@@ -5,68 +5,68 @@ from app.users.models import User
 
 genre_movie = db.Table(
     'genre_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id', ondelete="SET NULL"), primary_key=True, index=True)
 )
 
 country_movie = db.Table(
     'country_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('country_id', db.Integer, db.ForeignKey('countries.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('country_id', db.Integer, db.ForeignKey('countries.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 director_movie = db.Table(
     'director_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 creator_movie = db.Table(
     'creator_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 actor_movie = db.Table(
     'actor_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('persons_id', db.Integer, db.ForeignKey('persons.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 screenshot_movie = db.Table(
     'screenshot_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('screenshot_id', db.Integer, db.ForeignKey('screenshots.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="CASCADE"), primary_key=True, index=True),
+    db.Column('screenshot_id', db.Integer, db.ForeignKey('screenshots.id', ondelete="CASCADE"), primary_key=True, index=True),
 )
 
 similar_movie = db.Table(
     'similar_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('similar_id', db.Integer, db.ForeignKey('similars.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('similar_id', db.Integer, db.ForeignKey('similars.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 user_movie = db.Table(
     'user_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 segment_movie = db.Table(
     'segment_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('segment_id', db.Integer, db.ForeignKey('segments.id'))
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('segment_id', db.Integer, db.ForeignKey('segments.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 tag_person = db.Table(
     'tag_person',
-    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')),
-    db.Column('person_id', db.Integer, db.ForeignKey('persons.id'))
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('person_id', db.Integer, db.ForeignKey('persons.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 video_movie = db.Table(
     'video_movie',
-    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id')),
-    db.Column('video_id', db.Integer, db.ForeignKey('videos.id')),
+    db.Column('movie_id', db.Integer, db.ForeignKey('movies.id', ondelete="SET NULL"), primary_key=True, index=True),
+    db.Column('video_id', db.Integer, db.ForeignKey('videos.id', ondelete="SET NULL"), primary_key=True, index=True),
 )
 
 
@@ -107,33 +107,58 @@ class Movie(BaseModel):
     reviews_count = db.Column(db.Integer, nullable=True)
 
     rating_mpaa_id = db.Column(db.Integer, db.ForeignKey('rating_mpaa.id', ondelete='SET NULL'))
-    rating_mpaa = db.relationship('RatingMPAA', backref=db.backref('movie'), passive_deletes=True)
-    # roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+    rating_mpaa = db.relationship('RatingMPAA', lazy='selectin', passive_deletes=True)
 
     rating_good_review = db.Column(db.Float, nullable=True)
     rating_good_review_vote_count = db.Column(db.Integer, nullable=True)
 
-    trailer_id = db.Column(db.Integer, db.ForeignKey('videos.id', ondelete='SET NULL'))
-    trailer = db.relationship('Video', secondary=video_movie,
-                                backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    # trailer_id = db.Column(db.Integer, db.ForeignKey('videos.id', ondelete='SET NULL'))
+    # trailer = db.relationship('Video', secondary=video_movie, lazy='selectin', passive_deletes=True)
+    trailer = db.relationship(
+        'Video',
+        secondary=video_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating_kinopoisk.id', ondelete='SET NULL'))
-    rating_kinopoisk = db.relationship('RatingKinopoisk', backref=db.backref('movie'), passive_deletes=True)
+
+    # rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating_kinopoisk.id', ondelete='SET NULL'))
+    # rating_kinopoisk = db.relationship('RatingKinopoisk', lazy='selectin', passive_deletes=True)
+
+    rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
+    rating_kinopoisk = db.relationship(
+        'Rating',
+        foreign_keys=[rating_kinopoisk_id],
+        passive_deletes=True,
+        overlaps="rating_imdb_id,rating_critics_id"
+    )
 
     rating_kinopoisk_vote_count = db.Column(db.Integer, nullable=True)
 
-    rating_imdb_id = db.Column(db.Integer, db.ForeignKey('rating_imdb.id', ondelete='SET NULL'))
-    rating_imdb = db.relationship('RatingImdb', backref=db.backref('movie'), passive_deletes=True)
+    rating_imdb_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
+    # rating_imdb = db.relationship('RatingImdb', lazy='selectin', passive_deletes=True)
+    rating_imdb = db.relationship(
+        'Rating',
+        foreign_keys=[rating_imdb_id],
+        passive_deletes=True,
+        overlaps="rating_kinopoisk_id,rating_critics_id"
+    )
 
     rating_imdb_vote_count = db.Column(db.Integer, nullable=True)
 
-    rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating_critics.id', ondelete='SET NULL'))
-    rating_critics = db.relationship('RatingCritic', backref=db.backref('movie'), passive_deletes=True)
+    rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
+    # rating_critics = db.relationship('RatingCritic', lazy='selectin', passive_deletes=True)
+    rating_critics = db.relationship(
+        'Rating',
+        foreign_keys=[rating_critics_id],
+        passive_deletes=True,
+        overlaps="rating_kinopoisk_id,rating_imdb_id"
+    )
 
     rating_critics_vote_count = db.Column(db.Integer, nullable=True, default=None)
 
     rating_await_id = db.Column(db.Integer, db.ForeignKey('rating_await.id', ondelete='SET NULL'))
-    rating_await = db.relationship('RatingAwait', backref=db.backref('movie'), passive_deletes=True)
+    rating_await = db.relationship('RatingAwait', lazy='selectin', passive_deletes=True)
 
     rating_await_count = db.Column(db.Integer, nullable=True)
 
@@ -141,7 +166,6 @@ class Movie(BaseModel):
     year = db.relationship(
         'Release',
         foreign_keys=[year_id],
-        backref=db.backref('year_movies'),
         passive_deletes=True,
         overlaps="start_year,end_year"
     )
@@ -150,7 +174,6 @@ class Movie(BaseModel):
     start_year = db.relationship(
         'Release',
         foreign_keys=[start_year_id],
-        backref=db.backref('start_year_movies'),
         passive_deletes=True,
         overlaps="year,end_year"
     )
@@ -159,57 +182,82 @@ class Movie(BaseModel):
     end_year = db.relationship(
         'Release',
         foreign_keys=[end_year_id],
-        backref=db.backref('end_year_movies'),
         passive_deletes=True,
         overlaps="year,start_year"
     )
 
     film_length_id = db.Column(db.Integer, db.ForeignKey('film_length.id', ondelete='SET NULL'))
-    film_length = db.relationship('FilmLength', backref=db.backref('end_year_movies'), passive_deletes=True)
+    film_length = db.relationship('FilmLength', lazy='selectin', passive_deletes=True)
 
     slogan = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
     short_description = db.Column(db.Text, nullable=True)
 
     type_video_id = db.Column(db.Integer, db.ForeignKey('type_videos.id', ondelete='SET NULL'))
-    type_video = db.relationship('TypeVideo', backref=db.backref('movie'), passive_deletes=False)
+    type_video = db.relationship('TypeVideo', lazy='selectin', passive_deletes=True)
 
     age_limits_id = db.Column(db.Integer, db.ForeignKey('age_limits.id', ondelete='SET NULL'))
-    age_limits = db.relationship('AgeLimit', backref=db.backref('movie'), passive_deletes=False)
+    age_limits = db.relationship('AgeLimit', lazy='selectin', passive_deletes=True)
 
     last_syncs = db.Column(db.DateTime, nullable=True)
 
     segment_id = db.Column(db.Integer, db.ForeignKey('segments.id', ondelete='SET NULL'))
-    segment = db.relationship('Segment', secondary=segment_movie,
-                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    segment = db.relationship('Segment', secondary=segment_movie, lazy='selectin', passive_deletes=True)
 
     countries_id = db.Column(db.Integer, db.ForeignKey('countries.id', ondelete='SET NULL'))
-    countries = db.relationship('Country', secondary=country_movie,
-                                backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    countries = db.relationship('Country', secondary=country_movie, lazy='selectin', passive_deletes=True)
 
-    genres_id = db.Column(db.Integer, db.ForeignKey('genres.id', ondelete='SET NULL'))
-    genres = db.relationship('Genre', secondary=genre_movie,
-                             backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    genres = db.relationship(
+        'Genre',
+        secondary=genre_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    director_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
-    director = db.relationship('Person', secondary=director_movie,
-                               backref=db.backref('person_director', lazy='dynamic'), passive_deletes=False)
+    # director_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
+    # director = db.relationship('Person', secondary=director_movie, lazy='selectin', passive_deletes=True)
+    director = db.relationship(
+        'Person',
+        secondary=director_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    creator_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL', ))
-    creator = db.relationship('Person', secondary=creator_movie,
-                              backref=db.backref('person_creator', lazy='dynamic'), passive_deletes=False)
+    # creator_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL', ))
+    # creator = db.relationship('Person', secondary=creator_movie, lazy='selectin', passive_deletes=True)
+    creator = db.relationship(
+        'Person',
+        secondary=creator_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    actor_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
-    actor = db.relationship('Person', secondary=actor_movie,
-                            backref=db.backref('person_actor', lazy='dynamic'), passive_deletes=False)
+    # actor_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
+    # actor = db.relationship('Person', secondary=actor_movie, lazy='selectin', passive_deletes=True)
+    actor = db.relationship(
+        'Person',
+        secondary=actor_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    screen_img_id = db.Column(db.Integer, db.ForeignKey('screenshots.id', ondelete='CASCADE'))
-    screen_img = db.relationship('Screenshot', secondary=screenshot_movie,
-                                 backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    # screen_img_id = db.Column(db.Integer, db.ForeignKey('screenshots.id', ondelete='CASCADE'))
+    # screen_img = db.relationship('Screenshot', secondary=screenshot_movie, lazy='selectin', passive_deletes=True)
+    screen_img = db.relationship(
+        'Screenshot',
+        secondary=screenshot_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
-    similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
-    similar = db.relationship('Similar', secondary=similar_movie,
-                              backref=db.backref('movie', lazy='dynamic'), passive_deletes=False)
+    # similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
+    # similar = db.relationship('Similar', secondary=similar_movie, lazy='selectin', passive_deletes=True)
+    similar = db.relationship(
+        'Similar',
+        secondary=similar_movie,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
     has_3d = db.Column(db.Boolean, default=False)
     has_imax = db.Column(db.Boolean, default=False)
@@ -219,7 +267,7 @@ class Movie(BaseModel):
     completed = db.Column(db.Boolean, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'))
-    user = db.relationship('User', backref=db.backref('movie'), passive_deletes=False)
+    user = db.relationship('User', lazy='selectin', passive_deletes=True)
 
     def __repr__(self):
         return f'{self.id} {self.name_ru}'
@@ -318,6 +366,7 @@ class Movie(BaseModel):
     def rating_kinopoisk_vote_count_format(self):
         return self.split_count_reviews(self.rating_kinopoisk_vote_count)
 
+
 class ProductionStatus(BaseModel):
     __tablename__ = 'production_status'
     name = db.Column(db.String(64), index=True, unique=True)
@@ -326,28 +375,36 @@ class ProductionStatus(BaseModel):
         return f'{self.name}'
 
 
-class RatingKinopoisk(BaseModel):
-    __tablename__ = 'rating_kinopoisk'
+class Rating(BaseModel):
+    __tablename__ = 'rating'
     star = db.Column(db.Float)
 
     def __repr__(self):
         return f'{self.star}'
 
 
-class RatingImdb(BaseModel):
-    __tablename__ = 'rating_imdb'
-    star = db.Column(db.Float)
-
-    def __repr__(self):
-        return f'{self.star}'
-
-
-class RatingCritic(BaseModel):
-    __tablename__ = 'rating_critics'
-    star = db.Column(db.Float)
-
-    def __repr__(self):
-        return f'{self.star}'
+# class RatingKinopoisk(BaseModel):
+#     __tablename__ = 'rating_kinopoisk'
+#     star = db.Column(db.Float)
+#
+#     def __repr__(self):
+#         return f'{self.star}'
+#
+#
+# class RatingImdb(BaseModel):
+#     __tablename__ = 'rating_imdb'
+#     star = db.Column(db.Float)
+#
+#     def __repr__(self):
+#         return f'{self.star}'
+#
+#
+# class RatingCritic(BaseModel):
+#     __tablename__ = 'rating_critics'
+#     star = db.Column(db.Float)
+#
+#     def __repr__(self):
+#         return f'{self.star}'
 
 
 class RatingAwait(BaseModel):
@@ -431,9 +488,14 @@ class Person(BaseModel):
     age = db.Column(db.Integer, nullable=True)
     image_url = db.Column(db.String(256), index=True, nullable=True)
     description = db.Column(db.Text, nullable=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='SET NULL'))
-    tag = db.relationship('Tag', secondary=tag_person,
-                          backref=db.backref('persons', lazy='dynamic'), passive_deletes=False)
+    # tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='SET NULL'))
+    # tag = db.relationship('Tag', secondary=tag_person, lazy='selectin', passive_deletes=True)
+    tag = db.relationship(
+        'Tag',
+        secondary=tag_person,
+        lazy='selectin',
+        passive_deletes=True
+    )
 
     def __repr__(self):
         return f'{self.name_ru}'
@@ -481,7 +543,7 @@ class Video(BaseModel):
     name = db.Column(db.String(64), index=True)
     url = db.Column(db.String(128), index=True)
     source_id = db.Column(db.Integer, db.ForeignKey('video_sources.id', ondelete='SET NULL'))
-    source = db.relationship('VideoSource', backref=db.backref('videos'), passive_deletes=True)
+    source = db.relationship('VideoSource', lazy='selectin', passive_deletes=True)
 
     def __repr__(self):
         return f'{self.name}'

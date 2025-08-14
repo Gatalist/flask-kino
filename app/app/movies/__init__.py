@@ -2,11 +2,11 @@ from flask import Blueprint
 from app import db, admin
 from app.movies.routes import (HomeView, MovieDetailView, MovieSearchView)
 
-from app.movies.models import (Movie, RatingKinopoisk, RatingImdb, RatingCritic, RatingAwait, RatingMPAA, Release, FilmLength,
+from app.movies.models import (Movie, Rating, RatingAwait, RatingMPAA, Release, FilmLength,
                                Genre, AgeLimit, TypeVideo, Person, Screenshot, Similar, Country, ProductionStatus,
                                Tag, Segment, Video, VideoSource)
 
-from .admins import (MovieView, RatingKinopoiskView, RatingImdbView, RatingFilmCriticsView, RatingAwaitView, RatingMPAAView,
+from .admins import (MovieView, RatingView, RatingAwaitView, RatingMPAAView,
                      ReleaseView, FilmLengthView, GenreView, AgeLimitView, TypeVideoView, TagActorView, ProductionStatusView,
                      PersonView, ScreenshotView, SimilarView, CountryView, SegmentView, VideoView, VideoSourceView)
 
@@ -35,9 +35,9 @@ admin.add_view(ScreenshotView(Screenshot, db.session, name='Кадры с фил
 admin.add_view(SimilarView(Similar, db.session, name='Похожие фильмы', category="Каталог"))
 admin.add_view(ProductionStatusView(ProductionStatus, db.session, name='Статус производства', category="Каталог"))
 
-admin.add_view(RatingKinopoiskView(RatingKinopoisk, db.session, name='Кинопоиск', category="Рейтинг"))
-admin.add_view(RatingImdbView(RatingImdb, db.session, name='Imdb', category="Рейтинг"))
-admin.add_view(RatingFilmCriticsView(RatingCritic, db.session, name='Критики', category="Рейтинг"))
+admin.add_view(RatingView(Rating, db.session, name='Рейтинг', category="Рейтинг"))
+# admin.add_view(RatingImdbView(RatingImdb, db.session, name='Imdb', category="Рейтинг"))
+# admin.add_view(RatingFilmCriticsView(RatingCritic, db.session, name='Критики', category="Рейтинг"))
 admin.add_view(RatingAwaitView(RatingAwait, db.session, name='Await', category="Рейтинг"))
 admin.add_view(RatingMPAAView(RatingMPAA, db.session, name='MPAA', category="Рейтинг"))
 

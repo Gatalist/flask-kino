@@ -2,7 +2,7 @@ import requests
 from flask import session
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.util import _ORMJoin
-from .models import (Movie, RatingKinopoisk, Release, Genre, Person, Country, genre_movie, director_movie, country_movie)
+from .models import (Movie, Rating, Release, Genre, Person, Country, genre_movie, director_movie, country_movie)
 
 
 class ContextData:
@@ -134,14 +134,14 @@ class FilterMovie(ContextData):
         if sorting:
             if sorting == "rating_asc" or sorting == "rating_desc":
                 if "RatingKinopoisk" not in joined_table:
-                    query = query.join(RatingKinopoisk, Movie.rating_kinopoisk_id == RatingKinopoisk.id)
+                    query = query.join(Rating, Movie.rating_kinopoisk_id == Rating.id)
                     joined_table.append("RatingKinopoisk")
 
                 if sorting == "rating_asc":
-                    query = query.order_by(RatingKinopoisk.star.asc())
+                    query = query.order_by(Rating.star.asc())
 
                 if sorting == "rating_desc":
-                    query = query.order_by(RatingKinopoisk.star.desc())
+                    query = query.order_by(Rating.star.desc())
 
             if sorting == "date_asc" or sorting == "date_desc":
                 if "Release" not in joined_table:
