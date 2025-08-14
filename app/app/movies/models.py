@@ -112,18 +112,12 @@ class Movie(BaseModel):
     rating_good_review = db.Column(db.Float, nullable=True)
     rating_good_review_vote_count = db.Column(db.Integer, nullable=True)
 
-    # trailer_id = db.Column(db.Integer, db.ForeignKey('videos.id', ondelete='SET NULL'))
-    # trailer = db.relationship('Video', secondary=video_movie, lazy='selectin', passive_deletes=True)
     trailer = db.relationship(
         'Video',
         secondary=video_movie,
         lazy='selectin',
         passive_deletes=True
     )
-
-
-    # rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating_kinopoisk.id', ondelete='SET NULL'))
-    # rating_kinopoisk = db.relationship('RatingKinopoisk', lazy='selectin', passive_deletes=True)
 
     rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
     rating_kinopoisk = db.relationship(
@@ -136,7 +130,6 @@ class Movie(BaseModel):
     rating_kinopoisk_vote_count = db.Column(db.Integer, nullable=True)
 
     rating_imdb_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
-    # rating_imdb = db.relationship('RatingImdb', lazy='selectin', passive_deletes=True)
     rating_imdb = db.relationship(
         'Rating',
         foreign_keys=[rating_imdb_id],
@@ -147,7 +140,6 @@ class Movie(BaseModel):
     rating_imdb_vote_count = db.Column(db.Integer, nullable=True)
 
     rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
-    # rating_critics = db.relationship('RatingCritic', lazy='selectin', passive_deletes=True)
     rating_critics = db.relationship(
         'Rating',
         foreign_keys=[rating_critics_id],
@@ -214,8 +206,6 @@ class Movie(BaseModel):
         passive_deletes=True
     )
 
-    # director_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
-    # director = db.relationship('Person', secondary=director_movie, lazy='selectin', passive_deletes=True)
     director = db.relationship(
         'Person',
         secondary=director_movie,
@@ -223,8 +213,6 @@ class Movie(BaseModel):
         passive_deletes=True
     )
 
-    # creator_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL', ))
-    # creator = db.relationship('Person', secondary=creator_movie, lazy='selectin', passive_deletes=True)
     creator = db.relationship(
         'Person',
         secondary=creator_movie,
@@ -232,8 +220,6 @@ class Movie(BaseModel):
         passive_deletes=True
     )
 
-    # actor_id = db.Column(db.Integer, db.ForeignKey('persons.id', ondelete='SET NULL'))
-    # actor = db.relationship('Person', secondary=actor_movie, lazy='selectin', passive_deletes=True)
     actor = db.relationship(
         'Person',
         secondary=actor_movie,
@@ -241,8 +227,6 @@ class Movie(BaseModel):
         passive_deletes=True
     )
 
-    # screen_img_id = db.Column(db.Integer, db.ForeignKey('screenshots.id', ondelete='CASCADE'))
-    # screen_img = db.relationship('Screenshot', secondary=screenshot_movie, lazy='selectin', passive_deletes=True)
     screen_img = db.relationship(
         'Screenshot',
         secondary=screenshot_movie,
@@ -250,8 +234,6 @@ class Movie(BaseModel):
         passive_deletes=True
     )
 
-    # similar_id = db.Column(db.Integer, db.ForeignKey('similars.id', ondelete='SET NULL'))
-    # similar = db.relationship('Similar', secondary=similar_movie, lazy='selectin', passive_deletes=True)
     similar = db.relationship(
         'Similar',
         secondary=similar_movie,
@@ -383,30 +365,6 @@ class Rating(BaseModel):
         return f'{self.star}'
 
 
-# class RatingKinopoisk(BaseModel):
-#     __tablename__ = 'rating_kinopoisk'
-#     star = db.Column(db.Float)
-#
-#     def __repr__(self):
-#         return f'{self.star}'
-#
-#
-# class RatingImdb(BaseModel):
-#     __tablename__ = 'rating_imdb'
-#     star = db.Column(db.Float)
-#
-#     def __repr__(self):
-#         return f'{self.star}'
-#
-#
-# class RatingCritic(BaseModel):
-#     __tablename__ = 'rating_critics'
-#     star = db.Column(db.Float)
-#
-#     def __repr__(self):
-#         return f'{self.star}'
-
-
 class RatingAwait(BaseModel):
     __tablename__ = 'rating_await'
     star = db.Column(db.Float)
@@ -488,8 +446,7 @@ class Person(BaseModel):
     age = db.Column(db.Integer, nullable=True)
     image_url = db.Column(db.String(256), index=True, nullable=True)
     description = db.Column(db.Text, nullable=True)
-    # tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='SET NULL'))
-    # tag = db.relationship('Tag', secondary=tag_person, lazy='selectin', passive_deletes=True)
+
     tag = db.relationship(
         'Tag',
         secondary=tag_person,
