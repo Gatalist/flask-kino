@@ -161,21 +161,6 @@ class RatingView(ModelView):
     column_searchable_list = ('star',)
 
 
-# class RatingKinopoiskView(ModelView):
-#     column_list = ['id', 'star', 'created_on']
-#     column_searchable_list = ('star',)
-#
-#
-# class RatingImdbView(ModelView):
-#     column_list = ['id', 'star', 'created_on']
-#     column_searchable_list = ('star',)
-#
-#
-# class RatingFilmCriticsView(ModelView):
-#     column_list = ['id', 'star', 'created_on']
-#     column_searchable_list = ('star',)
-
-
 class RatingAwaitView(ModelView):
     column_list = ['id', 'star', 'created_on']
     column_searchable_list = ('star',)
@@ -222,7 +207,7 @@ class TypeVideoView(ModelView):
 
 
 class PersonView(ModelView):
-    column_list = ['id', 'name_ru', 'person_id', 'created_on']
+    column_list = ['id', 'person_id', 'name_ru', 'actor', 'director', 'creator', 'created_on']
     column_searchable_list = ('name_ru',)
 
 

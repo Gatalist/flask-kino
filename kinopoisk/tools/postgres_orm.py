@@ -195,6 +195,50 @@ class PostgresDB:
         else:
             logger.info(f"{table_name}: []")
 
+
+    # @with_cursor
+    # def get_not_related_id_for_table(self, conn, cursor, list_ids: list, movie_id: int, table_name: str, column_name: str) -> list:
+    #     """
+    #     Получает все ID связанных персон для данного фильма.
+    #     Возвращает set для быстрой проверки.
+    #     """
+    #     query = f"SELECT {column_name} FROM {table_name} WHERE movie_id = %s;"
+    #     cursor.execute(query, (movie_id,))
+    #     rows = cursor.fetchall()
+    #
+    #     # Извлекаем ID из результата и возвращаем set
+    #     existing_persons_ids = [row[0] for row in rows]
+    #     print("[ + ] existing_persons_ids: ", existing_persons_ids)
+    #     not_existing_persons_ids = [p_id for p_id in list_ids if p_id not in existing_persons_ids]
+    #     print("[ + ] not_existing_persons_ids: ", not_existing_persons_ids)
+    #     return not_existing_persons_ids
+
+    @with_cursor
+    def get_not_related_id_for_table(self, conn, cursor, list_ids: list, movie_id: int, table_name: str,
+                                     column_name: str) -> list:
+        """
+        Получает ID, которые не привязаны к фильму.
+        """
+        # Шаг 1: Очищаем исходный список от дубликатов и преобразуем в set для быстрой проверки.
+        unique_list_ids = set(list_ids)
+
+        # Шаг 2: Получаем существующие ID из базы данных.
+        query = f"SELECT {column_name} FROM {table_name} WHERE movie_id = %s;"
+        cursor.execute(query, (movie_id,))
+        rows = cursor.fetchall()
+
+        # Шаг 3: Извлекаем ID из результата и сохраняем в set для быстрого поиска.
+        existing_persons_ids = {row[0] for row in rows}
+
+        print(f"[ + ] existing_persons_ids: {existing_persons_ids}")
+
+        # Шаг 4: Находим разницу между двумя set'ами.
+        not_existing_persons_ids = list(unique_list_ids - existing_persons_ids)
+
+        print(f"[ + ] not_existing_persons_ids: {not_existing_persons_ids}")
+
+        return not_existing_persons_ids
+
     @staticmethod
     def get_obj_ids(list_dict) -> list[int]:
         return [obj['id'] for obj in list_dict]

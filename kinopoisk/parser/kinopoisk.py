@@ -22,6 +22,7 @@ class KinopoiskApi(WebRequester):
         self.current_key = None
         self.get_next_api_key()
         self.placeholder_hashes = Settings.placeholder_hashes
+        self.popular_actors = read_line_file('./actor/actors.txt')
 
     def get_next_api_key(self):
         """Получаем следующий api ключ из списка"""
@@ -82,15 +83,13 @@ class KinopoiskApi(WebRequester):
                 return True
         return False
 
-    @staticmethod
-    def sorting_actors(list_actors: list[dict], count_actor_save) -> list:
-        popular_actors = read_line_file('./actor/actors.txt')
+    def sorting_actors(self, list_actors: list[dict], count_actor_save) -> list:
 
         if list_actors:
             popular = []
             other = []
             for actor in list_actors:
-                if actor.get('nameRu') in popular_actors:
+                if actor.get('name_ru') in self.popular_actors:
                     popular.append(actor)
                 else:
                     other.append(actor)
@@ -143,14 +142,16 @@ class KinopoiskApi(WebRequester):
         """Получаем режиссеров, актеров, сценаристов"""
         parse_url = f"{self.staff_api_url}{kinopoisk_id}"
         request_data = self.request_data_from_api(parse_url, "People parsing")
-
         director = []
         creator = []
         actor = []
 
         res_data = request_data.get("data")
         if res_data:
-            for elem in res_data.json():
+            json_data = res_data.json()
+            print("request_data_people: ", '-' * 20)
+            for elem in json_data:
+                print(elem)
                 _person = {
                     "person_id": elem.get('staffId', None),
                     "name_ru": elem.get('nameRu', None),
@@ -161,19 +162,37 @@ class KinopoiskApi(WebRequester):
                 if elem.get('nameRu') != '' or elem.get('nameEn') != '':
                     if elem.get('professionKey') == 'DIRECTOR':
                         _person['director'] = True
-                        director.append(_person)
+
+                    if elem.get('professionKey') == 'WRITER':
+                        _person['creator'] = True
 
                     if elem.get('professionKey') == 'ACTOR':
                         _person['actor'] = True
                         actor.append(_person)
 
-                    if elem.get('professionKey') == 'WRITER':
-                        _person['creator'] = True
-                        creator.append(_person)
+                if _person.get('director'):
+                    director.append(_person)
 
-            slice_actor = self.sorting_actors(list_actors=actor, count_actor_save=count_actor_save)
-            request_data["data"] = {'director': director, 'creator': creator, 'actor': slice_actor}
-        return request_data
+                if _person.get('creator'):
+                    creator.append(_person)
+
+                if _person.get('actor'):
+                    actor.append(_person)
+
+            # print()
+            print()
+            # print('default', "-" * 30)
+            # print('director', director, '\ncreator', creator, '\nactor', actor)
+            actor = self.sorting_actors(list_actors=actor, count_actor_save=count_actor_save)
+            # print()
+            print('sorted acror', "-" * 30)
+            print('director', director, '\ncreator', creator, '\nactor', actor)
+            # print()
+            # print("-" * 30)
+            # print()
+            # request_data["data"] = {'director': director, 'creator': creator, 'actor': actor}
+            # print('new_response', request_data)
+        return {'director': director, 'creator': creator, 'actor': actor}
 
     def get_data_similar(self, kinopoisk_id: int) -> dict:
         """Получаем похожие фильмы"""

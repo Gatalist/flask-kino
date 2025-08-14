@@ -6,7 +6,7 @@ from tools.loguru_logger import logger
 
 class WebRequester:
     """Базовый клас получения данных с сервера"""
-    timeout = 10  # мах время ожидания ответа сервера
+    timeout = 15  # мах время ожидания ответа сервера
 
     @staticmethod
     def new_base_response_dict():
@@ -20,7 +20,7 @@ class WebRequester:
 
     @staticmethod
     def get_user_agent() -> dict:
-        """Получение рандомный User-Agent"""        
+        """Получение рандомный User-Agent"""
         return {'User-Agent': UserAgent().random}
 
     def check_request_status(self, code):
@@ -63,7 +63,7 @@ class WebRequester:
 
         except requests.Timeout:
             raise TimeoutError(f"[-] Таймаут при подключении к {url}")
-        
+
         except requests.exceptions.HTTPError as http_err:
             raise ConnectionError(f"[-] HTTP ошибка")
 

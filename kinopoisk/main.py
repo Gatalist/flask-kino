@@ -26,7 +26,8 @@ image = FileImage(Settings.static_path)
 # sleep(500)
 
 api_kinopoisk = KinopoiskApi(list_api_key=keys)
-imdb_movie = IMDBMovie()
+imdb_scraper = IMDBMovie()
+imdb_scraper.create_browser(imdb_scraper.get_user_agent())
 
 # проверяем статус подключения к серверу
 server_status, message = api_kinopoisk.check_resource_status(api_kinopoisk.base_api_url)
@@ -102,11 +103,11 @@ if server_status == 200:
                 # get actors, creators, writers
                 people = api_kinopoisk.get_data_people(kinopoisk_id=_kinopoisk_id, count_actor_save=15)
                 _directors = people.get('director', [])
-                _writers = people.get('writer', [])
+                _creator = people.get('creator', [])
                 _actors = people.get('actor', [])
 
                 logger.info(f"director: {_directors}")
-                logger.info(f"writer: {_writers}")
+                logger.info(f"creator: {_creator}")
                 logger.info(f"actor: {_actors}")
 
                 # get similars movie
@@ -121,7 +122,7 @@ if server_status == 200:
                 similar_ids = db.get_or_create_similar(similars)
 
                 # get movie screen
-                screenshots = imdb_movie.get_movie_photos(_imdb_id)
+                screenshots = imdb_scraper.get_movie_photos(imdb_id=_imdb_id)
                 logger.info(f"screenshots: {screenshots}")
 
                 # save head movie mage and return lint
@@ -265,11 +266,9 @@ if server_status == 200:
                 director_ids = db.create_person(list_obj=_directors, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
                 print("director_ids:", director_ids)
 
-                creator_ids = db.create_person(list_obj=_writers, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
+                creator_ids = db.create_person(list_obj=_creator, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
                 print("creator_ids:", creator_ids)
 
-                # Popular actor add db
-                # popular_actor = db.popular_actor(_actors, count_actor_save=20)
                 actor_ids = db.create_person(list_obj=_actors, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
                 print("actor_ids:", actor_ids)
 
@@ -328,9 +327,6 @@ if server_status == 200:
                     rating_mpaa_id=rating_mpaa_id,
                     rating_good_review=_rating_good_review,
                     rating_good_review_vote_count=_rating_good_review_vote_count,
-
-                    trailer_id=None, # comming soon
-
                     rating_kinopoisk_id = rating_kinopoisk_id,
                     rating_kinopoisk_vote_count=_rating_kinopoisk_vote_count,
                     rating_imdb_id = rating_imdb_id,
@@ -360,12 +356,37 @@ if server_status == 200:
                     sorting = 100
                 )
 
+                # filter not related peaple for movie
+                __creator_ids = db.get_not_related_id_for_table(
+                    movie_id=new_movie,
+                    list_ids=creator_ids,
+                    table_name='creator_movie',
+                    column_name='persons_id'
+                )
+                print(f"Новые __creator_ids для добавления: {__creator_ids}")
+
+                __director_ids = db.get_not_related_id_for_table(
+                    movie_id=new_movie,
+                    list_ids=director_ids,
+                    table_name='director_movie',
+                    column_name='persons_id'
+                )
+                print(f"Новые __director_ids для добавления: {__director_ids}")
+
+                __actor_ids = db.get_not_related_id_for_table(
+                    movie_id=new_movie,
+                    list_ids=actor_ids,
+                    table_name='actor_movie',
+                    column_name='persons_id'
+                )
+                print(f"Новые __actor_ids для добавления: {__actor_ids}")
+
                 # many-to-many
                 db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country_ids)
                 db.related_table(table_name='genre_movie', movie_id=new_movie, list_data=genres_ids)
-                db.related_table(table_name='director_movie', movie_id=new_movie, list_data=director_ids)
-                db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=creator_ids)
-                db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=actor_ids)
+                db.related_table(table_name='director_movie', movie_id=new_movie, list_data=__director_ids)
+                db.related_table(table_name='creator_movie', movie_id=new_movie, list_data=__creator_ids)
+                db.related_table(table_name='actor_movie', movie_id=new_movie, list_data=__actor_ids)
                 db.related_table(table_name='screenshot_movie', movie_id=new_movie, list_data=screenshots)
                 db.related_table(table_name='similar_movie', movie_id=new_movie, list_data=similar_ids)
                 db.related_table(table_name='video_movie', movie_id=new_movie, list_data=videos_ids)
