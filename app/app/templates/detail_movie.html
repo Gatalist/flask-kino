@@ -105,32 +105,32 @@
                         </p>
                     {% endif %}
 
-                    {% if movie.mod_creators %}
-                        <p class="card-text mb-auto p-2">
-                            <i class="bi bi-person fs-5 me-2"></i> Сценарист:
-                            {% for man in movie.mod_creators %}
-                                {{man}}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
+{#                    {% if movie.mod_creators %}#}
+{#                        <p class="card-text mb-auto p-2">#}
+{#                            <i class="bi bi-person fs-5 me-2"></i> Сценарист:#}
+{#                            {% for man in movie.mod_creators %}#}
+{#                                {{man}}#}
+{#                            {% endfor %}#}
+{#                        </p>#}
+{#                    {% endif %}#}
+{##}
+{#                    {% if movie.mod_directors %}#}
+{#                        <p class="card-text mb-auto p-2">#}
+{#                            <i class="bi bi-person fs-5 me-2"></i> Директор:#}
+{#                            {% for man in movie.mod_directors %}#}
+{#                                {{man}}#}
+{#                            {% endfor %}#}
+{#                        </p>#}
+{#                    {% endif %}#}
 
-                    {% if movie.mod_directors %}
-                        <p class="card-text mb-auto p-2">
-                            <i class="bi bi-person fs-5 me-2"></i> Директор:
-                            {% for man in movie.mod_directors %}
-                                {{man}}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-
-                    {% if movie.mod_actors %}
-                        <p class="card-text mb-auto p-2">
-                            <i class="bi bi-person fs-5 me-2"></i> Актеры:
-                            {% for man in movie.mod_actors %}
-                                {{man}}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
+{#                    {% if movie.mod_actors %}#}
+{#                        <p class="card-text mb-auto p-2">#}
+{#                            <i class="bi bi-person fs-5 me-2"></i> Актеры:#}
+{#                            {% for man in movie.mod_actors %}#}
+{#                                {{man}}#}
+{#                            {% endfor %}#}
+{#                        </p>#}
+{#                    {% endif %}#}
 
                     <br>
                     <p class="card-text mb-auto p-2">
@@ -147,6 +147,100 @@
             </div>
         {% endif %}
 
+        <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative card-background">
+            <p class="d-flex justify-content-center gap-1">
+                {% if movie.actor %}
+                    <a class="btn accordion-btn-people me-2 mt-2" data-bs-toggle="collapse" href="#collapseActor" role="button" aria-expanded="false" aria-controls="collapseActor">
+                        Актеры
+                    </a>
+                {% endif %}
+
+                {% if movie.creator %}
+                    <a class="btn accordion-btn-people me-2 mt-2" data-bs-toggle="collapse" href="#collapseCreator" role="button" aria-expanded="false" aria-controls="collapseCreator">
+                        Сценаристы
+                    </a>
+                {% endif %}
+
+                {% if movie.director %}
+                    <a class="btn accordion-btn-people me-2 mt-2" data-bs-toggle="collapse" href="#collapseDirector" role="button" aria-expanded="false" aria-controls="collapseDirector">
+                        Директора
+                    </a>
+                {% endif %}
+            </p>
+
+            <div class="accordion" id="accordion-parent">
+                {% if movie.actor %}
+                    <div class="collapse" id="collapseActor" data-bs-parent="#accordion-parent">
+                        <div class="container">
+                            <div class="d-flex flex-row flex-wrap mb-3">
+                                {% for _actor in movie.actor %}
+                                    <div class="card-shadow card-background mt-2 me-4">
+                                        <div class="card-image-wrapper">
+                                            <a href="#">
+                                                <img src="{{ _actor.image_url }}" class="card-people" alt="{{ _actor.name_ru }}">
+                                            </a>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="#" class="card-link-custom">
+                                                <p class="card-title">{{ _actor.name_ru }}</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if movie.creator %}
+                    <div class="collapse" id="collapseCreator" data-bs-parent="#accordion-parent">
+                        <div class="container">
+                            <div class="d-flex flex-row flex-wrap mb-3">
+                                {% for _creator in movie.creator %}
+                                    <div class="card-shadow card-background mt-2 me-4">
+                                        <div class="card-image-wrapper">
+                                            <a href="#">
+                                                <img src="{{ _creator.image_url }}" class="card-people" alt="{{ _creator.name_ru }}">
+                                            </a>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="#" class="card-link-custom">
+                                                <h6 class="card-title">{{ _creator.name_ru }}</h6>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if movie.director %}
+                    <div class="collapse" id="collapseDirector" data-bs-parent="#accordion-parent">
+                        <div class="container">
+                            <div class="d-flex flex-row flex-wrap mb-3">
+                                {% for _director in movie.director %}
+                                    <div class="card-shadow card-background mt-2 me-4">
+                                        <div class="card-image-wrapper">
+                                            <a href="#">
+                                                <img src="{{ _director.image_url }}" class="card-people" alt="{{ _director.name_ru }}">
+                                            </a>
+                                        </div>
+                                        <div class="mt-2">
+                                            <a href="#" class="card-link-custom">
+                                                <h6 class="card-title">{{ _director.name_ru }}</h6>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
         {% if movie.screen_img %}
             <div class="row g-2 rounded p-2 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xxl-6 card-background">
                 {% for screen in movie.screen_img %}
@@ -156,7 +250,6 @@
                                 <img src="{{ screen.url }}" class="img-fluid rounded" style="max-height: 100%; object-fit: contain;" alt="{{ screen.name }}">
                             </div>
                         </div>
-
                     </div>
                 {% endfor %}
             </div>

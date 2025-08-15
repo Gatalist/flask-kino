@@ -63,6 +63,38 @@ body {
     height: 300px;
 }
 
+.card-people {
+    width: 100%; /* The image will take up the full width of its parent wrapper */
+    height: 100%; /* The image will take up the full height of its parent wrapper */
+    object-fit: cover; /* This will make the image fill the space while maintaining aspect ratio */
+    border-radius: 10px;
+}
+
+
+.card-image-wrapper {
+    width: 120px; /* Set a fixed width */
+    height: 170px; /* Set a fixed height */
+    overflow: hidden; /* Hide any part of the image that goes over */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.accordion-btn-people {
+    background-color: var(--card-bg);
+    color: var(--accent-color);
+    text-decoration: none;
+    border-color: var(--border-color);
+}
+
+.accordion-btn-people:hover {
+    transform: scale(1.05);
+    box-shadow:
+        0 0 5px 1px rgba(0, 204, 0, 0.8),
+        0 0 10px 3px rgba(0, 204, 0, 0.6),
+        0 0 20px 6px rgba(0, 204, 0, 0.3);
+    z-index: 1;
+}
+
 .card-img {
     height: 350px;
     object-fit: cover;
@@ -80,8 +112,9 @@ body {
 }
 
 .card-link-custom {
-  text-decoration: none;
-  color: var(--card-bg-light);
+    text-decoration: none;
+    color: var(--card-bg-light);
+    text-align: center;
 }
 
 .card-link-custom:hover {
