@@ -149,9 +149,9 @@ class KinopoiskApi(WebRequester):
         res_data = request_data.get("data")
         if res_data:
             json_data = res_data.json()
-            print("request_data_people: ", '-' * 20)
+            # print("request_data_people: ", '-' * 20)
             for elem in json_data:
-                print(elem)
+                # print(elem)
                 _person = {
                     "person_id": elem.get('staffId', None),
                     "name_ru": elem.get('nameRu', None),
@@ -180,13 +180,13 @@ class KinopoiskApi(WebRequester):
                     actor.append(_person)
 
             # print()
-            print()
+            # print()
             # print('default', "-" * 30)
             # print('director', director, '\ncreator', creator, '\nactor', actor)
             actor = self.sorting_actors(list_actors=actor, count_actor_save=count_actor_save)
             # print()
-            print('sorted acror', "-" * 30)
-            print('director', director, '\ncreator', creator, '\nactor', actor)
+            # print('sorted acror', "-" * 30)
+            # print('director', director, '\ncreator', creator, '\nactor', actor)
             # print()
             # print("-" * 30)
             # print()

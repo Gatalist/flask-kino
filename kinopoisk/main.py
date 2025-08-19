@@ -22,7 +22,7 @@ image = FileImage(Settings.static_path)
 
 # path_save_file = image.generate_movie_path(path_names=['media', 'files'])
 # save_kinopoist_ids = db.get_all_kinopoisk_ids(path_file=path_save_file, file_name='saved_ids.txt')
-# read_ids_from_file = image.get_list_line_file(file_path=['media', 'files', 'saved_ids.txt'])
+read_ids_from_file = image.get_list_line_file(file_path=['media', 'files', 'saved_ids.txt'])
 # sleep(500)
 
 api_kinopoisk = KinopoiskApi(list_api_key=keys)
@@ -38,16 +38,16 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-start_id = 298
-end_id = 85_000
+# start_id = 298
+# end_id = 85_000
 
 # sleep(1_000_000)
 
 if server_status == 200:
     # получение данных с api
-    for idd in range(start_id, end_id):
-    # for _idd in read_ids_from_file:
-    #     idd = int(_idd)
+    # for idd in range(start_id, end_id):
+    for _idd in read_ids_from_file:
+        idd = int(_idd)
         logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
@@ -134,17 +134,18 @@ if server_status == 200:
                 logger.info(f"poster_url: {poster_url}")
 
                 # save screen movie and return link list
-                screenshots_save = image.web_save_image(
-                    web_url_image=screenshots['data'],
-                    name='image',
-                    path_names=['media', 'movie', str(_year), str(_kinopoisk_id)]
-                )
+                if screenshots:
+                    screenshots_save = image.web_save_image(
+                        web_url_image=screenshots['data'],
+                        name='image',
+                        path_names=['media', 'movie', str(_year), str(_kinopoisk_id)]
+                    )
+
+                    screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
                 videos = db.create_video(list_video=_videos)
-                print("created videos:", videos)
+                logger.info("created videos:", videos)
                 videos_ids = db.get_obj_ids(videos)
-
-                screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
                 rating_kinopoisk_id = db.get_or_create(
                     table_name='rating',
@@ -264,13 +265,13 @@ if server_status == 200:
                 country_ids = db.get_obj_ids(country)
 
                 director_ids = db.create_person(list_obj=_directors, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
-                print("director_ids:", director_ids)
+                logger.info("director_ids:", director_ids)
 
                 creator_ids = db.create_person(list_obj=_creator, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
-                print("creator_ids:", creator_ids)
+                logger.info("creator_ids:", creator_ids)
 
                 actor_ids = db.create_person(list_obj=_actors, instance=image, path_names=['media', 'people', str(_year), str(_kinopoisk_id)])
-                print("actor_ids:", actor_ids)
+                logger.info("actor_ids:", actor_ids)
 
                 production_status_id = db.get_or_create(
                     table_name='production_status',
@@ -363,7 +364,7 @@ if server_status == 200:
                     table_name='creator_movie',
                     column_name='persons_id'
                 )
-                print(f"Новые __creator_ids для добавления: {__creator_ids}")
+                logger.info(f"Новые __creator_ids для добавления: {__creator_ids}")
 
                 __director_ids = db.get_not_related_id_for_table(
                     movie_id=new_movie,
@@ -371,7 +372,7 @@ if server_status == 200:
                     table_name='director_movie',
                     column_name='persons_id'
                 )
-                print(f"Новые __director_ids для добавления: {__director_ids}")
+                logger.info(f"Новые __director_ids для добавления: {__director_ids}")
 
                 __actor_ids = db.get_not_related_id_for_table(
                     movie_id=new_movie,
@@ -379,7 +380,7 @@ if server_status == 200:
                     table_name='actor_movie',
                     column_name='persons_id'
                 )
-                print(f"Новые __actor_ids для добавления: {__actor_ids}")
+                logger.info(f"Новые __actor_ids для добавления: {__actor_ids}")
 
                 # many-to-many
                 db.related_table(table_name='country_movie', movie_id=new_movie, list_data=country_ids)

@@ -455,8 +455,10 @@ class Person(BaseModel):
     )
 
     def __repr__(self):
-        return f'{self.name_ru}'
-
+        if self.name_ru:
+            return f'{self.name_ru}'
+        else:
+            return f'{self.name_en}'
 
 class Screenshot(BaseModel):
     __tablename__ = 'screenshots'

@@ -25,7 +25,7 @@ class IMDBMovie(BrowserPlaywright):
 
     def check_request_status(self, code):
         """Формируем новый словарь статус с полученными данными"""
-        print(f"status_code = {code}\n")
+        logger.info(f"status_code = {code}\n")
         response = self.new_base_response_dict()
 
         if code == 200:
@@ -92,11 +92,14 @@ class IMDBMovie(BrowserPlaywright):
             imdb_id: 'tt0290334' (ID фильма на IMDB).
 
         """
-        print('\n----------- IMDB parsing ----------')
-        page = self.create_page()
-        parse_url = f"{self.film_imdb_url}{imdb_id}/mediaindex/"
-        return self.request_data(page=page, url=parse_url)
-
+        logger.info('\n----------- IMDB parsing ----------')
+        if imdb_id:
+            page = self.create_page()
+            parse_url = f"{self.film_imdb_url}{imdb_id}/mediaindex/"
+            result = self.request_data(page=page, url=parse_url)
+            page.close()
+            return result
+        return {}
 
 # old version via requests
 # class IMDBMovie(WebRequester):
