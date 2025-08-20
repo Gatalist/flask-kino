@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block other_scripts_head %}
-{#    <script src="{{ url_for('static', filename='kinobox/kinobox.min.js') }}"></script>#}
-{#    <script src="https://kinobox.tv/kinobox.min.js"></script>?#}
+
 {% endblock other_scripts_head %}
 
 
@@ -104,33 +103,6 @@
                             {% endfor %}
                         </p>
                     {% endif %}
-
-{#                    {% if movie.mod_creators %}#}
-{#                        <p class="card-text mb-auto p-2">#}
-{#                            <i class="bi bi-person fs-5 me-2"></i> Сценарист:#}
-{#                            {% for man in movie.mod_creators %}#}
-{#                                {{man}}#}
-{#                            {% endfor %}#}
-{#                        </p>#}
-{#                    {% endif %}#}
-{##}
-{#                    {% if movie.mod_directors %}#}
-{#                        <p class="card-text mb-auto p-2">#}
-{#                            <i class="bi bi-person fs-5 me-2"></i> Директор:#}
-{#                            {% for man in movie.mod_directors %}#}
-{#                                {{man}}#}
-{#                            {% endfor %}#}
-{#                        </p>#}
-{#                    {% endif %}#}
-
-{#                    {% if movie.mod_actors %}#}
-{#                        <p class="card-text mb-auto p-2">#}
-{#                            <i class="bi bi-person fs-5 me-2"></i> Актеры:#}
-{#                            {% for man in movie.mod_actors %}#}
-{#                                {{man}}#}
-{#                            {% endfor %}#}
-{#                        </p>#}
-{#                    {% endif %}#}
 
                     <br>
                     <p class="card-text mb-auto p-2">
@@ -268,7 +240,16 @@
         {% endif %}
 
         <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4 card-background">
-            <div class="kinobox_player" style="width: 400px">Player</div>
+            <div class="kinobox_player" style="width: 400px"></div>
+            <div class="uitools" id="videoplayers" style="height:370px;width:610px;background-image: url('//pleer.videoplayers.club/web/img/loader.gif');background-repeat: no-repeat;background-position: center;background-color: #ccc;"></div>
+            <script>
+                var dataUrl=window.location.href;
+                const kpId = {{ movie.kinopoisk_id }}
+                var my_script_play = document.createElement("script");
+                my_script_play.setAttribute("src","//js.espanplay.site/get_player?w=610&h=370&type=widget&kp_id=" + kpId + "&players=apicollaps,videocdn,hdvb,bazon,alloha,ustore,kodik,trailer&r_id=videoplayers&ani=COLLAPS&ati=&adi=&vni=VIDEOCDN&vti=&vdi=&hni=HDVB&hti=&hdi=&bni=BAZON&bti=&bdi=&alni=ALLOHATV&alti=&aldi=&usni=USTOREBZ&usti=&usdi=&koni=KODIK&koti=&kodi=&tti=&ru="+dataUrl);
+                my_script_play.async = true;
+                document.head.appendChild(my_script_play);
+            </script>
         </div>
 
         {% if movie.get_similar_movie %}
@@ -324,12 +305,5 @@
 {% endblock content %}
 
 {% block other_scripts_body %}
-{#    <script>#}
-{#        new Kinobox('.kinobox_player', {#}
-{#            search: {#}
-{#                kinopoisk: '{{movie.kinopoisk_id}}',#}
-{#            },#}
-{#        }).init();#}
-{#    </script>#}
     <script type="module" src="{{ url_for('static', filename='scripts/search.js') }}"></script>
 {% endblock other_scripts_body %}
