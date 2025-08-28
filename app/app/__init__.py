@@ -15,7 +15,7 @@ def create_app(config_class):
     new_app = Flask(__name__)
     new_app.config.from_object(config_class)
     sys.path.append(new_app.config['ROOT_PATH'])  # add root path
-    new_app.permanent_session_lifetime = new_app.config['SESSION_LIFETIME']  # lifetime session
+    # new_app.permanent_session_lifetime = new_app.config['SESSION_LIFETIME']  # lifetime session
 
     db.init_app(new_app)
     migrate.init_app(new_app, db)

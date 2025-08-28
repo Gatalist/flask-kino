@@ -20,7 +20,7 @@ class BrowserPlaywright:
         return self.context.new_page()
 
     @staticmethod
-    def open_url(page: object, link: str, wait_until="load", timeout=10000):
+    def open_url(page: object, link: str, wait_until="load", timeout=20000):
         return page.goto(link, wait_until=wait_until, timeout=timeout)
 
     def close(self):

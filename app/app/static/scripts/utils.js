@@ -87,6 +87,9 @@ export function createModal({modalId, callback = () => {}}) {
                         }
                     }
                     loadingSpinner.classList.add('d-none');
+                } else {
+                    loadingSpinner.classList.add('d-none');
+                    searchedList.innerHTML = 'Ошибка запроса';
                 }
             } else {
                 allSearchResult.classList.add('d-none');

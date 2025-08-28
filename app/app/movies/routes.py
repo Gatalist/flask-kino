@@ -40,7 +40,7 @@ class MovieDetailView(MethodView):
 
 
 class MovieSearchView(FilterMovie, MethodView):
-    @logger.catch
+    # @logger.catch
     def get(self):
         self.create_context()
 

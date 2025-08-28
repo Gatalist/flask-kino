@@ -10,8 +10,11 @@ from slugify import slugify
 from app.settings import Config
 from app import db
 from app.users.models import User
-from app.movies.models import (Movie, Rating, Release, TypeVideo, AgeLimit,
-                               Country, Genre, Person, Screenshot, Similar, FilmLength, Video)
+from app.movies.models import (
+    Movie, Rating, Release, TypeVideo, AgeLimit,
+    Country, Genre, Person, Screenshot, Similar,
+    FilmLength, Video
+)
 
 
 class JsonifyObject:
@@ -278,26 +281,63 @@ class File:
 
 class MovieCRUD(CRUD, Authorization, File):
     def det_data_movie(self, request_data):
-        arg_list = dict()
-        arg_list['kinopoisk_id'] = request_data.form.get('kinopoisk_id', None)
-        arg_list['imdb_id'] = request_data.form.get('imdb_id', None)
-        arg_list['name_ru'] = request_data.form.get('name_ru', None)
-        arg_list['name_original'] = request_data.form.get("name_original", None)
-        arg_list['rating_kinopoisk'] = self.get_or_create_object(Rating,
-                                                                 star=request_data.form.get("rating_kinopoisk", None))
-        arg_list['rating_imdb'] = self.get_or_create_object(Rating, star=request_data.form.get("rating_imdb", None))
-        arg_list['rating_critics'] = self.get_or_create_object(Rating,
-                                                               star=request_data.form.get("rating_critics", None))
-        arg_list['year'] = self.get_or_create_object(Release, year=request_data.form.get("year", None))
-        arg_list['film_length'] = self.get_or_create_object(FilmLength,
-                                                            length=request_data.form.get("film_length", None))
-        arg_list['slogan'] = request_data.form.get("slogan", None)
-        arg_list['description'] = request_data.form.get("description", None)
-        arg_list['short_description'] = request_data.form.get("short_description", None)
-        arg_list['type_video'] = self.get_or_create_object(TypeVideo, name=request_data.form.get("type_video", None))
-        arg_list['age_limits'] = self.get_or_create_object(AgeLimit, name=request_data.form.get("age_limits", None))
-        arg_list['last_syncs'] = self.converting_date_time(request_data.form.get("last_syncs", None))
-        return arg_list
+        data = request_data.form
+        return {
+            'kinopoisk_id': data.get('kinopoisk_id', None),
+            'kinopoisk_hd_id': data.get('kinopoisk_hd_id', None),
+            'imdb_id': data.get('imdb_id', None),
+            'editor_annotation': data.get('editor_annotation', None),
+            'is_tickets_available': data.get('is_tickets_available', False),
+            'production_status_id': self.get_or_create_object(Rating, star=data.get("production_status", None)),
+            'name_ru': data.get('name_ru', None),
+            'name_en': data.get("name_en", None),
+            'name_uk': data.get("name_uk", None),
+            'name_original': data.get("name_original", None),
+            'poster_url': data.get("poster_url", None),
+            'slug': data.get("poster_url", None),
+            'reviews_count': data.get("reviews_count", None),
+            'rating_mpaa_id': self.get_or_create_object(Rating, star=data.get("rating_mpaa", None)),
+            'rating_good_review': data.get("rating_good_review", None),
+            'rating_good_review_vote_count': data.get("rating_good_review_vote_count", None),
+            # 'trailer': data.get("trailer", None),
+            'rating_kinopoisk_id': self.get_or_create_object(Rating, star=data.get("rating_kinopoisk", None)),
+            'rating_kinopoisk_vote_count': data.get("rating_kinopoisk_vote_count", None),
+            'rating_imdb_id': self.get_or_create_object(Rating, star=data.get("rating_imdb", None)),
+            'rating_imdb_vote_count': data.get("rating_imdb_vote_count", None),
+            'rating_critics_id': self.get_or_create_object(Rating, star=data.get("rating_critics", None)),
+            'rating_critics_vote_count': data.get("rating_critics_vote_count", None),
+            'rating_await_id': self.get_or_create_object(Rating, star=data.get("rating_await", None)),
+            'rating_await_count': data.get("rating_await_count", None),
+            'year_id': self.get_or_create_object(Release, year=data.get("year", None)),
+            'start_year_id': self.get_or_create_object(Release, year=data.get("start_year", None)),
+            'end_year_id': self.get_or_create_object(Release, year=data.get("end_year", None)),
+            'film_length_id': self.get_or_create_object(FilmLength, length=data.get("film_length", None)),
+            'slogan': data.get("slogan", None),
+            'description': data.get("description", None),
+            'short_description': data.get("short_description", None),
+
+            'type_video_id': self.get_or_create_object(TypeVideo, name=data.get("type_video", None)),
+            'age_limits_id': self.get_or_create_object(AgeLimit, name=data.get("age_limits", None)),
+            'last_syncs': self.converting_date_time(data.get("last_syncs", None)),
+
+            # 'segment_id':
+            # 'countries_id':
+            # 'genres':
+            # 'director':
+            # 'creator':
+            # 'actor':
+            # 'screen_img':
+            # 'similar':
+            # 'similar':
+
+            'has_3d': data.get("has_3d", False),
+            'has_imax': data.get("has_imax", False),
+            'short_film': data.get("short_film", False),
+            'serial': data.get("serial", False),
+            'completed': data.get("completed", False),
+
+            'user_id': self.converting_date_time(data.get("user", None)),
+        }
 
     def get_or_create_movie(self, request_data):
         # Получаем данные из формы

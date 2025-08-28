@@ -112,18 +112,11 @@ class Movie(BaseModel):
     rating_good_review = db.Column(db.Float, nullable=True)
     rating_good_review_vote_count = db.Column(db.Integer, nullable=True)
 
-    trailer = db.relationship(
-        'Video',
-        secondary=video_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
+    trailer = db.relationship('Video', secondary=video_movie, lazy='selectin', passive_deletes=True)
 
     rating_kinopoisk_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
     rating_kinopoisk = db.relationship(
-        'Rating',
-        foreign_keys=[rating_kinopoisk_id],
-        passive_deletes=True,
+        'Rating', foreign_keys=[rating_kinopoisk_id], passive_deletes=True,
         overlaps="rating_imdb_id,rating_critics_id"
     )
 
@@ -131,9 +124,7 @@ class Movie(BaseModel):
 
     rating_imdb_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
     rating_imdb = db.relationship(
-        'Rating',
-        foreign_keys=[rating_imdb_id],
-        passive_deletes=True,
+        'Rating', foreign_keys=[rating_imdb_id], passive_deletes=True,
         overlaps="rating_kinopoisk_id,rating_critics_id"
     )
 
@@ -141,9 +132,7 @@ class Movie(BaseModel):
 
     rating_critics_id = db.Column(db.Integer, db.ForeignKey('rating.id', ondelete='SET NULL'))
     rating_critics = db.relationship(
-        'Rating',
-        foreign_keys=[rating_critics_id],
-        passive_deletes=True,
+        'Rating', foreign_keys=[rating_critics_id], passive_deletes=True,
         overlaps="rating_kinopoisk_id,rating_imdb_id"
     )
 
@@ -156,26 +145,17 @@ class Movie(BaseModel):
 
     year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
     year = db.relationship(
-        'Release',
-        foreign_keys=[year_id],
-        passive_deletes=True,
-        overlaps="start_year,end_year"
+        'Release', foreign_keys=[year_id], passive_deletes=True, overlaps="start_year,end_year"
     )
 
     start_year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
     start_year = db.relationship(
-        'Release',
-        foreign_keys=[start_year_id],
-        passive_deletes=True,
-        overlaps="year,end_year"
+        'Release', foreign_keys=[start_year_id], passive_deletes=True, overlaps="year,end_year"
     )
 
     end_year_id = db.Column(db.Integer, db.ForeignKey('releases.id', ondelete='SET NULL'))
     end_year = db.relationship(
-        'Release',
-        foreign_keys=[end_year_id],
-        passive_deletes=True,
-        overlaps="year,start_year"
+        'Release', foreign_keys=[end_year_id], passive_deletes=True, overlaps="year,start_year"
     )
 
     film_length_id = db.Column(db.Integer, db.ForeignKey('film_length.id', ondelete='SET NULL'))
@@ -199,47 +179,12 @@ class Movie(BaseModel):
     countries_id = db.Column(db.Integer, db.ForeignKey('countries.id', ondelete='SET NULL'))
     countries = db.relationship('Country', secondary=country_movie, lazy='selectin', passive_deletes=True)
 
-    genres = db.relationship(
-        'Genre',
-        secondary=genre_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
-
-    director = db.relationship(
-        'Person',
-        secondary=director_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
-
-    creator = db.relationship(
-        'Person',
-        secondary=creator_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
-
-    actor = db.relationship(
-        'Person',
-        secondary=actor_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
-
-    screen_img = db.relationship(
-        'Screenshot',
-        secondary=screenshot_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
-
-    similar = db.relationship(
-        'Similar',
-        secondary=similar_movie,
-        lazy='selectin',
-        passive_deletes=True
-    )
+    genres = db.relationship('Genre', secondary=genre_movie, lazy='selectin', passive_deletes=True)
+    director = db.relationship('Person', secondary=director_movie, lazy='selectin', passive_deletes=True)
+    creator = db.relationship('Person', secondary=creator_movie, lazy='selectin', passive_deletes=True)
+    actor = db.relationship('Person', secondary=actor_movie, lazy='selectin', passive_deletes=True)
+    screen_img = db.relationship('Screenshot', secondary=screenshot_movie, lazy='selectin', passive_deletes=True)
+    similar = db.relationship('Similar', secondary=similar_movie, lazy='selectin', passive_deletes=True)
 
     has_3d = db.Column(db.Boolean, default=False)
     has_imax = db.Column(db.Boolean, default=False)

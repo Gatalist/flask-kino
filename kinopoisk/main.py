@@ -38,16 +38,14 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-# start_id = 298
-# end_id = 85_000
-
-# sleep(1_000_000)
+start_id = 94_161
+end_id = 100_000
 
 if server_status == 200:
     # получение данных с api
-    # for idd in range(start_id, end_id):
-    for _idd in read_ids_from_file:
-        idd = int(_idd)
+    for idd in range(start_id, end_id):
+    # for _idd in read_ids_from_file:
+    #     idd = int(_idd)
         logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
