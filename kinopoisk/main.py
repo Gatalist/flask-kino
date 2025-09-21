@@ -6,7 +6,7 @@ from tools.postgres_orm import PostgresDB
 from tools.loguru_logger import logger
 from tools.file_manager import FileImage
 from settings import Settings
-
+from tools.tools import color_text, Colors
 
 keys = Settings.api_keys[1] + Settings.api_keys[2] + Settings.api_keys[3] + Settings.api_keys[4]
 
@@ -38,25 +38,24 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-start_id = 94_161
-end_id = 100_000
+start_id = 310_000
+end_id = 320_000
 
 if server_status == 200:
     # получение данных с api
     for idd in range(start_id, end_id):
     # for _idd in read_ids_from_file:
     #     idd = int(_idd)
-        logger.info(f'\n\n----> kinopoisk id: {idd} <-----')
+        msg_start = color_text(Colors.GREEN, f'----> kinopoisk id: {idd} <-----')
+        logger.info(f'\n\n{msg_start}')
         # проверяем нет ли в базе фильма с kinopoisk_id = movie_id
         if not db.get_id_by_name(table_name='movies', where_key_name='kinopoisk_id', where_key_data=idd):
             # получаем фильм
+            logger.info('\n----------  Получение данных для фильма ----------\n')
             movie = api_kinopoisk.get_data_movie(kinopoisk_id=idd, start_from_year=1965)
             if movie['status_code'] == 200 and movie['filter'] and movie['data']:
                 # получаем все данные для фильма
                 movie_data = movie['data']
-
-                logger.info('\n----------  Получение данных для фильма ----------\n')
-                logger.info(f"movie:data: {movie_data}")
 
                 _kinopoisk_id = int(movie_data.get('kinopoiskId'))
                 _kinopoisk_hd_id = movie_data.get('kinopoiskHDId')
@@ -104,24 +103,24 @@ if server_status == 200:
                 _creator = people.get('creator', [])
                 _actors = people.get('actor', [])
 
-                logger.info(f"director: {_directors}")
-                logger.info(f"creator: {_creator}")
-                logger.info(f"actor: {_actors}")
+                # logger.info(f"director: {_directors}")
+                # logger.info(f"creator: {_creator}")
+                # logger.info(f"actor: {_actors}")
 
                 # get similars movie
                 _similars = api_kinopoisk.get_data_similar(kinopoisk_id=_kinopoisk_id)
-                logger.info(f"similars: {_similars}")
+                # logger.info(f"similars: {_similars}")
 
                 # get videos
                 _videos = api_kinopoisk.get_data_video(kinopoisk_id=_kinopoisk_id)
-                logger.info(f"videos: {_videos}")
+                # logger.info(f"videos: {_videos}")
 
                 similars = _similars.get('data', None)
                 similar_ids = db.get_or_create_similar(similars)
 
                 # get movie screen
                 screenshots = imdb_scraper.get_movie_photos(imdb_id=_imdb_id)
-                logger.info(f"screenshots: {screenshots}")
+                # logger.info(f"screenshots: {screenshots}")
 
                 # save head movie mage and return lint
                 poster_url = image.web_save_image(
@@ -129,7 +128,7 @@ if server_status == 200:
                     name='postr',
                     path_names=['media', 'movie', str(_year), str(_kinopoisk_id)]
                 )
-                logger.info(f"poster_url: {poster_url}")
+                # logger.info(f"poster_url: {poster_url}")
 
                 # save screen movie and return link list
                 if screenshots:
@@ -142,7 +141,7 @@ if server_status == 200:
                     screenshots = db.create_screen_movie(kinopoisk_id=_kinopoisk_id, list_value=screenshots_save)
 
                 videos = db.create_video(list_video=_videos)
-                logger.info("created videos:", videos)
+                # logger.info("created videos:", videos)
                 videos_ids = db.get_obj_ids(videos)
 
                 rating_kinopoisk_id = db.get_or_create(
@@ -393,5 +392,8 @@ if server_status == 200:
             elif movie['status_code'] == 402:
                 break
         else:
-            logger.info('\n Фильм уже существует\n')
-        logger.info('\n--------- Finish ----------\n\n\n')
+            msg_exist = color_text(Colors.RED, 'Фильм уже существует')
+            logger.info(f'\n {msg_exist}\n')
+
+        msg_finish = color_text(Colors.YELLOW, '--------- Finish ----------')
+        logger.info(f'\n {msg_finish}\n\n\n')

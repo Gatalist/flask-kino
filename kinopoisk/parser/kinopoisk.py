@@ -6,6 +6,8 @@ from .base_parser import WebRequester
 from tools.loguru_logger import logger
 from tools.file_manager import read_line_file
 
+from tools.tools import color_text, Colors
+
 
 class KinopoiskApi(WebRequester):
     """Получаем по API данные сервера Kinopoisk"""
@@ -100,6 +102,10 @@ class KinopoiskApi(WebRequester):
             return popular
         return list_actors
 
+    @staticmethod
+    def if_value(value):
+        return color_text(Colors.GREEN, "True  |") if value else color_text(Colors.RED, "False |")
+
     def get_data_movie(self, kinopoisk_id: int, start_from_year: int) -> dict:
         """
         Получаем данные о фильме, фильтруем по названию, изображению и год выпуска.
@@ -109,10 +115,12 @@ class KinopoiskApi(WebRequester):
         parse_url = f"{self.film_api_url}{kinopoisk_id}"
         request_data = self.request_data_from_api(parse_url, "Movie parsing")
         request_data["filter"] = False
+        out = False
 
         if request_data.get("data"):
             movie_data = request_data.get("data").json()
-            print("movie_data: ", movie_data)
+            out = True
+            logger.info(f"movie_data: {movie_data}")
             name_ru = movie_data.get('nameRu', None)
             name_orig = movie_data.get('nameOriginal', None)
             poster = movie_data.get('posterUrl', None)
@@ -120,10 +128,15 @@ class KinopoiskApi(WebRequester):
 
             request_data['filter'] = True if year >= start_from_year else False
 
-            logger.info(f'nameRu       | {"True  |" if name_ru else "False |"} {name_ru}')
-            logger.info(f'nameOriginal | {"True  |" if name_orig else "False |"} {name_orig}')
-            logger.info(f'year         | {"True  |" if request_data["filter"] else "False |"} {year}')
-            logger.info(f'poster       | {"True  |" if poster else "False |"} {poster}')
+            # logger.info(f'nameRu       | {"True  |" if name_ru else "False |"} {name_ru}')
+            # logger.info(f'nameOriginal | {"True  |" if name_orig else "False |"} {name_orig}')
+            # logger.info(f'year         | {"True  |" if request_data["filter"] else "False |"} {year}')
+            # logger.info(f'poster       | {"True  |" if poster else "False |"} {poster}')
+
+            logger.info(f'nameRu       | {self.if_value(name_ru)} {name_ru}')
+            logger.info(f'nameOriginal | {self.if_value(name_orig)} {name_orig}')
+            logger.info(f'year         | {self.if_value(request_data["filter"])} {year}')
+            logger.info(f'poster       | {self.if_value(poster)} {poster}')
 
             if name_ru and poster and request_data["filter"] and (name_ru or name_orig):
                 if self.is_placeholder_image(poster):
@@ -136,6 +149,9 @@ class KinopoiskApi(WebRequester):
                 return request_data
 
         request_data["data"] = {}
+        if not out:
+            msg_filter = color_text(Colors.RED, "not movie_data: {}")
+            logger.info(msg_filter)
         return request_data
 
     def get_data_people(self, kinopoisk_id: int, count_actor_save) -> dict:

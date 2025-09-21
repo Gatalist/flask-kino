@@ -17,6 +17,7 @@ class Settings:
 
     placeholder_hashes = [
         'fbf36d5f304807e57113972f88ab9170f428fc57d27607bf1bd889b974513fde',
+        '55b72143240a272c77e5337fce73649405a88d33cd61b8e358e4403c2f64d5e4'
     ]  # SHA256 хеш изображения-заглушки
 
     status_codes = {
@@ -71,5 +72,9 @@ class Settings:
         4: [
             os.getenv('KEY_25'), os.getenv('KEY_26'),
             os.getenv('KEY_27'), os.getenv('KEY_28'),
+            os.getenv('KEY_27'), os.getenv('KEY_29'),
+            os.getenv('KEY_27'), os.getenv('KEY_30'),
+            os.getenv('KEY_27'), os.getenv('KEY_31'),
+            os.getenv('KEY_27'), os.getenv('KEY_32'),
         ],
     }

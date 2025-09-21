@@ -294,7 +294,7 @@ class PostgresDB:
 
     def create_screen_movie(self, kinopoisk_id: int, list_value: list) -> list:
         logger.info("\n---------- Screenshot add db ----------")
-        logger.info(list_value)
+        # logger.info(list_value)
         screen = []
         if list_value:
             for src in list_value:
@@ -314,7 +314,7 @@ class PostgresDB:
 
     def get_or_create_similar(self, list_value) -> list | None:
         logger.info("\n---------- Similar add db ----------")
-        logger.info(list_value)
+        # logger.info(list_value)
         if list_value:
             lict_obj_id = []
             for key, val in list_value.items():
@@ -424,7 +424,7 @@ class PostgresDB:
 
                     res = self.fetch_one_dict(cursor, row)
                     person_id = res.get('id')
-                    logger.info(f"--- Person update [+] = {res} ---")
+                    # logger.info(f"--- Person update [+] = {res} ---")
                     _persons.append(person_id)
                 else:  # create person
                     person_photo = obj.get("image_url", None)
