@@ -334,12 +334,22 @@ class PostgresDB:
 
             return lict_obj_id
 
+    @staticmethod
+    def shorten_name(name: str, max_len: int = 64) -> str:
+        len_name = len(name)
+        allowed = max_len - len_name
+
+        if len_name > allowed:
+            return name[:allowed - 3] + "..."
+        return name
+
+
     def create_video(self, list_video: list) -> list:
         if list_video:
             videos = []
             for video in list_video:
                 site = video.get('site')
-                name = video.get('name')
+                name = self.shorten_name(video.get('name'))
                 url = video.get('url')
 
                 source = self.get_or_create(

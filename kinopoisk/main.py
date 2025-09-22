@@ -38,8 +38,8 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-start_id = 310_000
-end_id = 320_000
+start_id = 325_381
+end_id = 330_000
 
 if server_status == 200:
     # получение данных с api
