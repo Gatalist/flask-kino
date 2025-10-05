@@ -2,7 +2,7 @@ services:
     flask-postgres:
         container_name: flask_postgres
         image: postgres:16
-        restart: always
+        restart: unless-stopped
         env_file:
             - ./app/.env
         ports:
@@ -26,7 +26,7 @@ services:
             DB_USER: ${DB_USER}
             DB_PASSWORD: ${DB_PASS}
         command: "/bin/bash entrypoint.sh"
-        restart: always
+        restart: unless-stopped
         ports:
             - "5000:5000"
         depends_on:
@@ -58,7 +58,7 @@ services:
             - flask-app
         networks:
             - flask_app_network
-        restart: always
+        restart: unless-stopped
 
     # wireguard-vpn:
     #     image: linuxserver/wireguard

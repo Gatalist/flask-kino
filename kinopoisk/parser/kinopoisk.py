@@ -1,12 +1,10 @@
-import requests
 import hashlib
-
 from settings import Settings
 from .base_parser import WebRequester
 from tools.loguru_logger import logger
 from tools.file_manager import read_line_file
-
 from tools.tools import color_text, Colors
+from tools.usage_keys import UsageKeysToday
 
 
 class KinopoiskApi(WebRequester):
@@ -21,6 +19,9 @@ class KinopoiskApi(WebRequester):
         self.top_movie_api_url = f"{self.base_api_url}/api/v2.2/films/collections?type="
         self.list_api_key = list_api_key
         self.iter_key = iter(self.list_api_key)
+        self.count_keys = len(self.list_api_key)
+        self.usage_keys = UsageKeysToday()
+        self.number_key = 0
         self.current_key = None
         self.get_next_api_key()
         self.placeholder_hashes = Settings.placeholder_hashes
@@ -30,13 +31,19 @@ class KinopoiskApi(WebRequester):
         """Получаем следующий api ключ из списка"""
         try:
             self.current_key = next(self.iter_key)
+            if self.usage_keys.is_key_used(self.current_key):
+                already_used = color_text(Colors.RED, f"key already used limit today: {self.current_key}")
+                logger.info(f"{already_used} {self.number_key} / {self.count_keys}\n")
+                self.get_next_api_key()
+            self.number_key += 1
         except StopIteration:
             self.current_key = None
 
     def check_current_key(self):
         """Проверяем если закончились ключи то возвращаем 402 ошибку"""
         if self.current_key is None:
-            logger.info("[-] Больше нет API ключей\n")
+            check_key = color_text(Colors.YELLOW, '[-] Больше нет API ключей')
+            logger.info(f"{check_key}\n")
             response = self.new_base_response_dict()
             response["status_code"] = 402
             response["status"] = False
@@ -52,7 +59,9 @@ class KinopoiskApi(WebRequester):
         return header
 
     def request_data_from_api(self, parse_url, message) -> dict:
-        logger.info(f'----------- {message} ----------\napi_key: {self.current_key}\n')
+        check_key = color_text(Colors.YELLOW, f"api_key: {self.current_key}")
+        num_key = color_text(Colors.GREEN, f"{self.number_key} / {self.count_keys}")
+        logger.info(f'----------- {message} ----------\n{check_key} | {num_key}\n')
 
         status = self.check_current_key()
         if status:
@@ -65,6 +74,7 @@ class KinopoiskApi(WebRequester):
                 logger.info("[-] Не действительный API ключ\n")
             if request_data["status_code"] == 401:
                 logger.info("Превышен лимит запросов по ключу\n")
+            self.usage_keys.add_key(self.current_key)
             self.get_next_api_key()
 
             status = self.check_current_key()
@@ -128,11 +138,6 @@ class KinopoiskApi(WebRequester):
 
             request_data['filter'] = True if year >= start_from_year else False
 
-            # logger.info(f'nameRu       | {"True  |" if name_ru else "False |"} {name_ru}')
-            # logger.info(f'nameOriginal | {"True  |" if name_orig else "False |"} {name_orig}')
-            # logger.info(f'year         | {"True  |" if request_data["filter"] else "False |"} {year}')
-            # logger.info(f'poster       | {"True  |" if poster else "False |"} {poster}')
-
             logger.info(f'nameRu       | {self.if_value(name_ru)} {name_ru}')
             logger.info(f'nameOriginal | {self.if_value(name_orig)} {name_orig}')
             logger.info(f'year         | {self.if_value(request_data["filter"])} {year}')
@@ -195,19 +200,8 @@ class KinopoiskApi(WebRequester):
                 if _person.get('actor'):
                     actor.append(_person)
 
-            # print()
-            # print()
-            # print('default', "-" * 30)
-            # print('director', director, '\ncreator', creator, '\nactor', actor)
             actor = self.sorting_actors(list_actors=actor, count_actor_save=count_actor_save)
-            # print()
-            # print('sorted acror', "-" * 30)
-            # print('director', director, '\ncreator', creator, '\nactor', actor)
-            # print()
-            # print("-" * 30)
-            # print()
-            # request_data["data"] = {'director': director, 'creator': creator, 'actor': actor}
-            # print('new_response', request_data)
+
         return {'director': director, 'creator': creator, 'actor': actor}
 
     def get_data_similar(self, kinopoisk_id: int) -> dict:
