@@ -38,7 +38,7 @@ if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-start_id = 451_398
+start_id = 451_929
 end_id = 500_000
 
 if server_status == 200:
