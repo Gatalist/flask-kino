@@ -231,10 +231,14 @@ class KinopoiskApi(WebRequester):
         videos = []
         if video_movie_data.get("data"):
             data = video_movie_data.get("data").json()
+            # print("video_movie_data:", data)
             for elem in data['items']:
                 site = elem.get('site')
                 if site in scip_source:
                     continue
+                elif site == "YOUTUBE":
+                    url = elem.get("url").split("&")[0]
+                    elem["url"] = url
                 videos.append(elem)
 
         return videos

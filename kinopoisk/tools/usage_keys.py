@@ -5,12 +5,13 @@ from datetime import date
 
 class UsageKeysToday:
     def __init__(self):
-        self.usage_keys_file = './tools/keys_usage.json'
+        self.usage_keys_file = '/app/tools/keys_usage.json'
+        os.makedirs(os.path.dirname(self.usage_keys_file), exist_ok=True)
 
     def load_usage(self) -> dict:
         """Загружаем данные из файла"""
         # if not os.path.exists(self.usage_keys_file):
-        #     return {"date": str(date.today()), "keys": []}
+        #     raise FileNotFoundError
         with open(self.usage_keys_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 

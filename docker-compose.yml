@@ -100,7 +100,9 @@ services:
         environment:
             - FLASK_PORT=5000
         volumes:
+            - ./kinopoisk:/app
             - ./volume_media:/app/static/media
+
 #        network_mode: "service:wireguard-vpn"
         networks:
             - flask_app_network
