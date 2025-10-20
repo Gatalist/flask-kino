@@ -11,3 +11,4 @@ logs/*
 
 **backup
 **database
+app/kinopoisk/tools/keys_usage.json
