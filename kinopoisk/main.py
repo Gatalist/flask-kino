@@ -31,15 +31,15 @@ imdb_scraper.create_browser(imdb_scraper.get_user_agent())
 
 # проверяем статус подключения к серверу
 server_status, message = api_kinopoisk.check_resource_status(api_kinopoisk.base_api_url)
-logger.info(message)
+logger.info(f"{server_status=} {message=}")
 
 user_id = db.get_user(name='super-admin')
 if user_id:
     user_id = user_id.get("id")
 
 # min id = 298
-start_id = 605_481
-end_id = 700_000
+start_id = 915_261
+end_id = 950_000
 
 if server_status == 200:
     # получение данных с api
@@ -129,6 +129,10 @@ if server_status == 200:
                     path_names=['media', 'movie', str(_year), str(_kinopoisk_id)]
                 )
                 # logger.info(f"poster_url: {poster_url}")
+                if not poster_url:
+                    msg_break = color_text(Colors.YELLOW, '--------- Finish [ no poster image ]----------')
+                    logger.info(f'\n {msg_break}\n\n\n')
+                    continue
 
                 # save screen movie and return link list
                 if screenshots:
