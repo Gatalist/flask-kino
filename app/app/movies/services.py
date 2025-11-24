@@ -95,64 +95,102 @@ class FilterMovie(ContextData):
         print(filter_name, active_filter)
         return active_filter
 
+    # @staticmethod
+    # def activate_filter() -> object:
+    #     release = session.get('is_active_years')
+    #     genre = session.get('is_active_genres')
+    #     country = session.get('is_active_countries')
+    #     director = session.get('is_active_directors')
+    #     sorting = session.get('is_active_sorted')
+    #
+    #     joined_table = []
+    #     query = Movie.query
+    #     print("join_tables 1:", joined_table)
+    #
+    #     if release:
+    #         if "Release" not in joined_table:
+    #             query = query.join(Release, Movie.year_id == Release.id)
+    #             joined_table.append("Release")
+    #         query = query.filter(Release.id.in_(release))
+    #
+    #     if genre:
+    #         if "Genre" not in joined_table:
+    #             query = query.join(genre_movie).join(Genre)
+    #             joined_table.append("Genre")
+    #         query = query.options(joinedload(Movie.genres)).filter(Genre.id.in_(genre))
+    #
+    #     if country:
+    #         if "Country" not in joined_table:
+    #             query = query.join(country_movie).join(Country)
+    #             joined_table.append("Country")
+    #         query = query.options(joinedload(Movie.countries)).filter(Country.id.in_(country))
+    #
+    #     if director:
+    #         if "Director" not in joined_table:
+    #             query = query.join(director_movie).join(Person)
+    #             joined_table.append("Director")
+    #         query = query.options(joinedload(Movie.genres)).filter(Person.id.in_(director))
+    #
+    #     if sorting:
+    #         if sorting == "rating_asc" or sorting == "rating_desc":
+    #             if "RatingKinopoisk" not in joined_table:
+    #                 query = query.join(Rating, Movie.rating_kinopoisk_id == Rating.id)
+    #                 joined_table.append("RatingKinopoisk")
+    #
+    #             if sorting == "rating_asc":
+    #                 query = query.order_by(Rating.star.asc())
+    #
+    #             if sorting == "rating_desc":
+    #                 query = query.order_by(Rating.star.desc())
+    #
+    #         if sorting == "date_asc" or sorting == "date_desc":
+    #             if "Release" not in joined_table:
+    #                 query = query.join(Release, Movie.year_id == Release.id)
+    #                 joined_table.append("Release")
+    #
+    #             if sorting == "date_asc":
+    #                 query = query.order_by(Release.year.asc())
+    #
+    #             if sorting == "date_desc":
+    #                 query = query.order_by(Release.year.desc())
+    #
+    #     print("join_tables 2:", joined_table)
+    #     return query
+
     @staticmethod
-    def activate_filter() -> object:
+    def activate_filter():
         release = session.get('is_active_years')
-        genre = session.get('is_active_genres')
-        country = session.get('is_active_countries')
-        director = session.get('is_active_directors')
+        genres = session.get('is_active_genres')
+        countries = session.get('is_active_countries')
+        directors = session.get('is_active_directors')
         sorting = session.get('is_active_sorted')
 
-        joined_table = []
         query = Movie.query
-        print("join_tables 1:", joined_table)
 
+        # ----- Фильтры -----
         if release:
-            if "Release" not in joined_table:
-                query = query.join(Release, Movie.year_id == Release.id)
-                joined_table.append("Release")
-            query = query.filter(Release.id.in_(release))
+            query = query.filter(Movie.year_id.in_(release))
 
-        if genre:
-            if "Genre" not in joined_table:
-                query = query.join(genre_movie).join(Genre)
-                joined_table.append("Genre")
-            query = query.options(joinedload(Movie.genres)).filter(Genre.id.in_(genre))
+        if genres:
+            query = query.filter(Movie.genres.any(Genre.id.in_(genres)))
 
-        if country:
-            if "Country" not in joined_table:
-                query = query.join(country_movie).join(Country)
-                joined_table.append("Country")
-            query = query.options(joinedload(Movie.countries)).filter(Country.id.in_(country))
+        if countries:
+            query = query.filter(Movie.countries.any(Country.id.in_(countries)))
 
-        if director:
-            if "Director" not in joined_table:
-                query = query.join(director_movie).join(Person)
-                joined_table.append("Director")
-            query = query.options(joinedload(Movie.genres)).filter(Person.id.in_(director))
+        if directors:
+            query = query.filter(Movie.directors.any(Person.id.in_(directors)))
 
-        if sorting:
-            if sorting == "rating_asc" or sorting == "rating_desc":
-                if "RatingKinopoisk" not in joined_table:
-                    query = query.join(Rating, Movie.rating_kinopoisk_id == Rating.id)
-                    joined_table.append("RatingKinopoisk")
+        # ----- Сортировка -----
+        if sorting == "rating_asc":
+            query = query.join(Rating).order_by(Rating.star.asc())
 
-                if sorting == "rating_asc":
-                    query = query.order_by(Rating.star.asc())
+        elif sorting == "rating_desc":
+            query = query.join(Rating).order_by(Rating.star.desc())
 
-                if sorting == "rating_desc":
-                    query = query.order_by(Rating.star.desc())
+        elif sorting == "date_asc":
+            query = query.join(Release).order_by(Release.year.asc())
 
-            if sorting == "date_asc" or sorting == "date_desc":
-                if "Release" not in joined_table:
-                    query = query.join(Release, Movie.year_id == Release.id)
-                    joined_table.append("Release")
+        elif sorting == "date_desc":
+            query = query.join(Release).order_by(Release.year.desc())
 
-                if sorting == "date_asc":
-                    query = query.order_by(Release.year.asc())
-
-                if sorting == "date_desc":
-                    query = query.order_by(Release.year.desc())
-
-        print("join_tables 2:", joined_table)
         return query
