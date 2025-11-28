@@ -240,16 +240,24 @@
         {% endif %}
 
         <div class="row g-2 rounded p-2 flex-md-row mb-4 shadow-sm h-md-250 position-relative mt-4 card-background">
-            <div class="kinobox_player" style="width: 400px"></div>
-            <div class="uitools" id="videoplayers" style="height:370px;width:610px;background-image: url('//pleer.videoplayers.club/web/img/loader.gif');background-repeat: no-repeat;background-position: center;background-color: #ccc;"></div>
-            <script>
-                var dataUrl=window.location.href;
-                const kpId = {{ movie.kinopoisk_id }}
-                var my_script_play = document.createElement("script");
-                my_script_play.setAttribute("src","//js.espanplay.site/get_player?w=610&h=370&type=widget&kp_id=" + kpId + "&players=apicollaps,videocdn,hdvb,bazon,alloha,ustore,kodik,trailer&r_id=videoplayers&ani=COLLAPS&ati=&adi=&vni=VIDEOCDN&vti=&vdi=&hni=HDVB&hti=&hdi=&bni=BAZON&bti=&bdi=&alni=ALLOHATV&alti=&aldi=&usni=USTOREBZ&usti=&usdi=&koni=KODIK&koti=&kodi=&tti=&ru="+dataUrl);
-                my_script_play.async = true;
-                document.head.appendChild(my_script_play);
-            </script>
+<!--            <div class="kinobox_player" style="width: 400px"></div>-->
+<!--            <div class="uitools" id="videoplayers" style="height:370px;width:610px;background-image: url('//pleer.videoplayers.club/web/img/loader.gif');background-repeat: no-repeat;background-position: center;background-color: #ccc;"></div>-->
+<!--            <script>-->
+<!--                var dataUrl=window.location.href;-->
+<!--                const kpId = {{ movie.kinopoisk_id }}-->
+<!--                var my_script_play = document.createElement("script");-->
+<!--                my_script_play.setAttribute("src","//js.espanplay.site/get_player?w=610&h=370&type=widget&kp_id=" + kpId + "&players=apicollaps,videocdn,hdvb,bazon,alloha,ustore,kodik,trailer&r_id=videoplayers&ani=COLLAPS&ati=&adi=&vni=VIDEOCDN&vti=&vdi=&hni=HDVB&hti=&hdi=&bni=BAZON&bti=&bdi=&alni=ALLOHATV&alti=&aldi=&usni=USTOREBZ&usti=&usdi=&koni=KODIK&koti=&kodi=&tti=&ru="+dataUrl);-->
+<!--                my_script_play.async = true;-->
+<!--                document.head.appendChild(my_script_play);-->
+<!--            </script>-->
+            <iframe
+                src="https://kinodivbox.github.io/iframe?id={{ movie.kinopoisk_id }}"
+                width="100%"
+                height="600"
+                frameborder="0"
+                allowfullscreen
+                loading="lazy">
+            </iframe>
         </div>
 
         {% if movie.get_similar_movie %}

@@ -4,23 +4,39 @@ from app.settings import Config
 from .services import FilterMovie
 from .models import Movie
 from app.extensions import logger
+from sqlalchemy.orm import selectinload
 
 
 class HomeView(FilterMovie, MethodView):
+
     # @logger.catch
     def get(self):
+        print("get movie")
         self.create_context()
-
-        movies = self.filter_movie()
-        # movies = self.sort_movie(movie)
-        # print(movie.all())
-        # movies.filter(publish=True).all()
-
+        # query = Movie.query
+        movies = self.filter_movie(request.form)
+        print("movie filtered")
+        # --- пагинация ---
         page = request.args.get('page', 1, type=int)
-        print('page', page, type(page))
-        
         pages = movies.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
-        print(pages)
+        print("movie paginated")
+        movies = pages.items
+
+        movie_ids = [m.id for m in movies]
+        print("movie_ids:", movie_ids)
+
+        # --- догрузка связей через selectinload ---
+        if movie_ids:
+            (
+                Movie.query
+                .options(selectinload(Movie.genres))
+                .options(selectinload(Movie.countries))
+                .options(selectinload(Movie.director))
+                .options(selectinload(Movie.year))
+                .filter(Movie.id.in_(movie_ids))
+                .all()
+            )
+
         return render_template('index.html', pages=pages, **self.context)
 
     # @logger.catch
@@ -40,20 +56,39 @@ class MovieDetailView(MethodView):
 
 
 class MovieSearchView(FilterMovie, MethodView):
-    # @logger.catch
-    def get(self):
-        self.create_context()
 
-        movie = Movie.query
-        q = request.args.get('q')
+    def get(self):
+        print("search movie")
+        self.create_context()
+        page = request.args.get('page', 1, type=int)
+        q = request.args.get('q', '').strip()
         print("q", q)
-        if q:
-            search = movie.filter(Movie.name_ru.ilike(f"%{q}%"))
-            if not search:
-                search = []
-        else:
+        print("page", page)
+
+        if not q:
             return redirect('/')
 
-        page = request.args.get('page', 1, type=int)
+        # Основной запрос
+        search = (
+            Movie.query
+            .filter(Movie.name_ru.ilike(f"%{q}%"))
+        )
+
+        # Пагинация
+
         pages = search.paginate(page=page, per_page=Config.PAGINATE_ITEM_IN_PAGE)
-        return render_template('index.html', pages=pages, **self.context)
+
+        # Дозагрузка связей (как в HomeView)
+        movies = pages.items
+        if movies:
+            movie_ids = [m.id for m in movies]
+
+            (
+                Movie.query
+                .options(selectinload(Movie.genres))
+                .options(selectinload(Movie.year))
+                .filter(Movie.id.in_(movie_ids))
+                .all()
+            )
+
+        return render_template('index.html', pages=pages, q=q, **self.context)
