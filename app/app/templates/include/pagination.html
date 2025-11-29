@@ -2,7 +2,11 @@
   <ul class="pagination justify-content-center">
     {% if pages.has_prev %}
         <li class="page-item">
-          <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.prev_num, q=q) }}">&laquo;</a>
+            {% if q %}
+                <a class="page-link pagination-custom" href="{{ url_for('app_movies.movie_search', page=pages.prev_num, q=q) }}">&laquo;</a>
+            {% else %}
+                <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.prev_num) }}">&laquo;</a>
+            {% endif %}
         </li>
     {% else %}
         <li class="page-item">
@@ -17,9 +21,11 @@
                     <a class="page-link pagination-custom-active" href="#">{{ page }}</a>
                 </li>
             {% else %}
-                <li class="page-item">
-                    <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=page, q=q) }}">{{ page }}</a>
-                </li>
+                {% if q %}
+                    <a class="page-link pagination-custom" href="{{ url_for('app_movies.movie_search', page=page, q=q) }}">{{ page }}</a>
+                {% else %}
+                    <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=page) }}">{{ page }}</a>
+                {% endif %}
             {% endif %}
         {% else %}
             <li class="page-item">
@@ -29,9 +35,11 @@
     {% endfor %}
 
     {% if pages.has_next %}
-        <li class="page-item">
-          <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.next_num, q=q) }}">&raquo;</a>
-        </li>
+        {% if q %}
+            <a class="page-link pagination-custom" href="{{ url_for('app_movies.movie_search', page=pages.next_num, q=q) }}">&raquo;</a>
+        {% else %}
+            <a class="page-link pagination-custom" href="{{ url_for('app_movies.home', page=pages.next_num) }}">&raquo;</a>
+        {% endif %}
     {% else %}
         <li class="page-item">
             <a class="page-link pagination-custom-disabled">&raquo;</a>
